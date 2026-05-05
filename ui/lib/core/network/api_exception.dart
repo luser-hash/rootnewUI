@@ -1,0 +1,13 @@
+class ApiException implements Exception {
+  const ApiException({required this.message, this.statusCode, this.details});
+
+  final String message;
+  final int? statusCode;
+  final Object? details;
+
+  @override
+  String toString() {
+    final int? code = statusCode;
+    return code == null ? message : '[$code] $message';
+  }
+}

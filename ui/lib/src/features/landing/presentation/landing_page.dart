@@ -1,0 +1,1332 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/routing/route_names.dart';
+import '../../../../core/state/app_state.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../auth/domain/auth_session.dart';
+import '../../auth/presentation/auth_scope.dart';
+import '../../shared/finance.dart';
+import '../../shared/services/member_metrics.dart';
+import '../../shared/widgets/app_avatar.dart';
+import '../../shared/widgets/app_card_list.dart';
+import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/app_small_button.dart';
+import '../../shared/widgets/status_pills.dart';
+
+class _StatusBar extends StatelessWidget {
+  const _StatusBar({required this.dark});
+
+  final bool dark;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(height: dark ? 0 : 0);
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({
+    super.key,
+    required this.onNav,
+    required this.onMemberSelect,
+  });
+
+  final ValueChanged<String> onNav;
+  final void Function(Member member, int memberColorIdx) onMemberSelect;
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _balanceHidden = false;
+  bool _signingOut = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return SubmissionsBuilder(builder: _buildWithSubmissions);
+  }
+
+  Widget _buildWithSubmissions(List<Submission> submissions) {
+    final UserRole role = AuthScope.of(context).role;
+    final int totalCapital = MemberMetrics.totalActiveCapital(members);
+    final List<Submission> pendingSubs = submissions
+        .where((Submission s) => s.status == SubmissionStatus.pending)
+        .toList();
+    final int totalPending = pendingSubs.fold(
+      0,
+      (int sum, Submission s) => sum + s.amount,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        _buildHero(totalCapital, totalPending),
+        if (role.canViewApprovals && pendingSubs.isNotEmpty)
+          _buildAlert(pendingSubs.length),
+        _buildQuickActions(pendingSubs.length, role),
+        if (role.canViewMembers)
+          _MembersCarousel(
+            onNav: widget.onNav,
+            onMemberSelect: widget.onMemberSelect,
+          ),
+        _InvestmentsCarousel(onNav: widget.onNav),
+        _RecentActivitySection(onNav: widget.onNav),
+      ],
+    );
+  }
+
+  Widget _buildHero(int totalCapital, int totalPending) {
+    final AuthUser? user = AuthScope.of(context).session?.user;
+    final String displayName = _displayName(user);
+    final String initials = _initials(displayName);
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[
+            AppColors.primary,
+            AppColors.primaryDk,
+            Color(0xFF003830),
+          ],
+          stops: <double>[0, 0.6, 1],
+        ),
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: <Widget>[
+          Positioned(
+            top: -60,
+            right: -60,
+            child: Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: .04),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -80,
+            left: -40,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.accent.withValues(alpha: .08),
+              ),
+            ),
+          ),
+          Column(
+            children: <Widget>[
+              const _StatusBar(dark: true),
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          'আস-সালামু আলাইকুম,',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: .7),
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          displayName,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        _HeroIconButton(
+                          icon: _signingOut
+                              ? Icons.hourglass_empty_rounded
+                              : Icons.logout_rounded,
+                          tooltip: 'Sign out',
+                          onTap: _signingOut ? null : _handleSignOut,
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 42,
+                          height: 42,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: .15),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: .25),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Text(
+                            initials,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: .12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: .18),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Total Association Capital',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.white.withValues(alpha: .6),
+                        letterSpacing: 0.66,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          _balanceHidden ? '••••••' : fmtSh(totalCapital),
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -1,
+                            height: 1,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () =>
+                              setState(() => _balanceHidden = !_balanceHidden),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: .15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              _balanceHidden ? '🙈' : '👁',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withValues(alpha: .8),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: 1,
+                          height: 32,
+                          color: Colors.white.withValues(alpha: .2),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: <Widget>[
+                              Text(
+                                'Pending',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white.withValues(alpha: .5),
+                                ),
+                              ),
+                              Text(
+                                _balanceHidden ? '••••' : fmtSh(totalPending),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.accentLt,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '↑ ৳15,000 added this week · ${MemberMetrics.activeMemberCount(members)} active members',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.accent.withValues(alpha: .9),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlert(int pendingCount) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: <Color>[
+            AppColors.amber.withValues(alpha: .15),
+            AppColors.amber.withValues(alpha: .08),
+          ],
+        ),
+        border: Border.all(
+          color: AppColors.amber.withValues(alpha: .4),
+          width: 1.5,
+        ),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: <Widget>[
+          const Text('⚠️', style: TextStyle(fontSize: 22)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  '$pendingCount Pending Approvals',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.text,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  'Review submission requests',
+                  style: TextStyle(fontSize: 11, color: AppColors.textMute),
+                ),
+              ],
+            ),
+          ),
+          AppSmallButton(
+            label: 'Review',
+            background: AppColors.amber,
+            foreground: Colors.white,
+            onTap: () => widget.onNav(RouteNames.approvals),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActions(int pendingCount, UserRole role) {
+    final List<_QuickAction> actions = <_QuickAction>[
+      if (role.canSubmitFunds)
+        const _QuickAction(
+          icon: '📥',
+          label: 'Submit Funds',
+          color: Color(0xFFE8F5F3),
+        ),
+      if (role.canViewOwnProfile && role == UserRole.member)
+        const _QuickAction(
+          icon: '👤',
+          label: 'Profile',
+          color: AppColors.surface,
+          screen: RouteNames.profile,
+        ),
+      if (role.canViewApprovals)
+        _QuickAction(
+          icon: '📋',
+          label: 'Approvals',
+          color: AppColors.amberLt,
+          screen: RouteNames.approvals,
+          badge: pendingCount,
+        ),
+      const _QuickAction(
+        icon: '📊',
+        label: 'Investments',
+        color: AppColors.blueLt,
+        screen: RouteNames.investments,
+      ),
+      if (role.canViewMembers)
+        const _QuickAction(
+          icon: '👥',
+          label: 'Members',
+          color: AppColors.purpleLt,
+          screen: RouteNames.members,
+        ),
+      const _QuickAction(
+        icon: '📖',
+        label: 'Ledger',
+        color: AppColors.greenLt,
+        screen: RouteNames.ledger,
+      ),
+      if (role.canDistribute)
+        const _QuickAction(
+          icon: '📤',
+          label: 'Distribute',
+          color: Color(0xFFFEF0F0),
+        ),
+      if (role.canViewOwnReports)
+        const _QuickAction(
+          icon: '📈',
+          label: 'Reports',
+          color: Color(0xFFFFF8ED),
+        ),
+      if (role.canManagePermissions)
+        const _QuickAction(
+          icon: '⚙️',
+          label: 'Permissions',
+          color: AppColors.surface,
+        ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Text(
+            'Quick Actions',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textMid,
+            ),
+          ),
+          const SizedBox(height: 14),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: actions.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              mainAxisExtent: 110,
+            ),
+            itemBuilder: (BuildContext context, int index) {
+              final _QuickAction action = actions[index];
+              return InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: action.screen == null
+                    ? null
+                    : () => widget.onNav(action.screen!),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(4, 14, 4, 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: <BoxShadow>[
+                      AppColors.softShadow(opacity: 0.06, blur: 8),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: <Widget>[
+                          Container(
+                            width: 46,
+                            height: 46,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: action.color,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Text(
+                              action.icon,
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          ),
+                          if (action.badge > 0)
+                            Positioned(
+                              top: -4,
+                              right: -4,
+                              child: Container(
+                                width: 16,
+                                height: 16,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: AppColors.red,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.white,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Text(
+                                  '${action.badge}',
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    height: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        action.label,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          height: 1.3,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textMid,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleSignOut() async {
+    setState(() => _signingOut = true);
+
+    await AuthScope.of(context).signOut();
+
+    if (mounted) {
+      setState(() => _signingOut = false);
+    }
+  }
+
+  String _displayName(AuthUser? user) {
+    final String? name = user?.name.trim();
+    if (name != null && name.isNotEmpty) {
+      return name;
+    }
+
+    final String? phone = user?.phone.trim();
+    if (phone != null && phone.isNotEmpty) {
+      return phone;
+    }
+
+    return 'Member';
+  }
+
+  String _initials(String value) {
+    final List<String> parts = value
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((String part) => part.isNotEmpty)
+        .toList();
+
+    if (parts.isEmpty) {
+      return 'M';
+    }
+
+    if (parts.length == 1) {
+      return _leadingChars(parts.first, 2).toUpperCase();
+    }
+
+    return '${_leadingChars(parts.first, 1)}${_leadingChars(parts.last, 1)}'
+        .toUpperCase();
+  }
+
+  String _leadingChars(String value, int count) {
+    return String.fromCharCodes(value.runes.take(count));
+  }
+}
+
+class _HeroIconButton extends StatelessWidget {
+  const _HeroIconButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.white.withValues(alpha: .15),
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: SizedBox(
+            width: 42,
+            height: 42,
+            child: Icon(icon, size: 20, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickAction {
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.screen,
+    this.badge = 0,
+  });
+
+  final String icon;
+  final String label;
+  final Color color;
+  final String? screen;
+  final int badge;
+}
+
+class _MembersCarousel extends StatelessWidget {
+  const _MembersCarousel({required this.onNav, required this.onMemberSelect});
+
+  final ValueChanged<String> onNav;
+  final void Function(Member member, int memberColorIdx) onMemberSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Members',
+      actionLabel: 'See All →',
+      onAction: () => onNav(RouteNames.members),
+      child: SizedBox(
+        height: 110,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          itemCount: members.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 10),
+          itemBuilder: (BuildContext context, int index) {
+            final Member member = members[index];
+            return InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => onMemberSelect(member, index),
+              child: Container(
+                width: 72,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: <BoxShadow>[
+                    AppColors.softShadow(opacity: 0.15, blur: 8),
+                  ],
+                ),
+                child: Column(
+                  children: <Widget>[
+                    AppAvatar(
+                      initials: member.initials,
+                      color: avatarColor(index),
+                      size: 44,
+                      radius: 14,
+                      active: member.status == MemberStatus.active,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      member.name.split(' ').first,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        height: 1.3,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textMid,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      fmtSh(member.capital),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textMute,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _InvestmentsCarousel extends StatelessWidget {
+  const _InvestmentsCarousel({required this.onNav});
+
+  final ValueChanged<String> onNav;
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Investments',
+      actionLabel: 'See All →',
+      onAction: () => onNav(RouteNames.investments),
+      child: SizedBox(
+        height: 165,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          itemCount: investments.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 12),
+          itemBuilder: (BuildContext context, int index) =>
+              _InvestmentChip(inv: investments[index]),
+        ),
+      ),
+    );
+  }
+}
+
+class _RecentActivitySection extends StatelessWidget {
+  const _RecentActivitySection({required this.onNav});
+
+  final ValueChanged<String> onNav;
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Recent Activity',
+      actionLabel: 'Ledger →',
+      onAction: () => onNav(RouteNames.ledger),
+      paddingBottom: 24,
+      child: AppCardList(
+        children: txns
+            .map((TransactionItem t) => _TransactionRow(txn: t))
+            .toList(),
+      ),
+    );
+  }
+}
+
+class _Section extends StatelessWidget {
+  const _Section({
+    required this.title,
+    required this.child,
+    this.actionLabel,
+    this.onAction,
+    this.paddingBottom = 0,
+  });
+
+  final String title;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final Widget child;
+  final double paddingBottom;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 20, 16, paddingBottom),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.text,
+                ),
+              ),
+              if (actionLabel != null)
+                TextButton(
+                  onPressed: onAction,
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    actionLabel!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _TransactionRow extends StatelessWidget {
+  const _TransactionRow({this.txn, this.submission, this.isLast = false});
+
+  final TransactionItem? txn;
+  final Submission? submission;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool fromTxn = txn != null;
+    final TxnType type =
+        txn?.type ??
+        (submission!.status == SubmissionStatus.approved
+            ? TxnType.incoming
+            : TxnType.outgoing);
+    final Color iconBg = switch (type) {
+      TxnType.incoming => AppColors.greenLt,
+      TxnType.outgoing => AppColors.redLt,
+      TxnType.distribution => AppColors.blueLt,
+    };
+    final Color iconColor = switch (type) {
+      TxnType.incoming => AppColors.green,
+      TxnType.outgoing => AppColors.red,
+      TxnType.distribution => AppColors.blue,
+    };
+    final String icon =
+        txn?.icon ??
+        (submission!.status == SubmissionStatus.approved
+            ? '✓'
+            : submission!.status == SubmissionStatus.rejected
+            ? '✕'
+            : '⏳');
+    final String label =
+        txn?.label ?? '${submission!.type} · ${submission!.channel}';
+    final String sub = txn?.sub ?? '${submission!.date} · ${submission!.id}';
+    final int amount = txn?.amount ?? submission!.amount;
+    final String date = txn?.date ?? '';
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: isLast
+              ? BorderSide.none
+              : const BorderSide(color: AppColors.border),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Text(
+              icon,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: iconColor,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  label,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.text,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  sub,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textMute,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              Text(
+                '${fromTxn && amount > 0 ? '+' : ''}${fmt(amount)}',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: iconColor,
+                ),
+              ),
+              const SizedBox(height: 2),
+              fromTxn
+                  ? Text(
+                      date,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textMute,
+                      ),
+                    )
+                  : SubmissionStatusPill(status: submission!.status),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InvestmentChip extends StatelessWidget {
+  const _InvestmentChip({required this.inv});
+
+  final Investment inv;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color border = inv.status == InvestmentStatus.open
+        ? AppColors.primary.withValues(alpha: .3)
+        : inv.status == InvestmentStatus.draft
+        ? AppColors.amber.withValues(alpha: .3)
+        : Colors.transparent;
+    final int? pnl = inv.pnl;
+    return Container(
+      width: 210,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: border, width: 1.5),
+        boxShadow: <BoxShadow>[AppColors.softShadow()],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          InvestmentStatusPill(status: inv.status),
+          const SizedBox(height: 10),
+          Text(
+            inv.title,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.text,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            inv.to,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 11, color: AppColors.textMute),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            fmt(inv.amount),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: AppColors.text,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            pnl == null
+                ? 'P&L Pending'
+                : '${pnl >= 0 ? '+' : ''}${fmt(pnl)} P&L',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: pnl == null
+                  ? AppColors.textMute
+                  : pnl >= 0
+                  ? AppColors.green
+                  : AppColors.red,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MemberDetailScreen extends StatelessWidget {
+  const MemberDetailScreen({
+    super.key,
+    required this.member,
+    required this.colorIdx,
+    required this.onBack,
+  });
+
+  final Member member;
+  final int colorIdx;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return SubmissionsBuilder(builder: _buildWithSubmissions);
+  }
+
+  Widget _buildWithSubmissions(List<Submission> submissions) {
+    final int totalCapital = MemberMetrics.totalActiveCapital(members);
+    final int pct = MemberMetrics.capitalSharePercent(
+      memberCapital: member.capital,
+      totalCapital: totalCapital,
+    );
+    final List<Submission> mySubs = submissions
+        .where((Submission s) => s.member == member.name)
+        .toList();
+
+    return Column(
+      children: <Widget>[
+        _MemberDetailHeader(member: member, colorIdx: colorIdx, onBack: onBack),
+        _CapitalCard(member: member, pct: pct, colorIdx: colorIdx),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: _StatCard(
+                  icon: '📋',
+                  value: '${mySubs.length}',
+                  label: 'Submissions',
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _StatCard(
+                  icon: '✓',
+                  value:
+                      '${mySubs.where((Submission s) => s.status == SubmissionStatus.approved).length}',
+                  label: 'Approved',
+                ),
+              ),
+            ],
+          ),
+        ),
+        _Section(
+          title: 'Submission History',
+          paddingBottom: 24,
+          child: AppCardList(
+            children: mySubs.isEmpty
+                ? <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Center(
+                        child: Text(
+                          'No submissions yet',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textMute,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ]
+                : mySubs
+                      .asMap()
+                      .entries
+                      .map(
+                        (MapEntry<int, Submission> entry) => _TransactionRow(
+                          submission: entry.value,
+                          isLast: entry.key == mySubs.length - 1,
+                        ),
+                      )
+                      .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MemberDetailHeader extends StatelessWidget {
+  const _MemberDetailHeader({
+    required this.member,
+    required this.colorIdx,
+    required this.onBack,
+  });
+
+  final Member member;
+  final int colorIdx;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[AppColors.primary, Color(0xFF004A40)],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const _StatusBar(dark: true),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 10, 0, 16),
+            child: Row(
+              children: <Widget>[
+                Material(
+                  color: Colors.white.withValues(alpha: .15),
+                  borderRadius: BorderRadius.circular(10),
+                  child: InkWell(
+                    onTap: onBack,
+                    borderRadius: BorderRadius.circular(10),
+                    child: const SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: Center(
+                        child: Text(
+                          '←',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Text(
+                  'Member Profile',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: <Widget>[
+              AppAvatar(
+                initials: member.initials,
+                color: avatarColor(colorIdx),
+                size: 64,
+                radius: 20,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      member.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Member ID: ${member.id}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: .7),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    AppPill(
+                      label: member.status.label,
+                      background: member.status == MemberStatus.active
+                          ? AppColors.green.withValues(alpha: .25)
+                          : Colors.white.withValues(alpha: .15),
+                      foreground: member.status == MemberStatus.active
+                          ? const Color(0xFF6EFCB8)
+                          : Colors.white.withValues(alpha: .7),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CapitalCard extends StatelessWidget {
+  const _CapitalCard({
+    required this.member,
+    required this.pct,
+    required this.colorIdx,
+  });
+
+  final Member member;
+  final int pct;
+  final int colorIdx;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: <BoxShadow>[AppColors.softShadow()],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Text(
+            'AUTHORIZED CAPITAL',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textMute,
+              letterSpacing: 0.55,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            fmt(member.capital),
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: AppColors.text,
+            ),
+          ),
+          if (member.pending > 0)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                '+${fmt(member.pending)} pending (not counted)',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.amber,
+                ),
+              ),
+            ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: pct / 100,
+              minHeight: 8,
+              backgroundColor: AppColors.surface,
+              color: avatarColor(colorIdx),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '$pct% of total association capital',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textMute,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  const _StatCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  final String icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.15, blur: 8)],
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(icon, style: const TextStyle(fontSize: 18)),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.text,
+                ),
+              ),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textMute,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
