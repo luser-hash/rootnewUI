@@ -1,0 +1,120 @@
+enum MemberLedgerEntryType {
+  submission('SUBMISSION', 'Submission'),
+  withdraw('WITHDRAW', 'Withdraw'),
+  adjustment('ADJUSTMENT', 'Adjustment'),
+  distribution('DISTRIBUTION', 'Distribution'),
+  distributionReversal('DISTRIBUTION_REVERSAL', 'Distribution Reversal');
+
+  const MemberLedgerEntryType(this.apiValue, this.label);
+
+  final String apiValue;
+  final String label;
+
+  factory MemberLedgerEntryType.fromApi(String? value) {
+    return switch (value?.trim().toUpperCase()) {
+      'WITHDRAW' => MemberLedgerEntryType.withdraw,
+      'ADJUSTMENT' => MemberLedgerEntryType.adjustment,
+      'DISTRIBUTION' => MemberLedgerEntryType.distribution,
+      'DISTRIBUTION_REVERSAL' => MemberLedgerEntryType.distributionReversal,
+      _ => MemberLedgerEntryType.submission,
+    };
+  }
+}
+
+class MemberLedgerFilter {
+  const MemberLedgerFilter({this.entryType, this.fromDate, this.toDate});
+
+  final MemberLedgerEntryType? entryType;
+  final DateTime? fromDate;
+  final DateTime? toDate;
+
+  bool get hasFilters {
+    return entryType != null || fromDate != null || toDate != null;
+  }
+
+  Map<String, String> toQueryParams() {
+    return <String, String>{
+      if (entryType != null) 'entry_type': entryType!.apiValue,
+      if (fromDate != null) 'from_date': _formatDate(fromDate!),
+      if (toDate != null) 'to_date': _formatDate(toDate!),
+    };
+  }
+
+  String _formatDate(DateTime value) {
+    final String month = value.month.toString().padLeft(2, '0');
+    final String day = value.day.toString().padLeft(2, '0');
+    return '${value.year}-$month-$day';
+  }
+}
+
+class MemberLedgerStatement {
+  const MemberLedgerStatement({
+    required this.currentBalance,
+    required this.pendingTotal,
+    required this.entryCount,
+    required this.entries,
+  });
+
+  final String currentBalance;
+  final String pendingTotal;
+  final int entryCount;
+  final List<MemberLedgerEntry> entries;
+
+  factory MemberLedgerStatement.fromJson(Map<String, dynamic> json) {
+    final Object? entries = json['entries'];
+    return MemberLedgerStatement(
+      currentBalance: '${json['current_balance'] ?? '0.00'}',
+      pendingTotal: '${json['pending_total'] ?? '0.00'}',
+      entryCount: json['entry_count'] is int
+          ? json['entry_count'] as int
+          : int.tryParse('${json['entry_count'] ?? 0}') ?? 0,
+      entries: entries is List<dynamic>
+          ? entries
+                .whereType<Map<String, dynamic>>()
+                .map(MemberLedgerEntry.fromJson)
+                .toList()
+          : <MemberLedgerEntry>[],
+    );
+  }
+}
+
+class MemberLedgerEntry {
+  const MemberLedgerEntry({
+    required this.ledgerId,
+    required this.entryType,
+    required this.amount,
+    required this.currency,
+    required this.txnDate,
+    required this.referenceType,
+    required this.referenceId,
+    required this.comment,
+    required this.createdByName,
+    required this.createdAt,
+  });
+
+  final String ledgerId;
+  final MemberLedgerEntryType entryType;
+  final String amount;
+  final String currency;
+  final String txnDate;
+  final String referenceType;
+  final String referenceId;
+  final String comment;
+  final String createdByName;
+  final DateTime? createdAt;
+
+  factory MemberLedgerEntry.fromJson(Map<String, dynamic> json) {
+    return MemberLedgerEntry(
+      ledgerId: '${json['ledger_id'] ?? ''}',
+      entryType: MemberLedgerEntryType.fromApi(json['entry_type'] as String?),
+      amount: '${json['amount'] ?? '0.00'}',
+      currency: '${json['currency'] ?? 'BDT'}',
+      txnDate: '${json['txn_date'] ?? ''}',
+      referenceType: '${json['reference_type'] ?? ''}',
+      referenceId: '${json['reference_id'] ?? ''}',
+      comment: '${json['comment'] ?? ''}',
+      createdByName: '${json['created_by_name'] ?? ''}',
+      createdAt: DateTime.tryParse('${json['created_at'] ?? ''}'),
+    );
+  }
+}

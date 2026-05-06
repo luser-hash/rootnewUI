@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../auth/domain/auth_session.dart';
+import '../../auth/presentation/auth_scope.dart';
 import '../../shared/finance.dart';
 import '../../shared/services/member_metrics.dart';
 import '../../shared/widgets/app_avatar.dart';
@@ -8,8 +10,9 @@ import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
 
 class MembersPage extends StatelessWidget {
-  const MembersPage({super.key, required this.onSelect});
+  const MembersPage({super.key, required this.onAdd, required this.onSelect});
 
+  final VoidCallback onAdd;
   final void Function(Member member, int index) onSelect;
 
   @override
@@ -18,7 +21,7 @@ class MembersPage extends StatelessWidget {
 
     return Column(
       children: <Widget>[
-        const _MembersHeader(),
+        _MembersHeader(onAdd: onAdd),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
           child: Container(
@@ -29,7 +32,9 @@ class MembersPage extends StatelessWidget {
               boxShadow: <BoxShadow>[AppColors.softShadow()],
             ),
             child: Column(
-              children: members.asMap().entries.map((MapEntry<int, Member> entry) {
+              children: members.asMap().entries.map((
+                MapEntry<int, Member> entry,
+              ) {
                 final int index = entry.key;
                 final Member member = entry.value;
                 final int pct = MemberMetrics.capitalSharePercent(
@@ -131,10 +136,14 @@ class MembersPage extends StatelessWidget {
 }
 
 class _MembersHeader extends StatelessWidget {
-  const _MembersHeader();
+  const _MembersHeader({required this.onAdd});
+
+  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) {
+    final UserRole role = AuthScope.of(context).role;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
       decoration: const BoxDecoration(
@@ -159,12 +168,13 @@ class _MembersHeader extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                AppSmallButton(
-                  label: '+ Add',
-                  background: AppColors.accent,
-                  foreground: Colors.white,
-                  onTap: () {},
-                ),
+                if (role.canManageMembers)
+                  AppSmallButton(
+                    label: '+ Add',
+                    background: AppColors.accent,
+                    foreground: Colors.white,
+                    onTap: onAdd,
+                  ),
               ],
             ),
           ),
@@ -193,4 +203,3 @@ class _MembersHeader extends StatelessWidget {
     );
   }
 }
-

@@ -354,6 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: '📥',
           label: 'Submit Funds',
           color: Color(0xFFE8F5F3),
+          screen: RouteNames.submitFunds,
         ),
       if (role.canViewOwnProfile && role == UserRole.member)
         const _QuickAction(
@@ -361,6 +362,13 @@ class _HomeScreenState extends State<HomeScreen> {
           label: 'Profile',
           color: AppColors.surface,
           screen: RouteNames.profile,
+        ),
+      if (role.canViewOwnSubmissions)
+        const _QuickAction(
+          icon: '🧾',
+          label: 'Submissions',
+          color: AppColors.amberLt,
+          screen: RouteNames.submissions,
         ),
       if (role.canViewApprovals)
         _QuickAction(
@@ -383,11 +391,13 @@ class _HomeScreenState extends State<HomeScreen> {
           color: AppColors.purpleLt,
           screen: RouteNames.members,
         ),
-      const _QuickAction(
+      _QuickAction(
         icon: '📖',
         label: 'Ledger',
         color: AppColors.greenLt,
-        screen: RouteNames.ledger,
+        screen: role == UserRole.member
+            ? RouteNames.memberLedger
+            : RouteNames.ledger,
       ),
       if (role.canDistribute)
         const _QuickAction(
@@ -726,10 +736,14 @@ class _RecentActivitySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final UserRole role = AuthScope.of(context).role;
+
     return _Section(
       title: 'Recent Activity',
       actionLabel: 'Ledger →',
-      onAction: () => onNav(RouteNames.ledger),
+      onAction: () => onNav(
+        role == UserRole.member ? RouteNames.memberLedger : RouteNames.ledger,
+      ),
       paddingBottom: 24,
       child: AppCardList(
         children: txns

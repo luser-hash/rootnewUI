@@ -1,0 +1,449 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/routing/route_names.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../shared/widgets/app_pill.dart';
+import '../data/capital_submission_repository.dart';
+import '../domain/capital_submission_request.dart';
+import 'submission_list_controller.dart';
+
+class SubmissionsPage extends StatefulWidget {
+  const SubmissionsPage({super.key, required this.repository});
+
+  final CapitalSubmissionRepository repository;
+
+  @override
+  State<SubmissionsPage> createState() => _SubmissionsPageState();
+}
+
+class _SubmissionsPageState extends State<SubmissionsPage> {
+  late final SubmissionListController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = SubmissionListController(repository: widget.repository);
+    _controller.load();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (BuildContext context, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            const _SubmissionsHeader(),
+            _StatusFilterBar(
+              selected: _controller.status,
+              onSelected: (CapitalSubmissionStatus? status) {
+                _controller.load(status: status);
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              child: _buildBody(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildBody() {
+    if (_controller.isLoading) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 36),
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+
+    final String? error = _controller.errorMessage;
+    if (error != null) {
+      return _MessageCard(
+        icon: Icons.error_outline,
+        message: error,
+        background: AppColors.redLt,
+        foreground: AppColors.red,
+      );
+    }
+
+    if (_controller.submissions.isEmpty) {
+      return const _MessageCard(
+        icon: Icons.inbox_outlined,
+        message: 'No submissions found for this filter.',
+        background: AppColors.surface,
+        foreground: AppColors.textMute,
+      );
+    }
+
+    return Column(
+      children: _controller.submissions
+          .map(
+            (CapitalSubmission submission) => _SubmissionCard(
+              submission: submission,
+              onTap: () {
+                context.push(RouteNames.submissionDetail(submission.requestId));
+              },
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _SubmissionsHeader extends StatelessWidget {
+  const _SubmissionsHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[
+            AppColors.primary,
+            AppColors.primaryDk,
+            Color(0xFF003830),
+          ],
+        ),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'My Submissions',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              height: 1.15,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Track your submitted fund requests and review status.',
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.45,
+              fontWeight: FontWeight.w600,
+              color: Color(0xCFFFFFFF),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusFilterBar extends StatelessWidget {
+  const _StatusFilterBar({required this.selected, required this.onSelected});
+
+  final CapitalSubmissionStatus? selected;
+  final ValueChanged<CapitalSubmissionStatus?> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<({String label, CapitalSubmissionStatus? status})> filters =
+        <({String label, CapitalSubmissionStatus? status})>[
+          (label: 'All', status: null),
+          for (final CapitalSubmissionStatus status
+              in CapitalSubmissionStatus.values)
+            (label: status.label, status: status),
+        ];
+
+    return SizedBox(
+      height: 64,
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+        scrollDirection: Axis.horizontal,
+        itemCount: filters.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (BuildContext context, int index) {
+          final ({String label, CapitalSubmissionStatus? status}) filter =
+              filters[index];
+          final String label = filter.label;
+          final CapitalSubmissionStatus? status = filter.status;
+          final bool active = selected == status;
+          return ChoiceChip(
+            selected: active,
+            label: Text(label),
+            showCheckmark: false,
+            selectedColor: AppColors.primary,
+            backgroundColor: AppColors.white,
+            side: BorderSide(
+              color: active ? AppColors.primary : AppColors.border,
+            ),
+            labelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: active ? Colors.white : AppColors.textMid,
+            ),
+            onSelected: (_) => onSelected(status),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SubmissionCard extends StatelessWidget {
+  const _SubmissionCard({required this.submission, required this.onTap});
+
+  final CapitalSubmission submission;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.white,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: <BoxShadow>[
+              AppColors.softShadow(opacity: 0.10, blur: 10),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    width: 44,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: _statusBackground(submission.status),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      _statusIcon(submission.status),
+                      size: 22,
+                      color: _statusForeground(submission.status),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          submission.requestType.label,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.text,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '${submission.paymentChannel.label} · ${submission.txnDate}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textMute,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _SubmissionStatusPill(status: submission.status),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Text(
+                '৳${submission.amount}',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.text,
+                  height: 1,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _DetailLine(
+                label: 'Reference',
+                value: submission.externalReference,
+              ),
+              _DetailLine(label: 'Notes', value: submission.notes),
+              if (submission.reviewedBy != null)
+                _DetailLine(
+                  label: 'Reviewed By',
+                  value: submission.reviewedBy!.fullName,
+                ),
+              if ((submission.rejectionReason ?? '').trim().isNotEmpty)
+                _DetailLine(
+                  label: 'Rejection Reason',
+                  value: submission.rejectionReason!,
+                  valueColor: AppColors.red,
+                ),
+              if ((submission.resultingLedgerId ?? '').trim().isNotEmpty)
+                _DetailLine(
+                  label: 'Ledger ID',
+                  value: submission.resultingLedgerId!,
+                ),
+              const SizedBox(height: 4),
+              const Align(
+                alignment: Alignment.centerRight,
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  size: 22,
+                  color: AppColors.textMute,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailLine extends StatelessWidget {
+  const _DetailLine({
+    required this.label,
+    required this.value,
+    this.valueColor = AppColors.text,
+  });
+
+  final String label;
+  final String value;
+  final Color valueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 7),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            width: 96,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textMute,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value.isEmpty ? '-' : value,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.3,
+                fontWeight: FontWeight.w700,
+                color: valueColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SubmissionStatusPill extends StatelessWidget {
+  const _SubmissionStatusPill({required this.status});
+
+  final CapitalSubmissionStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppPill(
+      label: status.label,
+      background: _statusBackground(status),
+      foreground: _statusForeground(status),
+    );
+  }
+}
+
+class _MessageCard extends StatelessWidget {
+  const _MessageCard({
+    required this.icon,
+    required this.message,
+    required this.background,
+    required this.foreground,
+  });
+
+  final IconData icon;
+  final String message;
+  final Color background;
+  final Color foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: foreground.withValues(alpha: .18)),
+      ),
+      child: Row(
+        children: <Widget>[
+          Icon(icon, color: foreground),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                fontSize: 13,
+                height: 1.35,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textMid,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Color _statusBackground(CapitalSubmissionStatus status) {
+  return switch (status) {
+    CapitalSubmissionStatus.pending => AppColors.amberLt,
+    CapitalSubmissionStatus.approved => AppColors.greenLt,
+    CapitalSubmissionStatus.rejected => AppColors.redLt,
+  };
+}
+
+Color _statusForeground(CapitalSubmissionStatus status) {
+  return switch (status) {
+    CapitalSubmissionStatus.pending => AppColors.amber,
+    CapitalSubmissionStatus.approved => AppColors.green,
+    CapitalSubmissionStatus.rejected => AppColors.red,
+  };
+}
+
+IconData _statusIcon(CapitalSubmissionStatus status) {
+  return switch (status) {
+    CapitalSubmissionStatus.pending => Icons.schedule_rounded,
+    CapitalSubmissionStatus.approved => Icons.check_rounded,
+    CapitalSubmissionStatus.rejected => Icons.close_rounded,
+  };
+}

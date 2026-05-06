@@ -102,10 +102,12 @@ enum UserRole {
 
 extension UserRolePermissions on UserRole {
   bool get canViewHome => this != UserRole.unknown;
-  bool get canSubmitFunds => this != UserRole.unknown;
+  bool get canSubmitFunds => this == UserRole.member;
+  bool get canViewOwnSubmissions => this == UserRole.member;
   bool get canViewOwnProfile => this != UserRole.unknown;
   bool get canViewApprovals => _isAdminOrAbove;
   bool get canViewMembers => _isAdminOrAbove;
+  bool get canManageMembers => _isAdminOrAbove;
   bool get canViewOwnInvestments => this != UserRole.unknown;
   bool get canViewAllInvestments => _isAdminOrAbove;
   bool get canViewOwnLedger => this != UserRole.unknown;

@@ -8,10 +8,20 @@ class RouteNames {
   static const String login = '/login';
   static const String home = '/';
   static const String profile = '/profile';
+  static const String submitFunds = '/submit-funds';
+  static const String submissions = '/submissions';
+  static const String submissionDetailSegment = ':requestId';
   static const String approvals = '/approvals';
   static const String investments = '/investments';
   static const String members = '/members';
+  static const String manageMembers = '/members/manage';
+  static const String manageMembersSegment = 'manage';
   static const String memberDetail = '/members/detail';
   static const String memberDetailSegment = 'detail';
   static const String ledger = '/ledger';
+  static const String memberLedger = '/member-ledger';
+
+  static String submissionDetail(String requestId) {
+    return '$submissions/$requestId';
+  }
 }

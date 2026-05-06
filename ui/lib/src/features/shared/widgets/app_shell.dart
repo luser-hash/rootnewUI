@@ -13,16 +13,17 @@ class AppShell extends StatelessWidget {
   final Widget child;
 
   String _activeTab(UserRole role) {
+    if (location.startsWith(RouteNames.members)) {
+      return role.canViewMembers ? RouteNames.members : RouteNames.home;
+    }
+
     if (<String>{
       RouteNames.profile,
       RouteNames.approvals,
       RouteNames.investments,
-      RouteNames.members,
       RouteNames.ledger,
+      RouteNames.memberLedger,
     }.contains(location)) {
-      if (location == RouteNames.members && !role.canViewMembers) {
-        return RouteNames.home;
-      }
       return location;
     }
     return RouteNames.home;
@@ -71,7 +72,10 @@ List<_TabSpec> _tabsForRole(UserRole role) {
     const _TabSpec(id: RouteNames.investments, icon: '📊', label: 'Invest'),
     if (role.canViewMembers)
       const _TabSpec(id: RouteNames.members, icon: '👥', label: 'Members'),
-    const _TabSpec(id: RouteNames.ledger, icon: '📖', label: 'Ledger'),
+    if (role == UserRole.member)
+      const _TabSpec(id: RouteNames.memberLedger, icon: '📖', label: 'Ledger'),
+    if (role.canViewAllLedger)
+      const _TabSpec(id: RouteNames.ledger, icon: '📖', label: 'Ledger'),
   ];
 }
 

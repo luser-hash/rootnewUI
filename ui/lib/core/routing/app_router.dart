@@ -8,10 +8,18 @@ import '../../src/features/auth/domain/auth_session.dart';
 import '../../src/features/investments/presentation/investment_page.dart';
 import '../../src/features/landing/presentation/landing_page.dart';
 import '../../src/features/ledger/presentation/ledger_page.dart';
+import '../../src/features/ledger/data/member_ledger_repository.dart';
+import '../../src/features/ledger/presentation/member_ledger.dart';
+import '../../src/features/members/data/member_management_repository.dart';
+import '../../src/features/members/presentation/manage_members.dart';
 import '../../src/features/members/presentation/members_page.dart';
 import '../../src/features/profile/presentation/profile_page.dart';
 import '../../src/features/shared/finance.dart';
 import '../../src/features/shared/widgets/app_shell.dart';
+import '../../src/features/submissions/data/capital_submission_repository.dart';
+import '../../src/features/submissions/presentation/submission_detail_page.dart';
+import '../../src/features/submissions/presentation/submissions_page.dart';
+import '../../src/features/submissions/presentation/submit_funds_page.dart';
 import 'route_names.dart';
 
 /// Centralized route configuration for the entire application.
@@ -21,7 +29,12 @@ import 'route_names.dart';
 class AppRouter {
   AppRouter._();
 
-  static GoRouter router(AuthController authController) {
+  static GoRouter router({
+    required AuthController authController,
+    required CapitalSubmissionRepository capitalSubmissionRepository,
+    required MemberLedgerRepository memberLedgerRepository,
+    required MemberManagementRepository memberManagementRepository,
+  }) {
     return GoRouter(
       initialLocation: RouteNames.login,
       refreshListenable: authController,
@@ -77,6 +90,37 @@ class AppRouter {
               },
             ),
             GoRoute(
+              path: RouteNames.submitFunds,
+              builder: (BuildContext context, GoRouterState state) {
+                return _scroll(
+                  SubmitFundsPage(repository: capitalSubmissionRepository),
+                );
+              },
+            ),
+            GoRoute(
+              path: RouteNames.submissions,
+              builder: (BuildContext context, GoRouterState state) {
+                return _scroll(
+                  SubmissionsPage(repository: capitalSubmissionRepository),
+                );
+              },
+              routes: <RouteBase>[
+                GoRoute(
+                  path: RouteNames.submissionDetailSegment,
+                  builder: (BuildContext context, GoRouterState state) {
+                    final String requestId =
+                        state.pathParameters['requestId'] ?? '';
+                    return _scroll(
+                      SubmissionDetailPage(
+                        repository: capitalSubmissionRepository,
+                        requestId: requestId,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            GoRoute(
               path: RouteNames.approvals,
               builder: (BuildContext context, GoRouterState state) {
                 return _scroll(const ApprovalPage());
@@ -93,6 +137,7 @@ class AppRouter {
               builder: (BuildContext context, GoRouterState state) {
                 return _scroll(
                   MembersPage(
+                    onAdd: () => context.push(RouteNames.manageMembers),
                     onSelect: (Member member, int memberColorIdx) {
                       context.push(
                         RouteNames.memberDetail,
@@ -106,6 +151,16 @@ class AppRouter {
                 );
               },
               routes: <RouteBase>[
+                GoRoute(
+                  path: RouteNames.manageMembersSegment,
+                  builder: (BuildContext context, GoRouterState state) {
+                    return _scroll(
+                      ManageMembersPage(
+                        repository: memberManagementRepository,
+                      ),
+                    );
+                  },
+                ),
                 GoRoute(
                   path: RouteNames.memberDetailSegment,
                   builder: (BuildContext context, GoRouterState state) {
@@ -135,6 +190,14 @@ class AppRouter {
                 return _scroll(const LedgerPage());
               },
             ),
+            GoRoute(
+              path: RouteNames.memberLedger,
+              builder: (BuildContext context, GoRouterState state) {
+                return _scroll(
+                  MemberLedgerPage(repository: memberLedgerRepository),
+                );
+              },
+            ),
           ],
         ),
       ],
@@ -152,10 +215,26 @@ class AppRouter {
     if (location == RouteNames.approvals && !role.canViewApprovals) {
       return RouteNames.home;
     }
+    if (location == RouteNames.submitFunds && !role.canSubmitFunds) {
+      return RouteNames.home;
+    }
+    if (location.startsWith(RouteNames.submissions) &&
+        !role.canViewOwnSubmissions) {
+      return RouteNames.home;
+    }
     if (location.startsWith(RouteNames.members) && !role.canViewMembers) {
       return RouteNames.home;
     }
+    if (location == RouteNames.manageMembers && !role.canManageMembers) {
+      return RouteNames.home;
+    }
     if (location == RouteNames.profile && !role.canViewOwnProfile) {
+      return RouteNames.home;
+    }
+    if (location == RouteNames.ledger && !role.canViewAllLedger) {
+      return RouteNames.home;
+    }
+    if (location == RouteNames.memberLedger && role != UserRole.member) {
       return RouteNames.home;
     }
 
