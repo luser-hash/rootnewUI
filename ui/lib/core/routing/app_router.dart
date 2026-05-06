@@ -191,7 +191,7 @@ class AppRouter {
             GoRoute(
               path: RouteNames.ledger,
               builder: (BuildContext context, GoRouterState state) {
-                return _scroll(const LedgerPage());
+                return _scroll(LedgerPage(repository: memberLedgerRepository));
               },
             ),
             GoRoute(

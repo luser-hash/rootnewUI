@@ -19,4 +19,17 @@ class MemberLedgerApi {
       data is Map<String, dynamic> ? data : response,
     );
   }
+
+  Future<AdminLedgerStatement> adminLedger(MemberLedgerFilter filter) async {
+    final Map<String, String> queryParams = filter.toQueryParams();
+    final Uri uri = Uri(
+      path: '/ledger/admin/',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
+    final Map<String, dynamic> response = await _apiClient.get(uri.toString());
+    final Object? data = response['data'];
+    return AdminLedgerStatement.fromJson(
+      data is Map<String, dynamic> ? data : response,
+    );
+  }
 }

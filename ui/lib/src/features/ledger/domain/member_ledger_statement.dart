@@ -22,14 +22,23 @@ enum MemberLedgerEntryType {
 }
 
 class MemberLedgerFilter {
-  const MemberLedgerFilter({this.entryType, this.fromDate, this.toDate});
+  const MemberLedgerFilter({
+    this.entryType,
+    this.fromDate,
+    this.toDate,
+    this.userId,
+  });
 
   final MemberLedgerEntryType? entryType;
   final DateTime? fromDate;
   final DateTime? toDate;
+  final String? userId;
 
   bool get hasFilters {
-    return entryType != null || fromDate != null || toDate != null;
+    return entryType != null ||
+        fromDate != null ||
+        toDate != null ||
+        (userId?.trim().isNotEmpty ?? false);
   }
 
   Map<String, String> toQueryParams() {
@@ -37,6 +46,7 @@ class MemberLedgerFilter {
       if (entryType != null) 'entry_type': entryType!.apiValue,
       if (fromDate != null) 'from_date': _formatDate(fromDate!),
       if (toDate != null) 'to_date': _formatDate(toDate!),
+      if (userId?.trim().isNotEmpty ?? false) 'user_id': userId!.trim(),
     };
   }
 
@@ -44,6 +54,37 @@ class MemberLedgerFilter {
     final String month = value.month.toString().padLeft(2, '0');
     final String day = value.day.toString().padLeft(2, '0');
     return '${value.year}-$month-$day';
+  }
+}
+
+class AdminLedgerStatement {
+  const AdminLedgerStatement({
+    required this.totalIn,
+    required this.totalOut,
+    required this.entryCount,
+    required this.entries,
+  });
+
+  final String totalIn;
+  final String totalOut;
+  final int entryCount;
+  final List<MemberLedgerEntry> entries;
+
+  factory AdminLedgerStatement.fromJson(Map<String, dynamic> json) {
+    final Object? entries = json['entries'];
+    return AdminLedgerStatement(
+      totalIn: '${json['total_in'] ?? '0.00'}',
+      totalOut: '${json['total_out'] ?? '0.00'}',
+      entryCount: json['entry_count'] is int
+          ? json['entry_count'] as int
+          : int.tryParse('${json['entry_count'] ?? 0}') ?? 0,
+      entries: entries is List<dynamic>
+          ? entries
+                .whereType<Map<String, dynamic>>()
+                .map(MemberLedgerEntry.fromJson)
+                .toList()
+          : <MemberLedgerEntry>[],
+    );
   }
 }
 
@@ -81,6 +122,9 @@ class MemberLedgerStatement {
 class MemberLedgerEntry {
   const MemberLedgerEntry({
     required this.ledgerId,
+    required this.userId,
+    required this.memberName,
+    required this.memberContact,
     required this.entryType,
     required this.amount,
     required this.currency,
@@ -93,6 +137,9 @@ class MemberLedgerEntry {
   });
 
   final String ledgerId;
+  final String userId;
+  final String memberName;
+  final String memberContact;
   final MemberLedgerEntryType entryType;
   final String amount;
   final String currency;
@@ -106,6 +153,9 @@ class MemberLedgerEntry {
   factory MemberLedgerEntry.fromJson(Map<String, dynamic> json) {
     return MemberLedgerEntry(
       ledgerId: '${json['ledger_id'] ?? ''}',
+      userId: '${json['user_id'] ?? ''}',
+      memberName: '${json['member_name'] ?? ''}',
+      memberContact: '${json['member_contact'] ?? ''}',
       entryType: MemberLedgerEntryType.fromApi(json['entry_type'] as String?),
       amount: '${json['amount'] ?? '0.00'}',
       currency: '${json['currency'] ?? 'BDT'}',
