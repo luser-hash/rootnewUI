@@ -40,12 +40,16 @@ class _ApprovalPageState extends State<ApprovalPage> {
     super.dispose();
   }
 
-  void _approve(String id) {
+  Future<void> _approve(String id) async {
+    final bool approved = await _queueController.approve(id);
+    if (!mounted || !approved) {
+      return;
+    }
+
     setState(() {
       _successVisible = true;
     });
     AppState.updateSubmissionStatus(id, SubmissionStatus.approved);
-    _queueController.remove(id);
     _successTimer?.cancel();
     _successTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) {
@@ -55,6 +59,10 @@ class _ApprovalPageState extends State<ApprovalPage> {
   }
 
   void _reject(String id) {
+    if (_queueController.isApproving) {
+      return;
+    }
+
     AppState.updateSubmissionStatus(id, SubmissionStatus.rejected);
     _queueController.remove(id);
   }
@@ -93,6 +101,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
             _PendingSubmissionList(
               pending: pending,
               isLoading: _queueController.isLoading,
+              approvingRequestId: _queueController.approvingRequestId,
               errorMessage: _queueController.errorMessage,
               onApprove: _approve,
               onReject: _reject,
@@ -262,6 +271,7 @@ class _PendingSubmissionList extends StatelessWidget {
   const _PendingSubmissionList({
     required this.pending,
     required this.isLoading,
+    required this.approvingRequestId,
     required this.errorMessage,
     required this.onApprove,
     required this.onReject,
@@ -269,6 +279,7 @@ class _PendingSubmissionList extends StatelessWidget {
 
   final List<SubmissionQueueItem> pending;
   final bool isLoading;
+  final String? approvingRequestId;
   final String? errorMessage;
   final ValueChanged<String> onApprove;
   final ValueChanged<String> onReject;
@@ -299,28 +310,32 @@ class _PendingSubmissionList extends StatelessWidget {
                 child: CircularProgressIndicator(color: AppColors.primary),
               ),
             )
-          else if (errorMessage != null)
-            _QueueMessageCard(
-              icon: Icons.error_outline,
-              message: errorMessage!,
-              background: AppColors.redLt,
-              foreground: AppColors.red,
-            )
-          else if (pending.isEmpty)
-            const _QueueMessageCard(
-              icon: Icons.inbox_outlined,
-              message: 'No submissions are awaiting review.',
-              background: AppColors.surface,
-              foreground: AppColors.textMute,
-            )
-          else
-            ...pending.map(
-              (SubmissionQueueItem s) => _SubmissionCard(
-                submission: s,
-                onApprove: onApprove,
-                onReject: onReject,
+          else ...<Widget>[
+            if (errorMessage != null)
+              _QueueMessageCard(
+                icon: Icons.error_outline,
+                message: errorMessage!,
+                background: AppColors.redLt,
+                foreground: AppColors.red,
               ),
-            ),
+            if (pending.isEmpty && errorMessage == null)
+              const _QueueMessageCard(
+                icon: Icons.inbox_outlined,
+                message: 'No submissions are awaiting review.',
+                background: AppColors.surface,
+                foreground: AppColors.textMute,
+              )
+            else
+              ...pending.map(
+                (SubmissionQueueItem s) => _SubmissionCard(
+                  submission: s,
+                  isApproving: approvingRequestId == s.requestId,
+                  isActionLocked: approvingRequestId != null,
+                  onApprove: onApprove,
+                  onReject: onReject,
+                ),
+              ),
+          ],
         ],
       ),
     );
@@ -330,11 +345,15 @@ class _PendingSubmissionList extends StatelessWidget {
 class _SubmissionCard extends StatelessWidget {
   const _SubmissionCard({
     required this.submission,
+    required this.isApproving,
+    required this.isActionLocked,
     required this.onApprove,
     required this.onReject,
   });
 
   final SubmissionQueueItem submission;
+  final bool isApproving;
+  final bool isActionLocked;
   final ValueChanged<String> onApprove;
   final ValueChanged<String> onReject;
 
@@ -460,16 +479,22 @@ class _SubmissionCard extends StatelessWidget {
                     label: '✕ Reject',
                     background: AppColors.redLt,
                     foreground: AppColors.red,
-                    onTap: () => onReject(submission.requestId),
+                    onTap: isActionLocked
+                        ? null
+                        : () => onReject(submission.requestId),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: AppActionButton(
-                    label: '✓ Approve',
-                    background: AppColors.primary,
+                    label: isApproving ? 'Approving...' : '✓ Approve',
+                    background: isActionLocked && !isApproving
+                        ? AppColors.textMute
+                        : AppColors.primary,
                     foreground: Colors.white,
-                    onTap: () => onApprove(submission.requestId),
+                    onTap: isActionLocked
+                        ? null
+                        : () => onApprove(submission.requestId),
                   ),
                 ),
               ],

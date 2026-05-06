@@ -12,11 +12,18 @@ class ApprovalQueueController extends ChangeNotifier {
   final CapitalSubmissionRepository _repository;
 
   bool _isLoading = false;
+  String? _approvingRequestId;
+  String? _rejectingRequestId;
   String? _errorMessage;
   PaymentChannel? _paymentChannel;
   SubmissionApprovalQueue? _queue;
 
   bool get isLoading => _isLoading;
+  String? get approvingRequestId => _approvingRequestId;
+  String? get rejectingRequestId => _rejectingRequestId;
+  bool get isApproving => _approvingRequestId != null;
+  bool get isRejecting => _rejectingRequestId != null;
+  bool get hasActionInFlight => isApproving || isRejecting;
   String? get errorMessage => _errorMessage;
   PaymentChannel? get paymentChannel => _paymentChannel;
   SubmissionApprovalQueue? get queue => _queue;
@@ -41,6 +48,62 @@ class ApprovalQueueController extends ChangeNotifier {
       _errorMessage = 'Unable to load approval queue. Please try again.';
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> approve(String requestId) async {
+    if (hasActionInFlight) {
+      return false;
+    }
+
+    _approvingRequestId = requestId;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _repository.approve(requestId);
+      remove(requestId);
+      return true;
+    } on ApiException catch (error) {
+      _errorMessage = error.message;
+      return false;
+    } catch (_) {
+      _errorMessage = 'Unable to approve submission. Please try again.';
+      return false;
+    } finally {
+      _approvingRequestId = null;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> reject(
+    String requestId, {
+    required String rejectionReason,
+  }) async {
+    if (hasActionInFlight) {
+      return false;
+    }
+
+    _rejectingRequestId = requestId;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _repository.reject(
+        requestId,
+        rejectionReason: rejectionReason,
+      );
+      remove(requestId);
+      return true;
+    } on ApiException catch (error) {
+      _errorMessage = error.message;
+      return false;
+    } catch (_) {
+      _errorMessage = 'Unable to reject submission. Please try again.';
+      return false;
+    } finally {
+      _rejectingRequestId = null;
       notifyListeners();
     }
   }

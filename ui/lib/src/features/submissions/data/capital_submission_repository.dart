@@ -7,6 +7,11 @@ abstract class CapitalSubmissionRepository {
   Future<CapitalSubmission> detail(String requestId);
   Future<SubmissionApprovalQueue> queue({PaymentChannel? paymentChannel});
   Future<void> create(CapitalSubmissionRequest request);
+  Future<CapitalSubmission> approve(String requestId);
+  Future<CapitalSubmission> reject(
+    String requestId, {
+    required String rejectionReason,
+  });
 }
 
 class ApiCapitalSubmissionRepository implements CapitalSubmissionRepository {
@@ -33,5 +38,18 @@ class ApiCapitalSubmissionRepository implements CapitalSubmissionRepository {
   @override
   Future<void> create(CapitalSubmissionRequest request) async {
     await _api.create(request);
+  }
+
+  @override
+  Future<CapitalSubmission> approve(String requestId) {
+    return _api.approve(requestId);
+  }
+
+  @override
+  Future<CapitalSubmission> reject(
+    String requestId, {
+    required String rejectionReason,
+  }) {
+    return _api.reject(requestId, rejectionReason: rejectionReason);
   }
 }

@@ -56,4 +56,29 @@ class CapitalSubmissionApi {
   Future<Map<String, dynamic>> create(CapitalSubmissionRequest request) {
     return _apiClient.post('/submission/', body: request.toJson());
   }
+
+  Future<CapitalSubmission> approve(String requestId) async {
+    final Map<String, dynamic> response = await _apiClient.post(
+      '/submission/$requestId/approve/',
+      body: <String, dynamic>{},
+    );
+    final Object? data = response['data'];
+    return CapitalSubmission.fromJson(
+      data is Map<String, dynamic> ? data : response,
+    );
+  }
+
+  Future<CapitalSubmission> reject(
+    String requestId, {
+    required String rejectionReason,
+  }) async {
+    final Map<String, dynamic> response = await _apiClient.post(
+      '/submission/$requestId/reject/',
+      body: <String, dynamic>{'rejection_reason': rejectionReason},
+    );
+    final Object? data = response['data'];
+    return CapitalSubmission.fromJson(
+      data is Map<String, dynamic> ? data : response,
+    );
+  }
 }
