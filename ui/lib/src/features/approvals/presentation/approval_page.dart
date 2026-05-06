@@ -10,6 +10,7 @@ import '../../shared/widgets/status_pills.dart';
 import '../../submissions/data/capital_submission_repository.dart';
 import '../../submissions/domain/capital_submission_request.dart';
 import '../../submissions/domain/submission_approval_queue.dart';
+import '../../submissions/domain/submission_history.dart';
 import 'approval_queue_controller.dart';
 
 class ApprovalPage extends StatefulWidget {
@@ -31,6 +32,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
     super.initState();
     _queueController = ApprovalQueueController(repository: widget.repository);
     _queueController.load();
+    _queueController.loadHistory();
   }
 
   @override
@@ -96,11 +98,10 @@ class _ApprovalPageState extends State<ApprovalPage> {
     );
   }
 
-  Widget _buildWithSubmissions(List<Submission> submissions) {
-    final List<Submission> reviewed = submissions
-        .where((Submission s) => s.status != SubmissionStatus.pending)
-        .toList();
+  Widget _buildWithSubmissions(List<Submission> _) {
     final List<SubmissionQueueItem> pending = _queueController.results;
+    final List<SubmissionHistoryItem> reviewed =
+        _queueController.historyResults;
 
     return Stack(
       children: <Widget>[
@@ -108,7 +109,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             _ApprovalHeader(
-              subs: submissions,
+              reviewed: reviewed,
               pendingCount: _queueController.count,
             ),
             _PaymentChannelFilter(
@@ -126,8 +127,14 @@ class _ApprovalPageState extends State<ApprovalPage> {
               onApprove: _approve,
               onReject: _reject,
             ),
-            if (reviewed.isNotEmpty)
-              _ReviewedSubmissionList(reviewed: reviewed),
+            if (_queueController.isHistoryLoading ||
+                _queueController.historyErrorMessage != null ||
+                reviewed.isNotEmpty)
+              _ReviewedSubmissionList(
+                reviewed: reviewed,
+                isLoading: _queueController.isHistoryLoading,
+                errorMessage: _queueController.historyErrorMessage,
+              ),
           ],
         ),
         if (_successVisible)
@@ -192,7 +199,7 @@ class _RejectionReasonDialogState extends State<_RejectionReasonDialog> {
         ),
       ),
       actions: <Widget>[
-        TextButton(onPressed: _close, child: const Text('Cancel')),
+        TextButton(onPressed: () => _close(), child: const Text('Cancel')),
         FilledButton(onPressed: _submit, child: const Text('Reject')),
       ],
     );
@@ -248,9 +255,9 @@ class _PaymentChannelFilter extends StatelessWidget {
 }
 
 class _ApprovalHeader extends StatelessWidget {
-  const _ApprovalHeader({required this.subs, required this.pendingCount});
+  const _ApprovalHeader({required this.reviewed, required this.pendingCount});
 
-  final List<Submission> subs;
+  final List<SubmissionHistoryItem> reviewed;
   final int pendingCount;
 
   @override
@@ -261,12 +268,12 @@ class _ApprovalHeader extends StatelessWidget {
       (
         label: 'Approved',
         value:
-            '${subs.where((Submission s) => s.status == SubmissionStatus.approved).length}',
+            '${reviewed.where((SubmissionHistoryItem s) => s.status == CapitalSubmissionStatus.approved).length}',
       ),
       (
         label: 'Rejected',
         value:
-            '${subs.where((Submission s) => s.status == SubmissionStatus.rejected).length}',
+            '${reviewed.where((SubmissionHistoryItem s) => s.status == CapitalSubmissionStatus.rejected).length}',
       ),
     ];
 
@@ -681,6 +688,48 @@ class _DetailBox extends StatelessWidget {
   }
 }
 
+class _DetailTextBlock extends StatelessWidget {
+  const _DetailTextBlock({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textMute,
+              letterSpacing: 0.4,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              height: 1.35,
+              fontWeight: FontWeight.w700,
+              color: AppColors.text,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 String _initials(String name) {
   final List<String> parts = name
       .trim()
@@ -710,9 +759,15 @@ String _formatRequestedAt(DateTime? value) {
 }
 
 class _ReviewedSubmissionList extends StatelessWidget {
-  const _ReviewedSubmissionList({required this.reviewed});
+  const _ReviewedSubmissionList({
+    required this.reviewed,
+    required this.isLoading,
+    required this.errorMessage,
+  });
 
-  final List<Submission> reviewed;
+  final List<SubmissionHistoryItem> reviewed;
+  final bool isLoading;
+  final String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -733,94 +788,267 @@ class _ReviewedSubmissionList extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: <BoxShadow>[AppColors.softShadow()],
-            ),
-            child: Column(
-              children: reviewed.asMap().entries.map((
-                MapEntry<int, Submission> entry,
-              ) {
-                final Submission s = entry.value;
-                final bool approved = s.status == SubmissionStatus.approved;
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: entry.key == reviewed.length - 1
-                          ? BorderSide.none
-                          : const BorderSide(color: AppColors.border),
-                    ),
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        width: 36,
-                        height: 36,
-                        alignment: Alignment.center,
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            )
+          else if (errorMessage != null)
+            _QueueMessageCard(
+              icon: Icons.error_outline,
+              message: errorMessage!,
+              background: AppColors.redLt,
+              foreground: AppColors.red,
+            )
+          else
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: <BoxShadow>[AppColors.softShadow()],
+              ),
+              child: Column(
+                children: reviewed.asMap().entries.map((
+                  MapEntry<int, SubmissionHistoryItem> entry,
+                ) {
+                  final SubmissionHistoryItem s = entry.value;
+                  final double amount = double.tryParse(s.amount) ?? 0;
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _showReviewedDetails(context, s),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
-                          color: approved ? AppColors.greenLt : AppColors.redLt,
-                          borderRadius: BorderRadius.circular(12),
+                          border: Border(
+                            bottom: entry.key == reviewed.length - 1
+                                ? BorderSide.none
+                                : const BorderSide(color: AppColors.border),
+                          ),
                         ),
-                        child: Text(
-                          approved ? '✓' : '✕',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: <Widget>[
-                            Text(
-                              s.member,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.text,
+                            Container(
+                              width: 36,
+                              height: 36,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: s.isApproved
+                                    ? AppColors.greenLt
+                                    : AppColors.redLt,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                s.isApproved ? '✓' : '✕',
+                                style: const TextStyle(fontSize: 16),
                               ),
                             ),
-                            Text(
-                              '${s.type} · ${s.date}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppColors.textMute,
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    s.memberName,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.text,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${s.requestType.label} · ${s.txnDate}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.textMute,
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                Text(
+                                  fmt(amount),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.text,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                SubmissionStatusPill(
+                                  status: _sharedStatus(s.status),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          Text(
-                            fmt(s.amount),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.text,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          SubmissionStatusPill(status: s.status),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
-          ),
         ],
       ),
     );
   }
+
+  void _showReviewedDetails(
+    BuildContext context,
+    SubmissionHistoryItem submission,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+      builder: (BuildContext context) {
+        final double amount = double.tryParse(submission.amount) ?? 0;
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Container(
+                      width: 42,
+                      height: 42,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: submission.isApproved
+                            ? AppColors.greenLt
+                            : AppColors.redLt,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        submission.isApproved ? '✓' : '✕',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            submission.memberName,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.text,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            submission.memberContact.isEmpty
+                                ? submission.requestId
+                                : submission.memberContact,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textMute,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SubmissionStatusPill(
+                      status: _sharedStatus(submission.status),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  fmt(amount),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.text,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  childAspectRatio: 2.45,
+                  children: <Widget>[
+                    _DetailBox(
+                      label: 'Type',
+                      value: submission.requestType.label,
+                    ),
+                    _DetailBox(
+                      label: 'Channel',
+                      value: submission.paymentChannel.label,
+                    ),
+                    _DetailBox(label: 'Txn Date', value: submission.txnDate),
+                    _DetailBox(
+                      label: 'Reviewed',
+                      value: _formatRequestedAt(submission.reviewedAt),
+                    ),
+                    _DetailBox(
+                      label: 'Reference',
+                      value: submission.externalReference.isEmpty
+                          ? '-'
+                          : submission.externalReference,
+                    ),
+                    _DetailBox(
+                      label: 'Reviewed By',
+                      value: submission.reviewedBy?.fullName ?? '-',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                _DetailTextBlock(
+                  label: 'Request ID',
+                  value: submission.requestId,
+                ),
+                if ((submission.reviewedBy?.userId ?? '').isNotEmpty)
+                  ...<Widget>[
+                    const SizedBox(height: 8),
+                    _DetailTextBlock(
+                      label: 'Reviewer ID',
+                      value: submission.reviewedBy!.userId,
+                    ),
+                  ],
+                if (submission.rejectionReason.trim().isNotEmpty) ...<Widget>[
+                  const SizedBox(height: 8),
+                  _DetailTextBlock(
+                    label: 'Rejection Reason',
+                    value: submission.rejectionReason,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+SubmissionStatus _sharedStatus(CapitalSubmissionStatus status) {
+  return switch (status) {
+    CapitalSubmissionStatus.approved => SubmissionStatus.approved,
+    CapitalSubmissionStatus.rejected => SubmissionStatus.rejected,
+    CapitalSubmissionStatus.pending => SubmissionStatus.pending,
+  };
 }
 
 class _SuccessOverlay extends StatelessWidget {

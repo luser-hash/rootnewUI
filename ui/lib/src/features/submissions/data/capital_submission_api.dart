@@ -1,6 +1,7 @@
 import '../../../../core/network/api_client.dart';
 import '../domain/capital_submission_request.dart';
 import '../domain/submission_approval_queue.dart';
+import '../domain/submission_history.dart';
 
 class CapitalSubmissionApi {
   const CapitalSubmissionApi(this._apiClient);
@@ -49,6 +50,25 @@ class CapitalSubmissionApi {
     final Map<String, dynamic> response = await _apiClient.get(uri.toString());
     final Object? data = response['data'];
     return SubmissionApprovalQueue.fromJson(
+      data is Map<String, dynamic> ? data : response,
+    );
+  }
+
+  Future<SubmissionHistory> history({
+    CapitalSubmissionStatus? status,
+    CapitalRequestType? requestType,
+  }) async {
+    final Map<String, String> queryParameters = <String, String>{
+      if (status != null) 'status': status.apiValue,
+      if (requestType != null) 'request_type': requestType.apiValue,
+    };
+    final Uri uri = Uri(
+      path: '/submission/history/',
+      queryParameters: queryParameters.isEmpty ? null : queryParameters,
+    );
+    final Map<String, dynamic> response = await _apiClient.get(uri.toString());
+    final Object? data = response['data'];
+    return SubmissionHistory.fromJson(
       data is Map<String, dynamic> ? data : response,
     );
   }

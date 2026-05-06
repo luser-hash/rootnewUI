@@ -1,11 +1,16 @@
 import '../domain/capital_submission_request.dart';
 import '../domain/submission_approval_queue.dart';
+import '../domain/submission_history.dart';
 import 'capital_submission_api.dart';
 
 abstract class CapitalSubmissionRepository {
   Future<List<CapitalSubmission>> list({CapitalSubmissionStatus? status});
   Future<CapitalSubmission> detail(String requestId);
   Future<SubmissionApprovalQueue> queue({PaymentChannel? paymentChannel});
+  Future<SubmissionHistory> history({
+    CapitalSubmissionStatus? status,
+    CapitalRequestType? requestType,
+  });
   Future<void> create(CapitalSubmissionRequest request);
   Future<CapitalSubmission> approve(String requestId);
   Future<CapitalSubmission> reject(
@@ -33,6 +38,14 @@ class ApiCapitalSubmissionRepository implements CapitalSubmissionRepository {
   @override
   Future<SubmissionApprovalQueue> queue({PaymentChannel? paymentChannel}) {
     return _api.queue(paymentChannel: paymentChannel);
+  }
+
+  @override
+  Future<SubmissionHistory> history({
+    CapitalSubmissionStatus? status,
+    CapitalRequestType? requestType,
+  }) {
+    return _api.history(status: status, requestType: requestType);
   }
 
   @override
