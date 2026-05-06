@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -9,21 +7,36 @@ import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../../shared/widgets/status_pills.dart';
+import '../../submissions/data/capital_submission_repository.dart';
+import '../../submissions/domain/capital_submission_request.dart';
+import '../../submissions/domain/submission_approval_queue.dart';
+import 'approval_queue_controller.dart';
 
 class ApprovalPage extends StatefulWidget {
-  const ApprovalPage({super.key});
+  const ApprovalPage({super.key, required this.repository});
+
+  final CapitalSubmissionRepository repository;
 
   @override
   State<ApprovalPage> createState() => _ApprovalPageState();
 }
 
 class _ApprovalPageState extends State<ApprovalPage> {
+  late final ApprovalQueueController _queueController;
   bool _successVisible = false;
   Timer? _successTimer;
 
   @override
+  void initState() {
+    super.initState();
+    _queueController = ApprovalQueueController(repository: widget.repository);
+    _queueController.load();
+  }
+
+  @override
   void dispose() {
     _successTimer?.cancel();
+    _queueController.dispose();
     super.dispose();
   }
 
@@ -32,6 +45,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
       _successVisible = true;
     });
     AppState.updateSubmissionStatus(id, SubmissionStatus.approved);
+    _queueController.remove(id);
     _successTimer?.cancel();
     _successTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) {
@@ -42,33 +56,47 @@ class _ApprovalPageState extends State<ApprovalPage> {
 
   void _reject(String id) {
     AppState.updateSubmissionStatus(id, SubmissionStatus.rejected);
+    _queueController.remove(id);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SubmissionsBuilder(builder: _buildWithSubmissions);
+    return AnimatedBuilder(
+      animation: _queueController,
+      builder: (BuildContext context, _) {
+        return SubmissionsBuilder(builder: _buildWithSubmissions);
+      },
+    );
   }
 
   Widget _buildWithSubmissions(List<Submission> submissions) {
-    final List<Submission> pending = submissions
-        .where((Submission s) => s.status == SubmissionStatus.pending)
-        .toList();
     final List<Submission> reviewed = submissions
         .where((Submission s) => s.status != SubmissionStatus.pending)
         .toList();
+    final List<SubmissionQueueItem> pending = _queueController.results;
 
     return Stack(
       children: <Widget>[
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            _ApprovalHeader(subs: submissions, pendingCount: pending.length),
-            if (pending.isNotEmpty)
-              _PendingSubmissionList(
-                pending: pending,
-                onApprove: _approve,
-                onReject: _reject,
-              ),
+            _ApprovalHeader(
+              subs: submissions,
+              pendingCount: _queueController.count,
+            ),
+            _PaymentChannelFilter(
+              selected: _queueController.paymentChannel,
+              onSelected: (PaymentChannel? channel) {
+                _queueController.load(paymentChannel: channel);
+              },
+            ),
+            _PendingSubmissionList(
+              pending: pending,
+              isLoading: _queueController.isLoading,
+              errorMessage: _queueController.errorMessage,
+              onApprove: _approve,
+              onReject: _reject,
+            ),
             if (reviewed.isNotEmpty)
               _ReviewedSubmissionList(reviewed: reviewed),
           ],
@@ -78,6 +106,54 @@ class _ApprovalPageState extends State<ApprovalPage> {
             onClose: () => setState(() => _successVisible = false),
           ),
       ],
+    );
+  }
+}
+
+class _PaymentChannelFilter extends StatelessWidget {
+  const _PaymentChannelFilter({
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final PaymentChannel? selected;
+  final ValueChanged<PaymentChannel?> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<({String label, PaymentChannel? channel})> filters =
+        <({String label, PaymentChannel? channel})>[
+          (label: 'All', channel: null),
+          for (final PaymentChannel channel in PaymentChannel.values)
+            (label: channel.label, channel: channel),
+        ];
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      height: 54,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: filters.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (BuildContext context, int index) {
+          final ({String label, PaymentChannel? channel}) filter =
+              filters[index];
+          final bool active = selected == filter.channel;
+          return ChoiceChip(
+            selected: active,
+            label: Text(filter.label),
+            selectedColor: AppColors.primary,
+            backgroundColor: AppColors.white,
+            labelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: active ? Colors.white : AppColors.textMid,
+            ),
+            side: const BorderSide(color: AppColors.border),
+            onSelected: (_) => onSelected(filter.channel),
+          );
+        },
+      ),
     );
   }
 }
@@ -92,11 +168,7 @@ class _ApprovalHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<({String label, String value})>
     stats = <({String label, String value})>[
-      (
-        label: 'Pending',
-        value:
-            '${subs.where((Submission s) => s.status == SubmissionStatus.pending).length}',
-      ),
+      (label: 'Pending', value: '$pendingCount'),
       (
         label: 'Approved',
         value:
@@ -189,11 +261,15 @@ class _ApprovalHeader extends StatelessWidget {
 class _PendingSubmissionList extends StatelessWidget {
   const _PendingSubmissionList({
     required this.pending,
+    required this.isLoading,
+    required this.errorMessage,
     required this.onApprove,
     required this.onReject,
   });
 
-  final List<Submission> pending;
+  final List<SubmissionQueueItem> pending;
+  final bool isLoading;
+  final String? errorMessage;
   final ValueChanged<String> onApprove;
   final ValueChanged<String> onReject;
 
@@ -216,13 +292,35 @@ class _PendingSubmissionList extends StatelessWidget {
               ),
             ),
           ),
-          ...pending.map(
-            (Submission s) => _SubmissionCard(
-              submission: s,
-              onApprove: onApprove,
-              onReject: onReject,
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.only(top: 24),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            )
+          else if (errorMessage != null)
+            _QueueMessageCard(
+              icon: Icons.error_outline,
+              message: errorMessage!,
+              background: AppColors.redLt,
+              foreground: AppColors.red,
+            )
+          else if (pending.isEmpty)
+            const _QueueMessageCard(
+              icon: Icons.inbox_outlined,
+              message: 'No submissions are awaiting review.',
+              background: AppColors.surface,
+              foreground: AppColors.textMute,
+            )
+          else
+            ...pending.map(
+              (SubmissionQueueItem s) => _SubmissionCard(
+                submission: s,
+                onApprove: onApprove,
+                onReject: onReject,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -236,21 +334,15 @@ class _SubmissionCard extends StatelessWidget {
     required this.onReject,
   });
 
-  final Submission submission;
+  final SubmissionQueueItem submission;
   final ValueChanged<String> onApprove;
   final ValueChanged<String> onReject;
 
   @override
   Widget build(BuildContext context) {
-    final int colorIdx = math.max(
-      0,
-      members.indexWhere((Member m) => m.name == submission.member),
-    );
-    final String initials = submission.member
-        .split(' ')
-        .map((String word) => word[0])
-        .join()
-        .substring(0, 2);
+    final int colorIdx = submission.memberName.hashCode.abs();
+    final String initials = _initials(submission.memberName);
+    final double amount = double.tryParse(submission.amount) ?? 0;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -281,7 +373,7 @@ class _SubmissionCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            submission.member,
+                            submission.memberName,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -289,7 +381,9 @@ class _SubmissionCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            submission.type,
+                            submission.memberContact.isEmpty
+                                ? submission.requestType.label
+                                : submission.memberContact,
                             style: const TextStyle(
                               fontSize: 11,
                               color: AppColors.textMute,
@@ -305,7 +399,7 @@ class _SubmissionCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  fmt(submission.amount),
+                  fmt(amount),
                   style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -321,15 +415,35 @@ class _SubmissionCard extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.6,
                   children: <Widget>[
-                    _DetailBox(label: 'Channel', value: submission.channel),
-                    _DetailBox(label: 'Date', value: submission.date),
+                    _DetailBox(
+                      label: 'Type',
+                      value: submission.requestType.label,
+                    ),
+                    _DetailBox(
+                      label: 'Channel',
+                      value: submission.paymentChannel.label,
+                    ),
+                    _DetailBox(
+                      label: 'Requested',
+                      value: _formatRequestedAt(submission.requestedAt),
+                    ),
                     _DetailBox(
                       label: 'Reference',
-                      value: submission.ref.isEmpty ? '—' : submission.ref,
+                      value: submission.externalReference.isEmpty
+                          ? '-'
+                          : submission.externalReference,
                     ),
-                    _DetailBox(label: 'ID', value: submission.id),
+                    _DetailBox(
+                      label: 'Attachments',
+                      value: '${submission.attachmentCount}',
+                    ),
+                    _DetailBox(label: 'ID', value: submission.requestId),
                   ],
                 ),
+                if (submission.notes.trim().isNotEmpty) ...<Widget>[
+                  const SizedBox(height: 10),
+                  _DetailBox(label: 'Notes', value: submission.notes),
+                ],
               ],
             ),
           ),
@@ -346,7 +460,7 @@ class _SubmissionCard extends StatelessWidget {
                     label: '✕ Reject',
                     background: AppColors.redLt,
                     foreground: AppColors.red,
-                    onTap: () => onReject(submission.id),
+                    onTap: () => onReject(submission.requestId),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -355,10 +469,52 @@ class _SubmissionCard extends StatelessWidget {
                     label: '✓ Approve',
                     background: AppColors.primary,
                     foreground: Colors.white,
-                    onTap: () => onApprove(submission.id),
+                    onTap: () => onApprove(submission.requestId),
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QueueMessageCard extends StatelessWidget {
+  const _QueueMessageCard({
+    required this.icon,
+    required this.message,
+    required this.background,
+    required this.foreground,
+  });
+
+  final IconData icon;
+  final String message;
+  final Color background;
+  final Color foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: <Widget>[
+          Icon(icon, color: foreground),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: foreground,
+              ),
             ),
           ),
         ],
@@ -408,6 +564,34 @@ class _DetailBox extends StatelessWidget {
       ),
     );
   }
+}
+
+String _initials(String name) {
+  final List<String> parts = name
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((String part) => part.isNotEmpty)
+      .toList();
+  if (parts.isEmpty) {
+    return '?';
+  }
+  if (parts.length == 1) {
+    return parts.first.substring(0, 1).toUpperCase();
+  }
+  return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+}
+
+String _formatRequestedAt(DateTime? value) {
+  if (value == null) {
+    return '-';
+  }
+
+  final DateTime local = value.toLocal();
+  final String month = local.month.toString().padLeft(2, '0');
+  final String day = local.day.toString().padLeft(2, '0');
+  final String hour = local.hour.toString().padLeft(2, '0');
+  final String minute = local.minute.toString().padLeft(2, '0');
+  return '${local.year}-$month-$day $hour:$minute';
 }
 
 class _ReviewedSubmissionList extends StatelessWidget {
@@ -628,4 +812,3 @@ class _ApprovalAvatar extends StatelessWidget {
     );
   }
 }
-

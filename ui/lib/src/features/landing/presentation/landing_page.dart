@@ -5,6 +5,9 @@ import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
+import '../../members/data/member_management_repository.dart';
+import '../../members/domain/member_management_models.dart';
+import '../../members/presentation/member_detail_controller.dart';
 import '../../shared/finance.dart';
 import '../../shared/services/member_metrics.dart';
 import '../../shared/widgets/app_avatar.dart';
@@ -1006,37 +1009,77 @@ class _InvestmentChip extends StatelessWidget {
   }
 }
 
-class MemberDetailScreen extends StatelessWidget {
+class MemberDetailScreen extends StatefulWidget {
   const MemberDetailScreen({
     super.key,
+    required this.repository,
     required this.member,
     required this.colorIdx,
     required this.onBack,
   });
 
+  final MemberManagementRepository repository;
   final Member member;
   final int colorIdx;
   final VoidCallback onBack;
 
   @override
+  State<MemberDetailScreen> createState() => _MemberDetailScreenState();
+}
+
+class _MemberDetailScreenState extends State<MemberDetailScreen> {
+  late final MemberDetailController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = MemberDetailController(repository: widget.repository);
+    _controller.load(widget.member.id);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SubmissionsBuilder(builder: _buildWithSubmissions);
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (BuildContext context, _) {
+        return SubmissionsBuilder(builder: _buildWithSubmissions);
+      },
+    );
   }
 
   Widget _buildWithSubmissions(List<Submission> submissions) {
     final int totalCapital = MemberMetrics.totalActiveCapital(members);
     final int pct = MemberMetrics.capitalSharePercent(
-      memberCapital: member.capital,
+      memberCapital: widget.member.capital,
       totalCapital: totalCapital,
     );
     final List<Submission> mySubs = submissions
-        .where((Submission s) => s.member == member.name)
+        .where((Submission s) => s.member == widget.member.name)
         .toList();
 
     return Column(
       children: <Widget>[
-        _MemberDetailHeader(member: member, colorIdx: colorIdx, onBack: onBack),
-        _CapitalCard(member: member, pct: pct, colorIdx: colorIdx),
+        _MemberDetailHeader(
+          member: widget.member,
+          colorIdx: widget.colorIdx,
+          onBack: widget.onBack,
+        ),
+        _CapitalCard(
+          member: widget.member,
+          pct: pct,
+          colorIdx: widget.colorIdx,
+        ),
+        _AccountDetailsCard(
+          isLoading: _controller.isLoading,
+          errorMessage: _controller.errorMessage,
+          user: _controller.user,
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: Row(
@@ -1092,6 +1135,180 @@ class MemberDetailScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AccountDetailsCard extends StatelessWidget {
+  const _AccountDetailsCard({
+    required this.isLoading,
+    required this.errorMessage,
+    required this.user,
+  });
+
+  final bool isLoading;
+  final String? errorMessage;
+  final ManagedUser? user;
+
+  @override
+  Widget build(BuildContext context) {
+    final String? error = errorMessage;
+    final ManagedUser? profile = user;
+
+    return _Section(
+      title: 'Account Details',
+      paddingBottom: 16,
+      child: AppCardList(
+        children: <Widget>[
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            )
+          else if (error != null)
+            _AccountInfoMessage(message: error)
+          else if (profile == null)
+            const _AccountInfoMessage(message: 'No account details found.')
+          else ...<Widget>[
+            _AccountInfoRow(
+              icon: Icons.badge_outlined,
+              label: 'User ID',
+              value: _valueOrDash(profile.userId),
+            ),
+            _AccountInfoRow(
+              icon: Icons.phone_outlined,
+              label: 'Contact No',
+              value: _valueOrDash(profile.contactNo),
+            ),
+            _AccountInfoRow(
+              icon: Icons.mail_outline,
+              label: 'Email',
+              value: _valueOrDash(profile.email),
+            ),
+            _AccountInfoRow(
+              icon: Icons.calendar_today_outlined,
+              label: 'Join Date',
+              value: _valueOrDash(profile.joinDate),
+            ),
+            _AccountInfoRow(
+              icon: Icons.admin_panel_settings_outlined,
+              label: 'Role',
+              value: profile.role.label,
+            ),
+            _AccountInfoRow(
+              icon: Icons.verified_user_outlined,
+              label: 'Status',
+              value: profile.status.label,
+            ),
+            _AccountInfoRow(
+              icon: Icons.notes_outlined,
+              label: 'Notes',
+              value: _valueOrDash(profile.notes),
+            ),
+            _AccountInfoRow(
+              icon: Icons.history_outlined,
+              label: 'Created At',
+              value: _formatDateTime(profile.createdAt),
+            ),
+            _AccountInfoRow(
+              icon: Icons.update_outlined,
+              label: 'Updated At',
+              value: _formatDateTime(profile.updatedAt),
+              isLast: true,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AccountInfoRow extends StatelessWidget {
+  const _AccountInfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: isLast
+              ? BorderSide.none
+              : const BorderSide(color: AppColors.border),
+        ),
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.greenLt,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 20, color: AppColors.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textMute,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.text,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AccountInfoMessage extends StatelessWidget {
+  const _AccountInfoMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Center(
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 13, color: AppColors.textMute),
+        ),
+      ),
     );
   }
 }
@@ -1343,4 +1560,22 @@ class _StatCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _valueOrDash(String? value) {
+  final String? trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty ? '-' : trimmed;
+}
+
+String _formatDateTime(DateTime? value) {
+  if (value == null) {
+    return '-';
+  }
+
+  final DateTime local = value.toLocal();
+  final String month = local.month.toString().padLeft(2, '0');
+  final String day = local.day.toString().padLeft(2, '0');
+  final String hour = local.hour.toString().padLeft(2, '0');
+  final String minute = local.minute.toString().padLeft(2, '0');
+  return '${local.year}-$month-$day $hour:$minute';
 }

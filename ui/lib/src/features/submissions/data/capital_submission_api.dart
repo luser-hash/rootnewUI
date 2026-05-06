@@ -1,5 +1,6 @@
 import '../../../../core/network/api_client.dart';
 import '../domain/capital_submission_request.dart';
+import '../domain/submission_approval_queue.dart';
 
 class CapitalSubmissionApi {
   const CapitalSubmissionApi(this._apiClient);
@@ -34,6 +35,20 @@ class CapitalSubmissionApi {
     );
     final Object? data = response['data'];
     return CapitalSubmission.fromJson(
+      data is Map<String, dynamic> ? data : response,
+    );
+  }
+
+  Future<SubmissionApprovalQueue> queue({PaymentChannel? paymentChannel}) async {
+    final Uri uri = Uri(
+      path: '/submission/queue/',
+      queryParameters: paymentChannel == null
+          ? null
+          : <String, String>{'payment_channel': paymentChannel.apiValue},
+    );
+    final Map<String, dynamic> response = await _apiClient.get(uri.toString());
+    final Object? data = response['data'];
+    return SubmissionApprovalQueue.fromJson(
       data is Map<String, dynamic> ? data : response,
     );
   }

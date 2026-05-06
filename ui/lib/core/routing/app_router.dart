@@ -123,7 +123,9 @@ class AppRouter {
             GoRoute(
               path: RouteNames.approvals,
               builder: (BuildContext context, GoRouterState state) {
-                return _scroll(const ApprovalPage());
+                return _scroll(
+                  ApprovalPage(repository: capitalSubmissionRepository),
+                );
               },
             ),
             GoRoute(
@@ -137,6 +139,7 @@ class AppRouter {
               builder: (BuildContext context, GoRouterState state) {
                 return _scroll(
                   MembersPage(
+                    repository: memberManagementRepository,
                     onAdd: () => context.push(RouteNames.manageMembers),
                     onSelect: (Member member, int memberColorIdx) {
                       context.push(
@@ -175,6 +178,7 @@ class AppRouter {
 
                     return _scroll(
                       MemberDetailScreen(
+                        repository: memberManagementRepository,
                         member: args.member,
                         colorIdx: args.memberColorIdx,
                         onBack: () => _closeMemberDetail(context),
@@ -222,10 +226,10 @@ class AppRouter {
         !role.canViewOwnSubmissions) {
       return RouteNames.home;
     }
-    if (location.startsWith(RouteNames.members) && !role.canViewMembers) {
+    if (location == RouteNames.manageMembers && !role.canManageMembers) {
       return RouteNames.home;
     }
-    if (location == RouteNames.manageMembers && !role.canManageMembers) {
+    if (location.startsWith(RouteNames.members) && !role.canViewMembers) {
       return RouteNames.home;
     }
     if (location == RouteNames.profile && !role.canViewOwnProfile) {

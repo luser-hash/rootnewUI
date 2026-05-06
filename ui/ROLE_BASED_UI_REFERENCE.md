@@ -117,6 +117,7 @@ Home screen role rendering lives in `lib/src/features/landing/presentation/landi
 Current behavior:
 
 - Pending approval alert is visible only when `role.canViewApprovals` and there are pending submissions.
+- Approval Queue loads the pending "Awaiting Review" list from `GET /submission/queue/` with optional `payment_channel`; backend must enforce `APPROVE_SUBMISSION`.
 - Members carousel is visible only when `role.canViewMembers`.
 - Quick actions are assembled by role:
   - Submit Funds: `role.canSubmitFunds`
@@ -223,6 +224,8 @@ These are useful to keep visible before future role work:
 - `canViewHome` returns false for `unknown`, but the router does not currently block unknown authenticated users from home.
 - `/investments` is not route-gated by investment permissions yet. Bottom nav and home quick action show Invest broadly.
 - Admin/Super Admin can access `/profile` directly, but Profile is hidden from their bottom navigation and home quick actions.
+- Members list loads from `GET /users/` with optional `status`, `role`, and `search` query params. It requires backend `MANAGE_USERS`.
+- Member profile loads account details from `GET /users/{user_id}/` and shows the response fields in the existing profile screen.
 - Manage Members posts `full_name`, `contact_no`, `email`, `join_date`, fixed `role: MEMBER`, `notes`, and `password` to `POST /users/`. The backend must enforce `MANAGE_USERS`.
 - Member Ledger is backend-backed and token-scoped. Admin Ledger is still demo-derived UI data.
 - Reports, Permissions, and Distribute appear as role-gated quick actions, but some do not yet navigate to implemented flows.

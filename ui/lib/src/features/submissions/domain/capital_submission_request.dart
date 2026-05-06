@@ -6,6 +6,13 @@ enum CapitalRequestType {
 
   final String apiValue;
   final String label;
+
+  factory CapitalRequestType.fromApi(String? value) {
+    return switch (value?.trim().toUpperCase()) {
+      'SUBMISSION' => CapitalRequestType.submission,
+      _ => CapitalRequestType.installment,
+    };
+  }
 }
 
 enum PaymentChannel {
@@ -18,6 +25,15 @@ enum PaymentChannel {
 
   final String apiValue;
   final String label;
+
+  factory PaymentChannel.fromApi(String? value) {
+    return switch (value?.trim().toUpperCase()) {
+      'HAND_CASH' => PaymentChannel.handCash,
+      'BANK' => PaymentChannel.bank,
+      'OTHER' => PaymentChannel.other,
+      _ => PaymentChannel.bkash,
+    };
+  }
 }
 
 enum CapitalSubmissionStatus {
@@ -145,17 +161,9 @@ class SubmissionReviewer {
 }
 
 CapitalRequestType _requestTypeFromApi(String? value) {
-  return switch (value?.trim().toUpperCase()) {
-    'SUBMISSION' => CapitalRequestType.submission,
-    _ => CapitalRequestType.installment,
-  };
+  return CapitalRequestType.fromApi(value);
 }
 
 PaymentChannel _paymentChannelFromApi(String? value) {
-  return switch (value?.trim().toUpperCase()) {
-    'HAND_CASH' => PaymentChannel.handCash,
-    'BANK' => PaymentChannel.bank,
-    'OTHER' => PaymentChannel.other,
-    _ => PaymentChannel.bkash,
-  };
+  return PaymentChannel.fromApi(value);
 }
