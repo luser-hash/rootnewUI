@@ -58,13 +58,32 @@ class _ApprovalPageState extends State<ApprovalPage> {
     });
   }
 
-  void _reject(String id) {
-    if (_queueController.isApproving) {
+  Future<void> _reject(String id) async {
+    if (_queueController.hasActionInFlight) {
+      return;
+    }
+
+    final String? rejectionReason = await _requestRejectionReason();
+    if (!mounted || rejectionReason == null || rejectionReason.isEmpty) {
+      return;
+    }
+
+    final bool rejected = await _queueController.reject(
+      id,
+      rejectionReason: rejectionReason,
+    );
+    if (!mounted || !rejected) {
       return;
     }
 
     AppState.updateSubmissionStatus(id, SubmissionStatus.rejected);
-    _queueController.remove(id);
+  }
+
+  Future<String?> _requestRejectionReason() async {
+    return showDialog<String>(
+      context: context,
+      builder: (_) => const _RejectionReasonDialog(),
+    );
   }
 
   @override
@@ -102,6 +121,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
               pending: pending,
               isLoading: _queueController.isLoading,
               approvingRequestId: _queueController.approvingRequestId,
+              rejectingRequestId: _queueController.rejectingRequestId,
               errorMessage: _queueController.errorMessage,
               onApprove: _approve,
               onReject: _reject,
@@ -114,6 +134,66 @@ class _ApprovalPageState extends State<ApprovalPage> {
           _SuccessOverlay(
             onClose: () => setState(() => _successVisible = false),
           ),
+      ],
+    );
+  }
+}
+
+class _RejectionReasonDialog extends StatefulWidget {
+  const _RejectionReasonDialog();
+
+  @override
+  State<_RejectionReasonDialog> createState() => _RejectionReasonDialogState();
+}
+
+class _RejectionReasonDialogState extends State<_RejectionReasonDialog> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _reasonController = TextEditingController();
+  final FocusNode _reasonFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _reasonFocusNode.unfocus();
+    _reasonFocusNode.dispose();
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  void _close([String? reason]) {
+    _reasonFocusNode.unfocus();
+    Navigator.of(context).pop(reason);
+  }
+
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      _close(_reasonController.text.trim());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Reject Submission'),
+      content: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _reasonController,
+          focusNode: _reasonFocusNode,
+          autofocus: true,
+          maxLines: 3,
+          decoration: const InputDecoration(
+            labelText: 'Rejection reason',
+            hintText: 'Payment reference could not be verified.',
+          ),
+          validator: (String? value) {
+            final String raw = value?.trim() ?? '';
+            return raw.isEmpty ? 'Rejection reason is required' : null;
+          },
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(onPressed: _close, child: const Text('Cancel')),
+        FilledButton(onPressed: _submit, child: const Text('Reject')),
       ],
     );
   }
@@ -272,6 +352,7 @@ class _PendingSubmissionList extends StatelessWidget {
     required this.pending,
     required this.isLoading,
     required this.approvingRequestId,
+    required this.rejectingRequestId,
     required this.errorMessage,
     required this.onApprove,
     required this.onReject,
@@ -280,6 +361,7 @@ class _PendingSubmissionList extends StatelessWidget {
   final List<SubmissionQueueItem> pending;
   final bool isLoading;
   final String? approvingRequestId;
+  final String? rejectingRequestId;
   final String? errorMessage;
   final ValueChanged<String> onApprove;
   final ValueChanged<String> onReject;
@@ -330,7 +412,9 @@ class _PendingSubmissionList extends StatelessWidget {
                 (SubmissionQueueItem s) => _SubmissionCard(
                   submission: s,
                   isApproving: approvingRequestId == s.requestId,
-                  isActionLocked: approvingRequestId != null,
+                  isRejecting: rejectingRequestId == s.requestId,
+                  isActionLocked:
+                      approvingRequestId != null || rejectingRequestId != null,
                   onApprove: onApprove,
                   onReject: onReject,
                 ),
@@ -346,6 +430,7 @@ class _SubmissionCard extends StatelessWidget {
   const _SubmissionCard({
     required this.submission,
     required this.isApproving,
+    required this.isRejecting,
     required this.isActionLocked,
     required this.onApprove,
     required this.onReject,
@@ -353,6 +438,7 @@ class _SubmissionCard extends StatelessWidget {
 
   final SubmissionQueueItem submission;
   final bool isApproving;
+  final bool isRejecting;
   final bool isActionLocked;
   final ValueChanged<String> onApprove;
   final ValueChanged<String> onReject;
@@ -476,9 +562,13 @@ class _SubmissionCard extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: AppActionButton(
-                    label: '✕ Reject',
-                    background: AppColors.redLt,
-                    foreground: AppColors.red,
+                    label: isRejecting ? 'Rejecting...' : '✕ Reject',
+                    background: isActionLocked && !isRejecting
+                        ? AppColors.textMute
+                        : AppColors.redLt,
+                    foreground: isActionLocked && !isRejecting
+                        ? Colors.white
+                        : AppColors.red,
                     onTap: isActionLocked
                         ? null
                         : () => onReject(submission.requestId),
