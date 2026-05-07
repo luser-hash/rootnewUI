@@ -55,6 +55,11 @@ class MemberManagementApi {
     );
   }
 
+  Future<void> delete(String userId) async {
+    final String encodedUserId = Uri.encodeComponent(userId);
+    await _apiClient.delete('/users/$encodedUserId/');
+  }
+
   List<dynamic> _extractItems(
     Object? data,
     Map<String, dynamic> response,

@@ -7,6 +7,7 @@ import '../config/api_config.dart';
 import 'api_exception.dart';
 
 typedef AccessTokenProvider = Future<String?> Function();
+typedef UnauthorizedTokenRefresher = Future<String?> Function();
 
 class ApiClient {
   ApiClient({
@@ -14,15 +15,19 @@ class ApiClient {
     String? baseUrl,
     Duration timeout = ApiConfig.requestTimeout,
     AccessTokenProvider? accessTokenProvider,
+    UnauthorizedTokenRefresher? unauthorizedTokenRefresher,
   }) : _httpClient = httpClient ?? http.Client(),
        _baseUrl = baseUrl ?? ApiConfig.baseUrl,
        _timeout = timeout,
-       _accessTokenProvider = accessTokenProvider;
+       _accessTokenProvider = accessTokenProvider,
+       _unauthorizedTokenRefresher = unauthorizedTokenRefresher;
 
   final http.Client _httpClient;
   final String _baseUrl;
   final Duration _timeout;
   final AccessTokenProvider? _accessTokenProvider;
+  final UnauthorizedTokenRefresher? _unauthorizedTokenRefresher;
+  Future<String?>? _refreshingToken;
 
   Future<Map<String, dynamic>> get(String path, {String? accessToken}) async {
     return _send('GET', path, accessToken: accessToken);
@@ -44,6 +49,14 @@ class ApiClient {
     return _send('PATCH', path, body: body, accessToken: accessToken);
   }
 
+  Future<Map<String, dynamic>> delete(
+    String path, {
+    Map<String, dynamic>? body,
+    String? accessToken,
+  }) async {
+    return _send('DELETE', path, body: body, accessToken: accessToken);
+  }
+
   Future<Map<String, dynamic>> _send(
     String method,
     String path, {
@@ -55,18 +68,28 @@ class ApiClient {
     final Object? encodedBody = body == null ? null : jsonEncode(body);
 
     try {
-      final http.Response response = await switch (method) {
-        'GET' => _httpClient.get(uri, headers: headers).timeout(_timeout),
-        'POST' =>
-          _httpClient
-              .post(uri, headers: headers, body: encodedBody)
-              .timeout(_timeout),
-        'PATCH' =>
-          _httpClient
-              .patch(uri, headers: headers, body: encodedBody)
-              .timeout(_timeout),
-        _ => throw StateError('Unsupported method: $method'),
-      };
+      final http.Response response = await _dispatch(
+        method,
+        uri,
+        headers,
+        encodedBody,
+      );
+
+      if (_shouldRetryUnauthorized(response, path, headers)) {
+        final String? refreshedToken = await _refreshAccessToken();
+        if (refreshedToken != null && refreshedToken.isNotEmpty) {
+          final Map<String, String> retryHeaders = await _buildHeaders(
+            refreshedToken,
+          );
+          final http.Response retryResponse = await _dispatch(
+            method,
+            uri,
+            retryHeaders,
+            encodedBody,
+          );
+          return _handleResponse(retryResponse);
+        }
+      }
 
       return _handleResponse(response);
     } on TimeoutException {
@@ -76,6 +99,32 @@ class ApiClient {
     } on FormatException {
       throw const ApiException(message: 'Invalid server response');
     }
+  }
+
+  Future<http.Response> _dispatch(
+    String method,
+    Uri uri,
+    Map<String, String> headers,
+    Object? encodedBody,
+  ) {
+    return switch (method) {
+      'GET' => _httpClient.get(uri, headers: headers).timeout(_timeout),
+      'POST' =>
+        _httpClient
+            .post(uri, headers: headers, body: encodedBody)
+            .timeout(_timeout),
+      'PATCH' =>
+        _httpClient
+            .patch(uri, headers: headers, body: encodedBody)
+            .timeout(_timeout),
+      'DELETE' =>
+        _httpClient
+            .delete(uri, headers: headers, body: encodedBody)
+            .timeout(_timeout),
+      _ => Future<http.Response>.error(
+        StateError('Unsupported method: $method'),
+      ),
+    };
   }
 
   Future<Map<String, String>> _buildHeaders(String? accessToken) async {
@@ -93,6 +142,30 @@ class ApiClient {
         : _baseUrl;
     final String normalizedPath = path.startsWith('/') ? path : '/$path';
     return Uri.parse('$base$normalizedPath');
+  }
+
+  bool _shouldRetryUnauthorized(
+    http.Response response,
+    String path,
+    Map<String, String> headers,
+  ) {
+    return response.statusCode == 401 &&
+        _unauthorizedTokenRefresher != null &&
+        headers.containsKey('Authorization') &&
+        path != '/api/auth/token/refresh/';
+  }
+
+  Future<String?> _refreshAccessToken() {
+    final Future<String?>? inFlight = _refreshingToken;
+    if (inFlight != null) {
+      return inFlight;
+    }
+
+    final Future<String?> future = _unauthorizedTokenRefresher!();
+    _refreshingToken = future.whenComplete(() {
+      _refreshingToken = null;
+    });
+    return _refreshingToken!;
   }
 
   Map<String, dynamic> _handleResponse(http.Response response) {

@@ -26,6 +26,14 @@ class AuthApi {
     );
   }
 
+  Future<AuthTokens> refreshToken(String refreshToken) async {
+    final Map<String, dynamic> response = await _apiClient.post(
+      '/api/auth/token/refresh/',
+      body: <String, dynamic>{'refresh': refreshToken},
+    );
+    return AuthTokens.fromJson(response);
+  }
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,

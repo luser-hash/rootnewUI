@@ -8,6 +8,7 @@ abstract class MemberManagementRepository {
   Future<ManagedUser> detail(String userId);
   Future<void> create(MemberCreateRequest request);
   Future<ManagedUser> update(String userId, MemberUpdateRequest request);
+  Future<void> delete(String userId);
 }
 
 class ApiMemberManagementRepository implements MemberManagementRepository {
@@ -34,5 +35,10 @@ class ApiMemberManagementRepository implements MemberManagementRepository {
   @override
   Future<ManagedUser> update(String userId, MemberUpdateRequest request) {
     return _api.update(userId, request);
+  }
+
+  @override
+  Future<void> delete(String userId) {
+    return _api.delete(userId);
   }
 }

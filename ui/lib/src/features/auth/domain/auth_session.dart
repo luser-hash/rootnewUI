@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class AuthSession {
   const AuthSession({required this.user, required this.tokens});
 
@@ -157,7 +159,7 @@ class AuthTokens {
           json['refresh'] as String? ??
           json['refresh_token'] as String? ??
           json['refreshToken'] as String?,
-      expiresAt: _parseExpiresAt(expiresIn),
+      expiresAt: _parseExpiresAt(expiresIn, accessToken),
     );
   }
 
@@ -169,13 +171,50 @@ class AuthTokens {
     };
   }
 
-  static DateTime? _parseExpiresAt(Object? value) {
+  static DateTime? _parseExpiresAt(Object? value, String accessToken) {
     if (value is int) {
       return DateTime.now().add(Duration(seconds: value));
     }
     if (value is String) {
       return DateTime.tryParse(value);
     }
+    if (value == null) {
+      return _parseJwtExpiry(accessToken);
+    }
+    return null;
+  }
+
+  static DateTime? _parseJwtExpiry(String token) {
+    final List<String> parts = token.split('.');
+    if (parts.length < 2) {
+      return null;
+    }
+
+    try {
+      final String normalized = base64Url.normalize(parts[1]);
+      final String decoded = utf8.decode(base64Url.decode(normalized));
+      final Object? payload = jsonDecode(decoded);
+      if (payload is! Map<String, dynamic>) {
+        return null;
+      }
+
+      final Object? exp = payload['exp'];
+      if (exp is int) {
+        return DateTime.fromMillisecondsSinceEpoch(exp * 1000, isUtc: true);
+      }
+      if (exp is String) {
+        final int? seconds = int.tryParse(exp);
+        if (seconds != null) {
+          return DateTime.fromMillisecondsSinceEpoch(
+            seconds * 1000,
+            isUtc: true,
+          );
+        }
+      }
+    } catch (_) {
+      return null;
+    }
+
     return null;
   }
 }

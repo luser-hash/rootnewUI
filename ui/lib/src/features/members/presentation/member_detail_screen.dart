@@ -18,6 +18,7 @@ import '../../submissions/domain/capital_submission_request.dart';
 import '../../submissions/domain/submission_history.dart';
 import '../data/member_management_repository.dart';
 import '../domain/member_management_models.dart';
+import 'edit_member.dart';
 import 'member_detail_controller.dart';
 import 'member_detail_ledger_controller.dart';
 import 'member_detail_submission_history_controller.dart';
@@ -160,15 +161,24 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
       return;
     }
 
-    final ManagedUser? updated = await context.push<ManagedUser>(
+    final EditMemberResult? result = await context.push<EditMemberResult>(
       RouteNames.editMember,
       extra: EditMemberRouteArgs(user: user),
     );
 
-    if (!mounted || updated == null) {
+    if (!mounted || result == null) {
       return;
     }
 
+    if (result.action == EditMemberAction.deleted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Member deactivated successfully.')),
+      );
+      widget.onBack();
+      return;
+    }
+
+    final ManagedUser updated = result.user!;
     _controller.setUser(updated);
     setState(() {
       _member = Member(

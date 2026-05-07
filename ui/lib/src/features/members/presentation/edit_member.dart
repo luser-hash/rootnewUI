@@ -5,10 +5,25 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../auth/domain/auth_session.dart';
+import '../../auth/presentation/auth_scope.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../data/member_management_repository.dart';
 import '../domain/member_management_models.dart';
 import '../domain/member_update_request.dart';
+
+enum EditMemberAction { updated, deleted }
+
+class EditMemberResult {
+  const EditMemberResult._({required this.action, this.user});
+
+  final EditMemberAction action;
+  final ManagedUser? user;
+
+  const EditMemberResult.updated(ManagedUser user)
+    : this._(action: EditMemberAction.updated, user: user);
+
+  const EditMemberResult.deleted() : this._(action: EditMemberAction.deleted);
+}
 
 class EditMemberPage extends StatefulWidget {
   const EditMemberPage({
@@ -62,19 +77,32 @@ class _EditMemberPageState extends State<EditMemberPage> {
 
   @override
   Widget build(BuildContext context) {
+    final UserRole currentRole = AuthScope.of(context).role;
+    final AuthUser? currentUser = AuthScope.of(context).user;
+    final bool isSelf = currentUser?.id == widget.user.userId;
+    final bool canDelete = currentRole.canManageMembers && !isSelf;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _EditMemberHeader(onBack: () => _closePage(context)),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          child: _buildFormCard(context),
+          child: _buildFormCard(
+            context,
+            isSelf: isSelf,
+            canDelete: canDelete,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildFormCard(BuildContext context) {
+  Widget _buildFormCard(
+    BuildContext context, {
+    required bool isSelf,
+    required bool canDelete,
+  }) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -164,6 +192,23 @@ class _EditMemberPageState extends State<EditMemberPage> {
               foreground: Colors.white,
               onTap: _isSubmitting ? null : _submit,
             ),
+            const SizedBox(height: 12),
+            _DangerButton(
+              label: isSelf ? 'Cannot Delete Your Account' : 'Delete Member',
+              enabled: !_isSubmitting && canDelete,
+              onTap: () => _delete(context),
+            ),
+            if (isSelf) ...<Widget>[
+              const SizedBox(height: 10),
+              const Text(
+                'Your own account cannot be deactivated.',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textMute,
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -229,7 +274,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
         return;
       }
 
-      context.pop(updated);
+      context.pop(EditMemberResult.updated(updated));
     } on ApiException catch (error) {
       if (!mounted) {
         return;
@@ -247,6 +292,75 @@ class _EditMemberPageState extends State<EditMemberPage> {
         _errorMessage = 'Unable to update member. Please try again.';
       });
     }
+  }
+
+  Future<void> _delete(BuildContext context) async {
+    if (_isSubmitting) {
+      return;
+    }
+
+    final bool confirmed = await _confirmDelete(context);
+    if (!mounted || !confirmed) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await widget.repository.delete(widget.user.userId);
+
+      if (!mounted) {
+        return;
+      }
+
+      context.pop(const EditMemberResult.deleted());
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSubmitting = false;
+        _errorMessage = error.message;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSubmitting = false;
+        _errorMessage = 'Unable to delete member. Please try again.';
+      });
+    }
+  }
+
+  Future<bool> _confirmDelete(BuildContext context) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Member'),
+          content: const Text(
+            'This will deactivate the member account. The account will not be permanently removed.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: AppColors.red),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return confirmed ?? false;
   }
 
   void _closePage(BuildContext context) {
@@ -553,6 +667,53 @@ class _EditMemberMessage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DangerButton extends StatelessWidget {
+  const _DangerButton({
+    required this.label,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color foreground = enabled ? AppColors.red : AppColors.textMute;
+
+    return Material(
+      color: enabled ? AppColors.redLt : AppColors.surface,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: enabled ? onTap : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(13),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: enabled
+                  ? AppColors.red.withValues(alpha: .22)
+                  : AppColors.border,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: foreground,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

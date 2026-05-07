@@ -24,6 +24,14 @@ class AuthController extends ChangeNotifier {
   bool get isAuthenticated => _status == AuthStatus.authenticated;
   bool get isBusy => _status == AuthStatus.authenticating;
 
+  void syncSession(AuthSession session) {
+    _session = session;
+    if (_status != AuthStatus.authenticated) {
+      _status = AuthStatus.authenticated;
+    }
+    notifyListeners();
+  }
+
   Future<void> bootstrap() async {
     final AuthSession? restored = await _repository.restoreSession();
     _session = restored;

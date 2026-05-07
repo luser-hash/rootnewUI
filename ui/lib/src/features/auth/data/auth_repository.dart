@@ -33,9 +33,26 @@ class ApiAuthRepository implements AuthRepository {
       return null;
     }
 
-    if (session.tokens.accessToken.isEmpty || session.tokens.isExpired) {
-      await _storage.clearSession();
-      return null;
+    if (session.tokens.accessToken.isEmpty) {
+      final AuthSession? refreshed = await _refreshSession(
+        session,
+        persist: true,
+      );
+      if (refreshed == null) {
+        await _storage.clearSession();
+      }
+      return refreshed;
+    }
+
+    if (session.tokens.isExpired) {
+      final AuthSession? refreshed = await _refreshSession(
+        session,
+        persist: true,
+      );
+      if (refreshed == null) {
+        await _storage.clearSession();
+      }
+      return refreshed;
     }
 
     try {
@@ -47,8 +64,14 @@ class ApiAuthRepository implements AuthRepository {
       return refreshed;
     } on ApiException catch (error) {
       if (error.statusCode == 401 || error.statusCode == 403) {
-        await _storage.clearSession();
-        return null;
+        final AuthSession? refreshed = await _refreshSession(
+          session,
+          persist: true,
+        );
+        if (refreshed == null) {
+          await _storage.clearSession();
+        }
+        return refreshed;
       }
 
       return session;
@@ -101,7 +124,7 @@ class ApiAuthRepository implements AuthRepository {
   @override
   Future<void> signOut({String? refreshToken}) async {
     final AuthSession? session = await _storage.readSession();
-    final String? token = refreshToken ?? session?.tokens.refreshToken;
+    final String? token = session?.tokens.refreshToken ?? refreshToken;
 
     try {
       if (token != null && token.isNotEmpty) {
@@ -111,6 +134,57 @@ class ApiAuthRepository implements AuthRepository {
       // Local sign-out must still clear credentials if the server is offline.
     } finally {
       await _storage.clearSession();
+    }
+  }
+
+  Future<String?> refreshAccessToken() async {
+    final AuthSession? refreshed = await refreshSession();
+    return refreshed?.tokens.accessToken;
+  }
+
+  Future<AuthSession?> refreshSession({AuthSession? session}) async {
+    final AuthSession? current = session ?? await _storage.readSession();
+    if (current == null) {
+      return null;
+    }
+
+    return _refreshSession(
+      current,
+      persist: current.tokens.refreshToken ==
+          (await _storage.readSession())?.tokens.refreshToken,
+    );
+  }
+
+  Future<AuthSession?> _refreshSession(
+    AuthSession session, {
+    required bool persist,
+  }) async {
+    final String? refreshToken = session.tokens.refreshToken;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      return null;
+    }
+
+    try {
+      final AuthTokens tokens = await _api.refreshToken(refreshToken);
+      if (tokens.accessToken.isEmpty) {
+        return null;
+      }
+
+      final AuthUser user = await _api.me(accessToken: tokens.accessToken);
+      final AuthSession refreshed = session.copyWith(
+        user: user,
+        tokens: tokens,
+      );
+      if (persist) {
+        await _storage.saveSession(refreshed);
+      }
+      return refreshed;
+    } on ApiException catch (error) {
+      if (error.statusCode == 401 || error.statusCode == 403) {
+        return null;
+      }
+
+      rethrow;
     }
   }
 }

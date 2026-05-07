@@ -249,10 +249,12 @@ class _LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isCompact = height < 240;
+
     return Container(
       height: height,
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 24, 22, 76),
+      padding: EdgeInsets.fromLTRB(22, 24, 22, isCompact ? 40 : 76),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -287,22 +289,22 @@ class _LoginHeader extends StatelessWidget {
             alignment: Alignment.bottomLeft,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 430),
-              child: const Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   _BrandMark(),
-                  SizedBox(height: 18),
+                  SizedBox(height: isCompact ? 12 : 18),
                   Text(
                     'Root Finance',
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: isCompact ? 24 : 28,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
                       height: 1.08,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: isCompact ? 6 : 8),
                   Text(
                     'Secure access for capital tracking and member operations.',
                     style: TextStyle(

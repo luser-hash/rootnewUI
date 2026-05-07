@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../features/auth/data/auth_api.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/auth_storage.dart';
+import '../features/auth/domain/auth_session.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/auth/presentation/auth_scope.dart';
 import '../features/ledger/data/member_ledger_api.dart';
@@ -36,18 +37,29 @@ class _AppState extends State<App> {
     super.initState();
 
     _authStorage = SecureAuthStorage();
+    late final ApiAuthRepository authRepository;
     final ApiClient apiClient = ApiClient(
       accessTokenProvider: () async {
-        return _authController.session?.tokens.accessToken ??
-            _authStorage.readAccessToken();
+        return await _authStorage.readAccessToken() ??
+            _authController.session?.tokens.accessToken;
+      },
+      unauthorizedTokenRefresher: () async {
+        final AuthSession? refreshed = await authRepository.refreshSession(
+          session: _authController.session,
+        );
+        if (refreshed != null) {
+          _authController.syncSession(refreshed);
+        }
+        return refreshed?.tokens.accessToken;
       },
     );
 
+    authRepository = ApiAuthRepository(
+      api: AuthApi(apiClient),
+      storage: _authStorage,
+    );
     _authController = AuthController(
-      repository: ApiAuthRepository(
-        api: AuthApi(apiClient),
-        storage: _authStorage,
-      ),
+      repository: authRepository,
     );
     _capitalSubmissionRepository = ApiCapitalSubmissionRepository(
       api: CapitalSubmissionApi(apiClient),
