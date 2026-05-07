@@ -106,8 +106,35 @@ class ApiClient {
   String _extractErrorMessage(Map<String, dynamic> payload) {
     final Object? message =
         payload['message'] ?? payload['error'] ?? payload['detail'];
-    return message is String && message.trim().isNotEmpty
-        ? message
-        : 'Something went wrong';
+    final String? extracted =
+        _firstErrorText(message) ?? _firstErrorText(payload);
+    return extracted ?? 'Something went wrong';
+  }
+
+  String? _firstErrorText(Object? value) {
+    if (value is String) {
+      final String text = value.trim();
+      return text.isEmpty ? null : text;
+    }
+
+    if (value is List) {
+      for (final Object? item in value) {
+        final String? text = _firstErrorText(item);
+        if (text != null) {
+          return text;
+        }
+      }
+    }
+
+    if (value is Map) {
+      for (final Object? item in value.values) {
+        final String? text = _firstErrorText(item);
+        if (text != null) {
+          return text;
+        }
+      }
+    }
+
+    return null;
   }
 }

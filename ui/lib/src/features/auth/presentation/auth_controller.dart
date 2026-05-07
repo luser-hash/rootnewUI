@@ -66,6 +66,25 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  Future<String?> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      await _repository.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      );
+      return null;
+    } on ApiException catch (error) {
+      return error.message;
+    } catch (_) {
+      return 'Unable to change password. Please try again.';
+    }
+  }
+
   Future<void> signOut() async {
     await _repository.signOut(refreshToken: _session?.tokens.refreshToken);
     _session = null;

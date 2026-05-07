@@ -26,6 +26,21 @@ class AuthApi {
     );
   }
 
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    await _apiClient.post(
+      '/auth/change-password/',
+      body: <String, dynamic>{
+        'current_password': currentPassword,
+        'new_password': newPassword,
+        'confirm_password': confirmPassword,
+      },
+    );
+  }
+
   Future<AuthUser> me({String? accessToken}) async {
     final Map<String, dynamic> response = await _apiClient.get(
       '/auth/me/',

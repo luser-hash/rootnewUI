@@ -10,6 +10,11 @@ abstract class AuthRepository {
     required String password,
     required bool rememberDevice,
   });
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  });
   Future<void> signOut({String? refreshToken});
 }
 
@@ -78,6 +83,19 @@ class ApiAuthRepository implements AuthRepository {
     }
 
     return verifiedSession;
+  }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) {
+    return _api.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+      confirmPassword: confirmPassword,
+    );
   }
 
   @override
