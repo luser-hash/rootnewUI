@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/routing/route_names.dart';
-import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
@@ -14,6 +13,8 @@ import '../../shared/widgets/app_avatar.dart';
 import '../../shared/widgets/app_card_list.dart';
 import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
+import '../../submissions/data/capital_submission_repository.dart';
+import 'landing_approval_summary_controller.dart';
 
 class _StatusBar extends StatelessWidget {
   const _StatusBar({required this.dark});
@@ -30,11 +31,13 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.memberRepository,
+    required this.capitalSubmissionRepository,
     required this.onNav,
     required this.onMemberSelect,
   });
 
   final MemberManagementRepository memberRepository;
+  final CapitalSubmissionRepository capitalSubmissionRepository;
   final ValueChanged<String> onNav;
   final void Function(Member member, int memberColorIdx) onMemberSelect;
 
@@ -43,32 +46,55 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late final LandingApprovalSummaryController _approvalController;
   bool _balanceHidden = false;
   bool _signingOut = false;
+  bool _approvalSummaryRequested = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _approvalController = LandingApprovalSummaryController(
+      repository: widget.capitalSubmissionRepository,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_approvalSummaryRequested &&
+        AuthScope.of(context).role.canViewApprovals) {
+      _approvalSummaryRequested = true;
+      _approvalController.load();
+    }
+  }
+
+  @override
+  void dispose() {
+    _approvalController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SubmissionsBuilder(builder: _buildWithSubmissions);
+    return AnimatedBuilder(
+      animation: _approvalController,
+      builder: (BuildContext context, _) => _buildContent(),
+    );
   }
 
-  Widget _buildWithSubmissions(List<Submission> submissions) {
+  Widget _buildContent() {
     final UserRole role = AuthScope.of(context).role;
     final int totalCapital = MemberMetrics.totalActiveCapital(members);
-    final List<Submission> pendingSubs = submissions
-        .where((Submission s) => s.status == SubmissionStatus.pending)
-        .toList();
-    final int totalPending = pendingSubs.fold(
-      0,
-      (int sum, Submission s) => sum + s.amount,
-    );
+    final int pendingCount = _approvalController.pendingCount;
+    final num totalPending = _approvalController.pendingTotal;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _buildHero(totalCapital, totalPending),
-        if (role.canViewApprovals && pendingSubs.isNotEmpty)
-          _buildAlert(pendingSubs.length),
-        _buildQuickActions(pendingSubs.length, role),
+        if (role.canViewApprovals && pendingCount > 0) _buildAlert(pendingCount),
+        _buildQuickActions(pendingCount, role),
         if (role.canViewMembers)
           _MembersCarousel(
             repository: widget.memberRepository,
@@ -81,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHero(int totalCapital, int totalPending) {
+  Widget _buildHero(int totalCapital, num totalPending) {
     final AuthUser? user = AuthScope.of(context).session?.user;
     final String displayName = _displayName(user);
     final String initials = _initials(displayName);
