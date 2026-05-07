@@ -4,17 +4,18 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
+import '../../ledger/data/member_ledger_repository.dart';
 import '../../members/data/member_management_repository.dart';
 import '../../members/domain/member_management_models.dart';
 import '../../members/presentation/member_list_controller.dart';
 import '../../shared/finance.dart';
-import '../../shared/services/member_metrics.dart';
 import '../../shared/widgets/app_avatar.dart';
 import '../../shared/widgets/app_card_list.dart';
 import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../../submissions/data/capital_submission_repository.dart';
 import 'landing_approval_summary_controller.dart';
+import 'landing_hero_summary_controller.dart';
 
 class _StatusBar extends StatelessWidget {
   const _StatusBar({required this.dark});
@@ -31,12 +32,14 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.memberRepository,
+    required this.memberLedgerRepository,
     required this.capitalSubmissionRepository,
     required this.onNav,
     required this.onMemberSelect,
   });
 
   final MemberManagementRepository memberRepository;
+  final MemberLedgerRepository memberLedgerRepository;
   final CapitalSubmissionRepository capitalSubmissionRepository;
   final ValueChanged<String> onNav;
   final void Function(Member member, int memberColorIdx) onMemberSelect;
@@ -47,9 +50,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final LandingApprovalSummaryController _approvalController;
+  late final LandingHeroSummaryController _heroController;
   bool _balanceHidden = false;
   bool _signingOut = false;
   bool _approvalSummaryRequested = false;
+  bool _heroSummaryRequested = false;
 
   @override
   void initState() {
@@ -57,13 +62,24 @@ class _HomeScreenState extends State<HomeScreen> {
     _approvalController = LandingApprovalSummaryController(
       repository: widget.capitalSubmissionRepository,
     );
+    _heroController = LandingHeroSummaryController(
+      ledgerRepository: widget.memberLedgerRepository,
+      memberRepository: widget.memberRepository,
+    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_approvalSummaryRequested &&
-        AuthScope.of(context).role.canViewApprovals) {
+    final UserRole role = AuthScope.of(context).role;
+    if (!_heroSummaryRequested) {
+      _heroSummaryRequested = true;
+      _heroController.load(
+        canViewAllLedger: role.canViewAllLedger,
+        canViewMembers: role.canViewMembers,
+      );
+    }
+    if (!_approvalSummaryRequested && role.canViewApprovals) {
       _approvalSummaryRequested = true;
       _approvalController.load();
     }
@@ -72,20 +88,24 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _approvalController.dispose();
+    _heroController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _approvalController,
+      animation: Listenable.merge(<Listenable>[
+        _approvalController,
+        _heroController,
+      ]),
       builder: (BuildContext context, _) => _buildContent(),
     );
   }
 
   Widget _buildContent() {
     final UserRole role = AuthScope.of(context).role;
-    final int totalCapital = MemberMetrics.totalActiveCapital(members);
+    final num totalCapital = _heroController.totalCapital;
     final int pendingCount = _approvalController.pendingCount;
     final num totalPending = _approvalController.pendingTotal;
 
@@ -107,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHero(int totalCapital, num totalPending) {
+  Widget _buildHero(num totalCapital, num totalPending) {
     final AuthUser? user = AuthScope.of(context).session?.user;
     final String displayName = _displayName(user);
     final String initials = _initials(displayName);
@@ -309,8 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '↑ ৳15,000 added this week · '
-                      '${MemberMetrics.activeMemberCount(members)} active members',
+                      _heroSummaryText(),
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.accent.withValues(alpha: .9),
@@ -325,6 +344,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  String _heroSummaryText() {
+    if (_heroController.isLoading) {
+      return 'Loading dashboard summary...';
+    }
+    if (_heroController.errorMessage != null) {
+      return 'Dashboard summary unavailable';
+    }
+    return '↑ ${fmtSh(_heroController.weeklyAdded)} added this week · '
+        '${_heroController.activeMemberCount} active members';
   }
 
   Widget _buildAlert(int pendingCount) {

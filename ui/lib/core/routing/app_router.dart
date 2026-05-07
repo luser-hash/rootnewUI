@@ -71,6 +71,7 @@ class AppRouter {
                 return _scroll(
                   HomeScreen(
                     memberRepository: memberManagementRepository,
+                    memberLedgerRepository: memberLedgerRepository,
                     capitalSubmissionRepository: capitalSubmissionRepository,
                     onNav: context.go,
                     onMemberSelect: (Member member, int memberColorIdx) {
