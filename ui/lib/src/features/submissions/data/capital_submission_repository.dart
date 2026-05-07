@@ -10,6 +10,7 @@ abstract class CapitalSubmissionRepository {
   Future<SubmissionHistory> history({
     CapitalSubmissionStatus? status,
     CapitalRequestType? requestType,
+    String? userId,
   });
   Future<void> create(CapitalSubmissionRequest request);
   Future<CapitalSubmission> approve(String requestId);
@@ -44,8 +45,13 @@ class ApiCapitalSubmissionRepository implements CapitalSubmissionRepository {
   Future<SubmissionHistory> history({
     CapitalSubmissionStatus? status,
     CapitalRequestType? requestType,
+    String? userId,
   }) {
-    return _api.history(status: status, requestType: requestType);
+    return _api.history(
+      status: status,
+      requestType: requestType,
+      userId: userId,
+    );
   }
 
   @override

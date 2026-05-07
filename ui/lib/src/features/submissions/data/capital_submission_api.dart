@@ -57,10 +57,14 @@ class CapitalSubmissionApi {
   Future<SubmissionHistory> history({
     CapitalSubmissionStatus? status,
     CapitalRequestType? requestType,
+    String? userId,
   }) async {
+    final String? trimmedUserId = userId?.trim();
     final Map<String, String> queryParameters = <String, String>{
       if (status != null) 'status': status.apiValue,
       if (requestType != null) 'request_type': requestType.apiValue,
+      if (trimmedUserId != null && trimmedUserId.isNotEmpty)
+        'user_id': trimmedUserId,
     };
     final Uri uri = Uri(
       path: '/submission/history/',

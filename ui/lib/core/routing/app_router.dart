@@ -12,6 +12,7 @@ import '../../src/features/ledger/data/member_ledger_repository.dart';
 import '../../src/features/ledger/presentation/member_ledger.dart';
 import '../../src/features/members/data/member_management_repository.dart';
 import '../../src/features/members/presentation/manage_members.dart';
+import '../../src/features/members/presentation/member_detail_screen.dart';
 import '../../src/features/members/presentation/members_page.dart';
 import '../../src/features/profile/presentation/profile_page.dart';
 import '../../src/features/shared/finance.dart';
@@ -179,6 +180,8 @@ class AppRouter {
                     return _scroll(
                       MemberDetailScreen(
                         repository: memberManagementRepository,
+                        ledgerRepository: memberLedgerRepository,
+                        submissionRepository: capitalSubmissionRepository,
                         member: args.member,
                         colorIdx: args.memberColorIdx,
                         onBack: () => _closeMemberDetail(context),

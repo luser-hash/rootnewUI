@@ -90,12 +90,14 @@ class AdminLedgerStatement {
 
 class MemberLedgerStatement {
   const MemberLedgerStatement({
+    required this.user,
     required this.currentBalance,
     required this.pendingTotal,
     required this.entryCount,
     required this.entries,
   });
 
+  final MemberLedgerUser? user;
   final String currentBalance;
   final String pendingTotal;
   final int entryCount;
@@ -103,7 +105,11 @@ class MemberLedgerStatement {
 
   factory MemberLedgerStatement.fromJson(Map<String, dynamic> json) {
     final Object? entries = json['entries'];
+    final Object? user = json['user'];
     return MemberLedgerStatement(
+      user: user is Map<String, dynamic>
+          ? MemberLedgerUser.fromJson(user)
+          : null,
       currentBalance: '${json['current_balance'] ?? '0.00'}',
       pendingTotal: '${json['pending_total'] ?? '0.00'}',
       entryCount: json['entry_count'] is int
@@ -115,6 +121,26 @@ class MemberLedgerStatement {
                 .map(MemberLedgerEntry.fromJson)
                 .toList()
           : <MemberLedgerEntry>[],
+    );
+  }
+}
+
+class MemberLedgerUser {
+  const MemberLedgerUser({
+    required this.userId,
+    required this.fullName,
+    required this.contactNo,
+  });
+
+  final String userId;
+  final String fullName;
+  final String contactNo;
+
+  factory MemberLedgerUser.fromJson(Map<String, dynamic> json) {
+    return MemberLedgerUser(
+      userId: '${json['user_id'] ?? ''}',
+      fullName: '${json['full_name'] ?? ''}',
+      contactNo: '${json['contact_no'] ?? ''}',
     );
   }
 }
