@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/app_router.dart';
+import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../auth/domain/auth_session.dart';
+import '../../auth/presentation/auth_scope.dart';
 import '../../ledger/data/member_ledger_repository.dart';
 import '../../ledger/domain/member_ledger_statement.dart';
 import '../../shared/finance.dart';
@@ -43,10 +48,12 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
   late final MemberDetailController _controller;
   late final MemberDetailLedgerController _ledgerController;
   late final MemberDetailSubmissionHistoryController _submissionHistoryController;
+  late Member _member;
 
   @override
   void initState() {
     super.initState();
+    _member = widget.member;
     _controller = MemberDetailController(repository: widget.repository);
     _ledgerController = MemberDetailLedgerController(
       repository: widget.ledgerRepository,
@@ -82,21 +89,25 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
   Widget _buildContent() {
     final int totalCapital = MemberMetrics.totalActiveCapital(members);
     final int pct = MemberMetrics.capitalSharePercent(
-      memberCapital: widget.member.capital,
+      memberCapital: _member.capital,
       totalCapital: totalCapital,
     );
     final List<SubmissionHistoryItem> submissions =
         _submissionHistoryController.results;
+    final bool canEdit = AuthScope.of(context).role.canManageMembers;
 
     return Column(
       children: <Widget>[
         _MemberDetailHeader(
-          member: widget.member,
+          member: _member,
           colorIdx: widget.colorIdx,
           onBack: widget.onBack,
+          onEdit: _handleEdit,
+          canEdit: canEdit,
+          isEditEnabled: _controller.user != null,
         ),
         _CapitalCard(
-          member: widget.member,
+          member: _member,
           pct: pct,
           colorIdx: widget.colorIdx,
         ),
@@ -142,6 +153,34 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
       ],
     );
   }
+
+  Future<void> _handleEdit() async {
+    final ManagedUser? user = _controller.user;
+    if (user == null) {
+      return;
+    }
+
+    final ManagedUser? updated = await context.push<ManagedUser>(
+      RouteNames.editMember,
+      extra: EditMemberRouteArgs(user: user),
+    );
+
+    if (!mounted || updated == null) {
+      return;
+    }
+
+    _controller.setUser(updated);
+    setState(() {
+      _member = Member(
+        id: updated.userId,
+        name: updated.fullName.isEmpty ? _member.name : updated.fullName,
+        initials: updated.initials,
+        capital: _member.capital,
+        status: updated.status.memberStatus,
+        pending: _member.pending,
+      );
+    });
+  }
 }
 
 class _MemberDetailHeader extends StatelessWidget {
@@ -149,11 +188,17 @@ class _MemberDetailHeader extends StatelessWidget {
     required this.member,
     required this.colorIdx,
     required this.onBack,
+    required this.onEdit,
+    required this.canEdit,
+    required this.isEditEnabled,
   });
 
   final Member member;
   final int colorIdx;
   final VoidCallback onBack;
+  final VoidCallback onEdit;
+  final bool canEdit;
+  final bool isEditEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +246,17 @@ class _MemberDetailHeader extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
+                const Spacer(),
+                if (canEdit)
+                  IconButton(
+                    onPressed: isEditEnabled ? onEdit : null,
+                    icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                    tooltip: 'Edit member',
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: .15),
+                      minimumSize: const Size(40, 40),
+                    ),
+                  ),
               ],
             ),
           ),

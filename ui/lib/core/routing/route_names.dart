@@ -18,6 +18,8 @@ class RouteNames {
   static const String manageMembersSegment = 'manage';
   static const String memberDetail = '/members/detail';
   static const String memberDetailSegment = 'detail';
+  static const String editMember = '/members/detail/edit';
+  static const String editMemberSegment = 'edit';
   static const String ledger = '/ledger';
   static const String memberLedger = '/member-ledger';
 

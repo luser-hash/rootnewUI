@@ -18,6 +18,13 @@ class MemberDetailController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   ManagedUser? get user => _user;
 
+  void setUser(ManagedUser user) {
+    _user = user;
+    _errorMessage = null;
+    _isLoading = false;
+    notifyListeners();
+  }
+
   Future<void> load(String userId) async {
     if (userId.trim().isEmpty) {
       _errorMessage = 'Missing member ID.';

@@ -36,6 +36,14 @@ class ApiClient {
     return _send('POST', path, body: body, accessToken: accessToken);
   }
 
+  Future<Map<String, dynamic>> patch(
+    String path, {
+    Map<String, dynamic>? body,
+    String? accessToken,
+  }) async {
+    return _send('PATCH', path, body: body, accessToken: accessToken);
+  }
+
   Future<Map<String, dynamic>> _send(
     String method,
     String path, {
@@ -52,6 +60,10 @@ class ApiClient {
         'POST' =>
           _httpClient
               .post(uri, headers: headers, body: encodedBody)
+              .timeout(_timeout),
+        'PATCH' =>
+          _httpClient
+              .patch(uri, headers: headers, body: encodedBody)
               .timeout(_timeout),
         _ => throw StateError('Unsupported method: $method'),
       };

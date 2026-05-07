@@ -1,6 +1,7 @@
 import '../../../../core/network/api_client.dart';
 import '../domain/member_create_request.dart';
 import '../domain/member_management_models.dart';
+import '../domain/member_update_request.dart';
 
 class MemberManagementApi {
   const MemberManagementApi(this._apiClient);
@@ -37,6 +38,21 @@ class MemberManagementApi {
 
   Future<Map<String, dynamic>> create(MemberCreateRequest request) {
     return _apiClient.post('/users/', body: request.toJson());
+  }
+
+  Future<ManagedUser> update(String userId, MemberUpdateRequest request) async {
+    final String encodedUserId = Uri.encodeComponent(userId);
+    final Map<String, dynamic> response = await _apiClient.patch(
+      '/users/$encodedUserId/',
+      body: request.toJson(),
+    );
+    final Object? data = response['data'];
+    if (data == null && response.isEmpty) {
+      return detail(userId);
+    }
+    return ManagedUser.fromJson(
+      data is Map<String, dynamic> ? data : response,
+    );
   }
 
   List<dynamic> _extractItems(

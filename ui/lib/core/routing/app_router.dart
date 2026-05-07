@@ -11,6 +11,8 @@ import '../../src/features/ledger/presentation/ledger_page.dart';
 import '../../src/features/ledger/data/member_ledger_repository.dart';
 import '../../src/features/ledger/presentation/member_ledger.dart';
 import '../../src/features/members/data/member_management_repository.dart';
+import '../../src/features/members/domain/member_management_models.dart';
+import '../../src/features/members/presentation/edit_member.dart';
 import '../../src/features/members/presentation/manage_members.dart';
 import '../../src/features/members/presentation/member_detail_screen.dart';
 import '../../src/features/members/presentation/members_page.dart';
@@ -191,6 +193,27 @@ class AppRouter {
                       ),
                     );
                   },
+                  routes: <RouteBase>[
+                    GoRoute(
+                      path: RouteNames.editMemberSegment,
+                      builder: (BuildContext context, GoRouterState state) {
+                        final Object? extra = state.extra;
+                        final EditMemberRouteArgs? args =
+                            extra is EditMemberRouteArgs ? extra : null;
+
+                        if (args == null) {
+                          return _scroll(const SizedBox.shrink());
+                        }
+
+                        return _scroll(
+                          EditMemberPage(
+                            repository: memberManagementRepository,
+                            user: args.user,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -269,4 +292,10 @@ class MemberDetailRouteArgs {
 
   final Member member;
   final int memberColorIdx;
+}
+
+class EditMemberRouteArgs {
+  const EditMemberRouteArgs({required this.user});
+
+  final ManagedUser user;
 }
