@@ -5,6 +5,7 @@ abstract class MemberLedgerRepository {
   Future<MemberLedgerStatement> statement(MemberLedgerFilter filter);
   Future<MemberLedgerStatement> memberStatement(String userId);
   Future<AdminLedgerStatement> adminLedger(MemberLedgerFilter filter);
+  Future<AdminLedgerPostResult> adminPost(AdminLedgerPostRequest request);
 }
 
 class ApiMemberLedgerRepository implements MemberLedgerRepository {
@@ -25,5 +26,10 @@ class ApiMemberLedgerRepository implements MemberLedgerRepository {
   @override
   Future<AdminLedgerStatement> adminLedger(MemberLedgerFilter filter) {
     return _api.adminLedger(filter);
+  }
+
+  @override
+  Future<AdminLedgerPostResult> adminPost(AdminLedgerPostRequest request) {
+    return _api.adminPost(request);
   }
 }

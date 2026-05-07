@@ -11,12 +11,16 @@ class AdminLedgerController extends ChangeNotifier {
   final MemberLedgerRepository _repository;
 
   bool _isLoading = false;
+  bool _isPosting = false;
   String? _errorMessage;
+  String? _postErrorMessage;
   MemberLedgerFilter _filter = const MemberLedgerFilter();
   AdminLedgerStatement? _statement;
 
   bool get isLoading => _isLoading;
+  bool get isPosting => _isPosting;
   String? get errorMessage => _errorMessage;
+  String? get postErrorMessage => _postErrorMessage;
   MemberLedgerFilter get filter => _filter;
   AdminLedgerStatement? get statement => _statement;
 
@@ -40,5 +44,32 @@ class AdminLedgerController extends ChangeNotifier {
 
   Future<void> clearFilters() {
     return load(filter: const MemberLedgerFilter());
+  }
+
+  Future<AdminLedgerPostResult?> adminPost(
+    AdminLedgerPostRequest request,
+  ) async {
+    if (_isPosting) {
+      return null;
+    }
+
+    _isPosting = true;
+    _postErrorMessage = null;
+    notifyListeners();
+
+    try {
+      final AdminLedgerPostResult result = await _repository.adminPost(request);
+      await load();
+      return result;
+    } on ApiException catch (error) {
+      _postErrorMessage = error.message;
+      return null;
+    } catch (_) {
+      _postErrorMessage = 'Unable to post ledger entry. Please try again.';
+      return null;
+    } finally {
+      _isPosting = false;
+      notifyListeners();
+    }
   }
 }

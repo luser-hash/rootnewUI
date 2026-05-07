@@ -43,4 +43,17 @@ class MemberLedgerApi {
       data is Map<String, dynamic> ? data : response,
     );
   }
+
+  Future<AdminLedgerPostResult> adminPost(
+    AdminLedgerPostRequest request,
+  ) async {
+    final Map<String, dynamic> response = await _apiClient.post(
+      '/ledger/admin-post/',
+      body: request.toJson(),
+    );
+    final Object? data = response['data'];
+    return AdminLedgerPostResult.fromJson(
+      data is Map<String, dynamic> ? data : response,
+    );
+  }
 }

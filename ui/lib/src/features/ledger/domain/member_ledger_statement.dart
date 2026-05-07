@@ -21,6 +21,61 @@ enum MemberLedgerEntryType {
   }
 }
 
+class AdminLedgerPostRequest {
+  const AdminLedgerPostRequest({
+    required this.contactNo,
+    required this.entryType,
+    required this.amount,
+    required this.txnDate,
+    required this.comment,
+    required this.referenceId,
+  });
+
+  final String contactNo;
+  final MemberLedgerEntryType entryType;
+  final String amount;
+  final DateTime txnDate;
+  final String comment;
+  final String referenceId;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'contact_no': contactNo,
+      'entry_type': entryType.apiValue,
+      'amount': amount,
+      'txn_date': _formatDate(txnDate),
+      'comment': comment,
+      'reference_id': referenceId,
+    };
+  }
+
+  String _formatDate(DateTime value) {
+    final String month = value.month.toString().padLeft(2, '0');
+    final String day = value.day.toString().padLeft(2, '0');
+    return '${value.year}-$month-$day';
+  }
+}
+
+class AdminLedgerPostResult {
+  const AdminLedgerPostResult({
+    required this.entry,
+    required this.newBalance,
+  });
+
+  final MemberLedgerEntry? entry;
+  final String newBalance;
+
+  factory AdminLedgerPostResult.fromJson(Map<String, dynamic> json) {
+    final Object? entry = json['entry'];
+    return AdminLedgerPostResult(
+      entry: entry is Map<String, dynamic>
+          ? MemberLedgerEntry.fromJson(entry)
+          : null,
+      newBalance: '${json['new_balance'] ?? '0.00'}',
+    );
+  }
+}
+
 class MemberLedgerFilter {
   const MemberLedgerFilter({
     this.entryType,
