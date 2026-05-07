@@ -70,6 +70,7 @@ class AppRouter {
               builder: (BuildContext context, GoRouterState state) {
                 return _scroll(
                   HomeScreen(
+                    memberRepository: memberManagementRepository,
                     onNav: context.go,
                     onMemberSelect: (Member member, int memberColorIdx) {
                       context.push(
