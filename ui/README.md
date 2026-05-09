@@ -21,4 +21,10 @@ Override the API URL when needed:
 flutter run --dart-define=API_BASE_URL=http://192.168.1.10:8000/api
 ```
 
+Build a release APK against the deployed Render backend:
+
+```powershell
+flutter build apk --release --dart-define=API_BASE_URL=https://rootbackenddeploy.onrender.com/api
+```
+
 The app signs in through `POST /api/auth/login/` using `contact_no` and stores the Django SimpleJWT `access` and `refresh` tokens.

@@ -28,7 +28,7 @@ class AuthApi {
 
   Future<AuthTokens> refreshToken(String refreshToken) async {
     final Map<String, dynamic> response = await _apiClient.post(
-      '/api/auth/token/refresh/',
+      '/auth/token/refresh/',
       body: <String, dynamic>{'refresh': refreshToken},
     );
     return AuthTokens.fromJson(response);

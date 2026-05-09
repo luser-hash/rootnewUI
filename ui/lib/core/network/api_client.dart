@@ -152,7 +152,7 @@ class ApiClient {
     return response.statusCode == 401 &&
         _unauthorizedTokenRefresher != null &&
         headers.containsKey('Authorization') &&
-        path != '/api/auth/token/refresh/';
+        path != '/auth/token/refresh/';
   }
 
   Future<String?> _refreshAccessToken() {
