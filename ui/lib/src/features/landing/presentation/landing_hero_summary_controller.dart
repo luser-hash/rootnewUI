@@ -29,7 +29,7 @@ class LandingHeroSummaryController extends ChangeNotifier {
   int get activeMemberCount => _activeMemberCount;
 
   Future<void> load({
-    required bool canViewAllLedger,
+    required bool canViewCapitalSummary,
     required bool canViewMembers,
   }) async {
     _isLoading = true;
@@ -37,7 +37,7 @@ class LandingHeroSummaryController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      if (canViewAllLedger) {
+      if (canViewCapitalSummary) {
         final AdminLedgerStatement statement = await _ledgerRepository
             .adminLedger(const MemberLedgerFilter());
         _totalCapital = _capitalFromLedger(statement);

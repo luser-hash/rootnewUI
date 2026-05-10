@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!_heroSummaryRequested) {
       _heroSummaryRequested = true;
       _heroController.load(
-        canViewAllLedger: role.canViewAllLedger,
+        canViewCapitalSummary: role.canViewOwnLedger || role.canViewAllLedger,
         canViewMembers: role.canViewMembers,
       );
     }
