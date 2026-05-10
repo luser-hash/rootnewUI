@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../auth/domain/auth_session.dart';
+import '../../auth/presentation/auth_scope.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_small_button.dart';
@@ -43,12 +45,14 @@ class _InvestmentPageState extends State<InvestmentPage> {
       animation: _controller,
       builder: (BuildContext context, _) {
         final List<Investment> items = _controller.investments;
+        final UserRole role = AuthScope.of(context).role;
 
         return Column(
           children: <Widget>[
             _InvestmentsHeader(
               investments: items,
               onCreate: _openCreatePage,
+              canCreate: role.canViewAllInvestments,
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -99,8 +103,11 @@ class _InvestmentPageState extends State<InvestmentPage> {
                 onDetails: () => _showDetails(inv),
                 onReleaseFunds: () => _releaseFunds(inv),
                 onCloseInvestment: () => _closeInvestment(inv),
+                onDistribute: () => _distribute(inv),
                 isReleasing: _controller.releasingInvestmentId == inv.id,
                 isClosing: _controller.closingInvestmentId == inv.id,
+                isDistributing:
+                    _controller.distributingInvestmentId == inv.id,
                 actionsDisabled: _controller.hasActionInFlight,
               ),
             ),
@@ -212,16 +219,62 @@ class _InvestmentPageState extends State<InvestmentPage> {
       SnackBar(content: Text(message)),
     );
   }
+
+  Future<void> _distribute(Investment investment) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Distribute P&L?'),
+          content: Text(
+            'This will distribute the computed profit or loss for '
+            '"${investment.title}" to all members using the captured capital '
+            'snapshot.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Distribute'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || confirmed != true) {
+      return;
+    }
+
+    final bool distributed = await _controller.distribute(investment.id);
+    if (!mounted) {
+      return;
+    }
+
+    const String fallbackMessage =
+        'Unable to distribute P&L. Please try again.';
+    final String message = distributed
+        ? 'P&L distributed successfully.'
+        : (_controller.actionErrorMessage ?? fallbackMessage);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 }
 
 class _InvestmentsHeader extends StatelessWidget {
   const _InvestmentsHeader({
     required this.investments,
     required this.onCreate,
+    required this.canCreate,
   });
 
   final List<Investment> investments;
   final VoidCallback onCreate;
+  final bool canCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -268,12 +321,13 @@ class _InvestmentsHeader extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                AppSmallButton(
-                  label: '+ Create',
-                  background: Colors.white.withValues(alpha: .15),
-                  foreground: Colors.white,
-                  onTap: onCreate,
-                ),
+                if (canCreate)
+                  AppSmallButton(
+                    label: '+ Create',
+                    background: Colors.white.withValues(alpha: .15),
+                    foreground: Colors.white,
+                    onTap: onCreate,
+                  ),
               ],
             ),
           ),
@@ -331,8 +385,10 @@ class _InvestmentFullCard extends StatelessWidget {
     required this.onDetails,
     required this.onReleaseFunds,
     required this.onCloseInvestment,
+    required this.onDistribute,
     required this.isReleasing,
     required this.isClosing,
+    required this.isDistributing,
     required this.actionsDisabled,
   });
 
@@ -340,8 +396,10 @@ class _InvestmentFullCard extends StatelessWidget {
   final VoidCallback onDetails;
   final VoidCallback onReleaseFunds;
   final VoidCallback onCloseInvestment;
+  final VoidCallback onDistribute;
   final bool isReleasing;
   final bool isClosing;
+  final bool isDistributing;
   final bool actionsDisabled;
 
   @override
@@ -463,10 +521,16 @@ class _InvestmentFullCard extends StatelessWidget {
               if (inv.status == InvestmentStatus.closed)
                 Expanded(
                   child: AppActionButton(
-                    label: 'Distribute P&L',
-                    background: AppColors.primary,
-                    foreground: Colors.white,
-                    onTap: () {},
+                    label: isDistributing
+                        ? 'Distributing...'
+                        : 'Distribute P&L',
+                    background: actionsDisabled && !isDistributing
+                        ? AppColors.surface
+                        : AppColors.primary,
+                    foreground: actionsDisabled && !isDistributing
+                        ? AppColors.textMute
+                        : Colors.white,
+                    onTap: actionsDisabled ? null : onDistribute,
                   ),
                 ),
               if (hasPrimaryAction) const SizedBox(width: 8),

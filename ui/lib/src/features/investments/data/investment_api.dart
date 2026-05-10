@@ -76,6 +76,16 @@ class InvestmentApi {
     return _detailFromJson(data is Map<String, dynamic> ? data : response);
   }
 
+  Future<InvestmentDetail> distribute(String investmentId) async {
+    final String encodedId = Uri.encodeComponent(investmentId.trim());
+    final Map<String, dynamic> response = await _apiClient.post(
+      '/investments/$encodedId/distribute/',
+      body: <String, dynamic>{},
+    );
+    final Object? data = response['data'];
+    return _detailFromJson(data is Map<String, dynamic> ? data : response);
+  }
+
   Investment _investmentFromJson(Map<String, dynamic> json) {
     return Investment(
       id: '${json['investment_id'] ?? json['id'] ?? ''}',

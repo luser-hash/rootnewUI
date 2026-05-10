@@ -16,6 +16,7 @@ abstract class InvestmentRepository {
     String investmentId,
     InvestmentCloseRequest request,
   );
+  Future<InvestmentDetail> distribute(String investmentId);
 }
 
 class ApiInvestmentRepository implements InvestmentRepository {
@@ -52,5 +53,10 @@ class ApiInvestmentRepository implements InvestmentRepository {
     InvestmentCloseRequest request,
   ) {
     return _api.closeInvestment(investmentId, request);
+  }
+
+  @override
+  Future<InvestmentDetail> distribute(String investmentId) {
+    return _api.distribute(investmentId);
   }
 }
