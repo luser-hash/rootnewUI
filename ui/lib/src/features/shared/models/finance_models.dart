@@ -86,13 +86,13 @@ class Investment {
   final String id;
   final String title;
   final String to;
-  final int amount;
-  final int? pnl;
+  final num amount;
+  final num? pnl;
   final InvestmentStatus status;
   final String date;
 }
 
-enum InvestmentStatus { distributed, closed, open, draft }
+enum InvestmentStatus { distributed, closed, open, draft, reversed }
 
 extension InvestmentStatusX on InvestmentStatus {
   String get label {
@@ -105,6 +105,8 @@ extension InvestmentStatusX on InvestmentStatus {
         return 'OPEN';
       case InvestmentStatus.draft:
         return 'DRAFT';
+      case InvestmentStatus.reversed:
+        return 'REVERSED';
     }
   }
 }

@@ -32,6 +32,7 @@ class InvestmentStatusPill extends StatelessWidget {
       InvestmentStatus.draft => (AppColors.amberLt, AppColors.amber),
       InvestmentStatus.closed => (AppColors.surface, AppColors.textMute),
       InvestmentStatus.distributed => (AppColors.blueLt, AppColors.blue),
+      InvestmentStatus.reversed => (AppColors.redLt, AppColors.red),
     };
     return AppPill(label: status.label, background: bg, foreground: fg);
   }

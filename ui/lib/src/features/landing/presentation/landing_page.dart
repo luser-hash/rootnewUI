@@ -121,7 +121,6 @@ class _HomeScreenState extends State<HomeScreen> {
             onNav: widget.onNav,
             onMemberSelect: widget.onMemberSelect,
           ),
-        _InvestmentsCarousel(onNav: widget.onNav),
         _RecentActivitySection(onNav: widget.onNav),
       ],
     );
@@ -858,32 +857,6 @@ class _MemberCarouselMessage extends StatelessWidget {
   }
 }
 
-class _InvestmentsCarousel extends StatelessWidget {
-  const _InvestmentsCarousel({required this.onNav});
-
-  final ValueChanged<String> onNav;
-
-  @override
-  Widget build(BuildContext context) {
-    return _Section(
-      title: 'Investments',
-      actionLabel: 'See All →',
-      onAction: () => onNav(RouteNames.investments),
-      child: SizedBox(
-        height: 165,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          itemCount: investments.length,
-          separatorBuilder: (_, _) => const SizedBox(width: 12),
-          itemBuilder: (BuildContext context, int index) =>
-              _InvestmentChip(inv: investments[index]),
-        ),
-      ),
-    );
-  }
-}
-
 class _RecentActivitySection extends StatelessWidget {
   const _RecentActivitySection({required this.onNav});
 
@@ -1089,74 +1062,3 @@ class _TransactionRow extends StatelessWidget {
   }
 }
 
-class _InvestmentChip extends StatelessWidget {
-  const _InvestmentChip({required this.inv});
-
-  final Investment inv;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color border = inv.status == InvestmentStatus.open
-        ? AppColors.primary.withValues(alpha: .3)
-        : inv.status == InvestmentStatus.draft
-        ? AppColors.amber.withValues(alpha: .3)
-        : Colors.transparent;
-    final int? pnl = inv.pnl;
-    return Container(
-      width: 210,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: border, width: 1.5),
-        boxShadow: <BoxShadow>[AppColors.softShadow()],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          InvestmentStatusPill(status: inv.status),
-          const SizedBox(height: 10),
-          Text(
-            inv.title,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.text,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            inv.to,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 11, color: AppColors.textMute),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            fmt(inv.amount),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: AppColors.text,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            pnl == null
-                ? 'P&L Pending'
-                : '${pnl >= 0 ? '+' : ''}${fmt(pnl)} P&L',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: pnl == null
-                  ? AppColors.textMute
-                  : pnl >= 0
-                  ? AppColors.green
-                  : AppColors.red,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

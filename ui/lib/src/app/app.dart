@@ -10,6 +10,8 @@ import '../features/auth/data/auth_storage.dart';
 import '../features/auth/domain/auth_session.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/auth/presentation/auth_scope.dart';
+import '../features/investments/data/investment_api.dart';
+import '../features/investments/data/investment_repository.dart';
 import '../features/ledger/data/member_ledger_api.dart';
 import '../features/ledger/data/member_ledger_repository.dart';
 import '../features/members/data/member_management_api.dart';
@@ -28,6 +30,7 @@ class _AppState extends State<App> {
   late final SecureAuthStorage _authStorage;
   late final AuthController _authController;
   late final CapitalSubmissionRepository _capitalSubmissionRepository;
+  late final InvestmentRepository _investmentRepository;
   late final MemberLedgerRepository _memberLedgerRepository;
   late final MemberManagementRepository _memberManagementRepository;
   late final GoRouter _router;
@@ -64,6 +67,9 @@ class _AppState extends State<App> {
     _capitalSubmissionRepository = ApiCapitalSubmissionRepository(
       api: CapitalSubmissionApi(apiClient),
     );
+    _investmentRepository = ApiInvestmentRepository(
+      api: InvestmentApi(apiClient),
+    );
     _memberLedgerRepository = ApiMemberLedgerRepository(
       api: MemberLedgerApi(apiClient),
     );
@@ -73,6 +79,7 @@ class _AppState extends State<App> {
     _router = AppRouter.router(
       authController: _authController,
       capitalSubmissionRepository: _capitalSubmissionRepository,
+      investmentRepository: _investmentRepository,
       memberLedgerRepository: _memberLedgerRepository,
       memberManagementRepository: _memberManagementRepository,
     );

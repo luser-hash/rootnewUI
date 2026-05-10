@@ -96,45 +96,6 @@ const List<Submission> submissionsSeed = <Submission>[
   ),
 ];
 
-const List<Investment> investments = <Investment>[
-  Investment(
-    id: 'INV001',
-    title: 'Textile Import Q1',
-    to: 'Dhaka Fabrics Ltd',
-    amount: 300000,
-    pnl: 45000,
-    status: InvestmentStatus.distributed,
-    date: 'Jan 2026',
-  ),
-  Investment(
-    id: 'INV002',
-    title: 'Real Estate Plot',
-    to: 'Bashundhara Holdings',
-    amount: 500000,
-    pnl: -20000,
-    status: InvestmentStatus.closed,
-    date: 'Feb 2026',
-  ),
-  Investment(
-    id: 'INV003',
-    title: 'Export Goods Batch 3',
-    to: 'Chittagong Export Co.',
-    amount: 200000,
-    pnl: null,
-    status: InvestmentStatus.open,
-    date: 'Mar 2026',
-  ),
-  Investment(
-    id: 'INV004',
-    title: 'Agri Supply Chain',
-    to: 'GreenField BD',
-    amount: 150000,
-    pnl: null,
-    status: InvestmentStatus.draft,
-    date: 'Apr 2026',
-  ),
-];
-
 const List<TransactionItem> txns = <TransactionItem>[
   TransactionItem(
     id: 1,
@@ -153,23 +114,5 @@ const List<TransactionItem> txns = <TransactionItem>[
     type: TxnType.incoming,
     icon: '↓',
     sub: 'Installment · bKash',
-  ),
-  TransactionItem(
-    id: 3,
-    label: 'INV001 Distribution',
-    amount: 22500,
-    date: '01 Feb',
-    type: TxnType.distribution,
-    icon: '◈',
-    sub: 'Textile Import Q1 · Profit',
-  ),
-  TransactionItem(
-    id: 4,
-    label: 'INV002 Distribution',
-    amount: -9600,
-    date: '01 Mar',
-    type: TxnType.outgoing,
-    icon: '↑',
-    sub: 'Real Estate · Loss share',
   ),
 ];
