@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!_heroSummaryRequested) {
       _heroSummaryRequested = true;
       _heroController.load(
-        canViewCapitalSummary: role.canViewOwnLedger || role.canViewAllLedger,
+        canViewCapitalSummary: role.canViewAllLedger,
         canViewMembers: role.canViewMembers,
       );
     }
@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        _buildHero(totalCapital, totalPending),
+        _buildHero(totalCapital, totalPending, role),
         if (role.canViewApprovals && pendingCount > 0) _buildAlert(pendingCount),
         _buildQuickActions(pendingCount, role),
         if (role.canViewMembers)
@@ -127,10 +127,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHero(num totalCapital, num totalPending) {
+  Widget _buildHero(num totalCapital, num totalPending, UserRole role) {
     final AuthUser? user = AuthScope.of(context).session?.user;
     final String displayName = _displayName(user);
     final String initials = _initials(displayName);
+    final bool showCapitalSummary = role != UserRole.member;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
@@ -239,106 +240,110 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: .12),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: .18),
+              if (showCapitalSummary)
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: .18),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Total Association Capital',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white.withValues(alpha: .6),
+                          letterSpacing: 0.66,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            _balanceHidden ? '••••••' : fmtSh(totalCapital),
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -1,
+                              height: 1,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          InkWell(
+                            borderRadius: BorderRadius.circular(8),
+                            onTap: () => setState(
+                              () => _balanceHidden = !_balanceHidden,
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: .15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _balanceHidden ? '🙈' : '👁',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white.withValues(alpha: .8),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            width: 1,
+                            height: 32,
+                            color: Colors.white.withValues(alpha: .2),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                Text(
+                                  'Pending',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.white.withValues(alpha: .5),
+                                  ),
+                                ),
+                                Text(
+                                  _balanceHidden
+                                      ? '••••'
+                                      : fmtSh(totalPending),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.accentLt,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _heroSummaryText(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.accent.withValues(alpha: .9),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Total Association Capital',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.white.withValues(alpha: .6),
-                        letterSpacing: 0.66,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: <Widget>[
-                        Text(
-                          _balanceHidden ? '••••••' : fmtSh(totalCapital),
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: -1,
-                            height: 1,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(8),
-                          onTap: () =>
-                              setState(() => _balanceHidden = !_balanceHidden),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: .15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _balanceHidden ? '🙈' : '👁',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white.withValues(alpha: .8),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Container(
-                          width: 1,
-                          height: 32,
-                          color: Colors.white.withValues(alpha: .2),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                'Pending',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.white.withValues(alpha: .5),
-                                ),
-                              ),
-                              Text(
-                                _balanceHidden ? '••••' : fmtSh(totalPending),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.accentLt,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _heroSummaryText(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.accent.withValues(alpha: .9),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ],
