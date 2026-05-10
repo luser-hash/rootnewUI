@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
@@ -43,7 +45,10 @@ class _InvestmentPageState extends State<InvestmentPage> {
 
         return Column(
           children: <Widget>[
-            _InvestmentsHeader(investments: items),
+            _InvestmentsHeader(
+              investments: items,
+              onCreate: _openCreatePage,
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               child: _buildBody(items),
@@ -114,12 +119,25 @@ class _InvestmentPageState extends State<InvestmentPage> {
       },
     );
   }
+
+  Future<void> _openCreatePage() async {
+    final bool? created = await context.push<bool>(
+      RouteNames.investmentCreate,
+    );
+    if (created == true) {
+      await _controller.load();
+    }
+  }
 }
 
 class _InvestmentsHeader extends StatelessWidget {
-  const _InvestmentsHeader({required this.investments});
+  const _InvestmentsHeader({
+    required this.investments,
+    required this.onCreate,
+  });
 
   final List<Investment> investments;
+  final VoidCallback onCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +188,7 @@ class _InvestmentsHeader extends StatelessWidget {
                   label: '+ Create',
                   background: Colors.white.withValues(alpha: .15),
                   foreground: Colors.white,
-                  onTap: () {},
+                  onTap: onCreate,
                 ),
               ],
             ),

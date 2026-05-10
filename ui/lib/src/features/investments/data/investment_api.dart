@@ -1,5 +1,6 @@
 import '../../../../core/network/api_client.dart';
 import '../../shared/finance.dart';
+import '../domain/investment_create_request.dart';
 import '../domain/investment_detail.dart';
 
 class InvestmentApi {
@@ -40,6 +41,15 @@ class InvestmentApi {
     );
     final Object? data = response['data'];
     return _detailFromJson(data is Map<String, dynamic> ? data : response);
+  }
+
+  Future<Investment> create(InvestmentCreateRequest request) async {
+    final Map<String, dynamic> response = await _apiClient.post(
+      '/investments/',
+      body: request.toJson(),
+    );
+    final Object? data = response['data'];
+    return _investmentFromJson(data is Map<String, dynamic> ? data : response);
   }
 
   Investment _investmentFromJson(Map<String, dynamic> json) {

@@ -13,6 +13,8 @@ class RouteNames {
   static const String submissionDetailSegment = ':requestId';
   static const String approvals = '/approvals';
   static const String investments = '/investments';
+  static const String investmentCreate = '/investments/create';
+  static const String investmentCreateSegment = 'create';
   static const String members = '/members';
   static const String manageMembers = '/members/manage';
   static const String manageMembersSegment = 'manage';

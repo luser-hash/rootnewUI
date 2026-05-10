@@ -1,4 +1,5 @@
 import '../../shared/finance.dart';
+import '../domain/investment_create_request.dart';
 import '../domain/investment_detail.dart';
 import 'investment_api.dart';
 
@@ -8,6 +9,7 @@ abstract class InvestmentRepository {
     String? investmentType,
   });
   Future<InvestmentDetail> detail(String investmentId);
+  Future<Investment> create(InvestmentCreateRequest request);
 }
 
 class ApiInvestmentRepository implements InvestmentRepository {
@@ -26,5 +28,10 @@ class ApiInvestmentRepository implements InvestmentRepository {
   @override
   Future<InvestmentDetail> detail(String investmentId) {
     return _api.detail(investmentId);
+  }
+
+  @override
+  Future<Investment> create(InvestmentCreateRequest request) {
+    return _api.create(request);
   }
 }
