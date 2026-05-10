@@ -5,6 +5,7 @@ import 'auth_storage.dart';
 
 abstract class AuthRepository {
   Future<AuthSession?> restoreSession();
+  Future<String?> readRememberedPhone();
   Future<AuthSession> signIn({
     required String phone,
     required String password,
@@ -79,6 +80,11 @@ class ApiAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<String?> readRememberedPhone() {
+    return _storage.readRememberedPhone();
+  }
+
+  @override
   Future<AuthSession> signIn({
     required String phone,
     required String password,
@@ -101,8 +107,10 @@ class ApiAuthRepository implements AuthRepository {
 
     if (rememberDevice) {
       await _storage.saveSession(verifiedSession);
+      await _storage.saveRememberedPhone(phone);
     } else {
       await _storage.clearSession();
+      await _storage.clearRememberedPhone();
     }
 
     return verifiedSession;

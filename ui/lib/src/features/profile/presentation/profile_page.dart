@@ -4,28 +4,65 @@ import '../../../../core/theme/app_theme.dart';
 import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../auth/presentation/auth_scope.dart';
+import '../../ledger/data/member_ledger_repository.dart';
+import '../../ledger/presentation/member_ledger_controller.dart';
+import '../../ledger/presentation/total_balance_card.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_pill.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key, required this.ledgerRepository});
+
+  final MemberLedgerRepository ledgerRepository;
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  late final MemberLedgerController _ledgerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _ledgerController = MemberLedgerController(
+      repository: widget.ledgerRepository,
+    );
+    _ledgerController.load();
+  }
+
+  @override
+  void dispose() {
+    _ledgerController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final AuthUser? user = AuthScope.of(context).user;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        _ProfileHeader(
-          user: user,
-          onEdit: () => _showChangePasswordSheet(context),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: _ProfileDetailsCard(user: user),
-        ),
-      ],
+    return AnimatedBuilder(
+      animation: _ledgerController,
+      builder: (BuildContext context, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            _ProfileHeader(
+              user: user,
+              onEdit: () => _showChangePasswordSheet(context),
+            ),
+            TotalBalanceCard(
+              statement: _ledgerController.statement,
+              isLoading: _ledgerController.isLoading,
+              errorMessage: _ledgerController.errorMessage,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: _ProfileDetailsCard(user: user),
+            ),
+          ],
+        );
+      },
     );
   }
 

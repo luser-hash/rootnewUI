@@ -41,6 +41,10 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<String?> readRememberedPhone() {
+    return _repository.readRememberedPhone();
+  }
+
   Future<bool> signIn({
     required String phone,
     required String password,

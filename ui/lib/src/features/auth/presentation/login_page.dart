@@ -20,6 +20,13 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _rememberMe = true;
   bool _obscurePassword = true;
+  bool _loadedRememberedPhone = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadRememberedPhone(AuthScope.of(context));
+  }
 
   @override
   void dispose() {
@@ -239,6 +246,23 @@ class _LoginPageState extends State<LoginPage> {
         context.go(RouteNames.home);
       }
     }
+  }
+
+  Future<void> _loadRememberedPhone(AuthController authController) async {
+    if (_loadedRememberedPhone) {
+      return;
+    }
+    _loadedRememberedPhone = true;
+
+    final String? phone = await authController.readRememberedPhone();
+    if (!mounted || phone == null || _phoneController.text.isNotEmpty) {
+      return;
+    }
+
+    setState(() {
+      _phoneController.text = phone;
+      _rememberMe = true;
+    });
   }
 }
 

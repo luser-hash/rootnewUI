@@ -189,6 +189,11 @@ class ApiClient {
   }
 
   String _extractErrorMessage(Map<String, dynamic> payload) {
+    final String? validationError = _firstErrorText(payload['errors']);
+    if (validationError != null) {
+      return validationError;
+    }
+
     final Object? message =
         payload['message'] ?? payload['error'] ?? payload['detail'];
     final String? extracted =

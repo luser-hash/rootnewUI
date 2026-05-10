@@ -92,7 +92,9 @@ class AppRouter {
             GoRoute(
               path: RouteNames.profile,
               builder: (BuildContext context, GoRouterState state) {
-                return _scroll(const ProfilePage());
+                return _scroll(
+                  ProfilePage(ledgerRepository: memberLedgerRepository),
+                );
               },
             ),
             GoRoute(

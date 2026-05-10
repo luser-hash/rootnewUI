@@ -8,8 +8,8 @@ import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
 import '../../ledger/data/member_ledger_repository.dart';
 import '../../ledger/domain/member_ledger_statement.dart';
+import '../../ledger/presentation/total_balance_card.dart';
 import '../../shared/finance.dart';
-import '../../shared/services/member_metrics.dart';
 import '../../shared/widgets/app_avatar.dart';
 import '../../shared/widgets/app_card_list.dart';
 import '../../shared/widgets/app_pill.dart';
@@ -88,11 +88,6 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
   }
 
   Widget _buildContent() {
-    final int totalCapital = MemberMetrics.totalActiveCapital(members);
-    final int pct = MemberMetrics.capitalSharePercent(
-      memberCapital: _member.capital,
-      totalCapital: totalCapital,
-    );
     final List<SubmissionHistoryItem> submissions =
         _submissionHistoryController.results;
     final bool canEdit = AuthScope.of(context).role.canManageMembers;
@@ -107,10 +102,10 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
           canEdit: canEdit,
           isEditEnabled: _controller.user != null,
         ),
-        _CapitalCard(
-          member: _member,
-          pct: pct,
-          colorIdx: widget.colorIdx,
+        TotalBalanceCard(
+          statement: _ledgerController.statement,
+          isLoading: _ledgerController.isLoading,
+          errorMessage: _ledgerController.errorMessage,
         ),
         _AccountDetailsCard(
           isLoading: _controller.isLoading,
@@ -313,85 +308,6 @@ class _MemberDetailHeader extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CapitalCard extends StatelessWidget {
-  const _CapitalCard({
-    required this.member,
-    required this.pct,
-    required this.colorIdx,
-  });
-
-  final Member member;
-  final int pct;
-  final int colorIdx;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow()],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Text(
-            'AUTHORIZED CAPITAL',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-              letterSpacing: 0.55,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            fmt(member.capital),
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: AppColors.text,
-            ),
-          ),
-          if (member.pending > 0)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                '+${fmt(member.pending)} pending (not counted)',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.amber,
-                ),
-              ),
-            ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: pct / 100,
-              minHeight: 8,
-              backgroundColor: AppColors.surface,
-              color: avatarColor(colorIdx),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '$pct% of total association capital',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-            ),
           ),
         ],
       ),

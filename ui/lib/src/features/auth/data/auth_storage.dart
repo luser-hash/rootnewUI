@@ -7,7 +7,10 @@ import '../domain/auth_session.dart';
 abstract class AuthStorage {
   Future<AuthSession?> readSession();
   Future<String?> readAccessToken();
+  Future<String?> readRememberedPhone();
   Future<void> saveSession(AuthSession session);
+  Future<void> saveRememberedPhone(String phone);
+  Future<void> clearRememberedPhone();
   Future<void> clearSession();
 }
 
@@ -16,6 +19,7 @@ class SecureAuthStorage implements AuthStorage {
     : _storage = storage ?? const FlutterSecureStorage();
 
   static const String _sessionKey = 'root_finance_auth_session';
+  static const String _rememberedPhoneKey = 'root_finance_remembered_phone';
 
   final FlutterSecureStorage _storage;
 
@@ -42,11 +46,28 @@ class SecureAuthStorage implements AuthStorage {
   }
 
   @override
+  Future<String?> readRememberedPhone() async {
+    final String? phone = await _storage.read(key: _rememberedPhoneKey);
+    final String normalized = phone?.trim() ?? '';
+    return normalized.isEmpty ? null : normalized;
+  }
+
+  @override
   Future<void> saveSession(AuthSession session) {
     return _storage.write(
       key: _sessionKey,
       value: jsonEncode(session.toJson()),
     );
+  }
+
+  @override
+  Future<void> saveRememberedPhone(String phone) {
+    return _storage.write(key: _rememberedPhoneKey, value: phone.trim());
+  }
+
+  @override
+  Future<void> clearRememberedPhone() {
+    return _storage.delete(key: _rememberedPhoneKey);
   }
 
   @override
