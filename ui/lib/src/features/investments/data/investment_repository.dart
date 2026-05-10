@@ -1,4 +1,5 @@
 import '../../shared/finance.dart';
+import '../domain/investment_close_request.dart';
 import '../domain/investment_create_request.dart';
 import '../domain/investment_detail.dart';
 import 'investment_api.dart';
@@ -10,6 +11,11 @@ abstract class InvestmentRepository {
   });
   Future<InvestmentDetail> detail(String investmentId);
   Future<Investment> create(InvestmentCreateRequest request);
+  Future<InvestmentDetail> releaseFunds(String investmentId);
+  Future<InvestmentDetail> closeInvestment(
+    String investmentId,
+    InvestmentCloseRequest request,
+  );
 }
 
 class ApiInvestmentRepository implements InvestmentRepository {
@@ -33,5 +39,18 @@ class ApiInvestmentRepository implements InvestmentRepository {
   @override
   Future<Investment> create(InvestmentCreateRequest request) {
     return _api.create(request);
+  }
+
+  @override
+  Future<InvestmentDetail> releaseFunds(String investmentId) {
+    return _api.releaseFunds(investmentId);
+  }
+
+  @override
+  Future<InvestmentDetail> closeInvestment(
+    String investmentId,
+    InvestmentCloseRequest request,
+  ) {
+    return _api.closeInvestment(investmentId, request);
   }
 }

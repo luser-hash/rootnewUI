@@ -1,5 +1,6 @@
 import '../../../../core/network/api_client.dart';
 import '../../shared/finance.dart';
+import '../domain/investment_close_request.dart';
 import '../domain/investment_create_request.dart';
 import '../domain/investment_detail.dart';
 
@@ -50,6 +51,29 @@ class InvestmentApi {
     );
     final Object? data = response['data'];
     return _investmentFromJson(data is Map<String, dynamic> ? data : response);
+  }
+
+  Future<InvestmentDetail> releaseFunds(String investmentId) async {
+    final String encodedId = Uri.encodeComponent(investmentId.trim());
+    final Map<String, dynamic> response = await _apiClient.post(
+      '/investments/$encodedId/release-funds/',
+      body: <String, dynamic>{},
+    );
+    final Object? data = response['data'];
+    return _detailFromJson(data is Map<String, dynamic> ? data : response);
+  }
+
+  Future<InvestmentDetail> closeInvestment(
+    String investmentId,
+    InvestmentCloseRequest request,
+  ) async {
+    final String encodedId = Uri.encodeComponent(investmentId.trim());
+    final Map<String, dynamic> response = await _apiClient.post(
+      '/investments/$encodedId/close/',
+      body: request.toJson(),
+    );
+    final Object? data = response['data'];
+    return _detailFromJson(data is Map<String, dynamic> ? data : response);
   }
 
   Investment _investmentFromJson(Map<String, dynamic> json) {

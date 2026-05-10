@@ -8,6 +8,7 @@ import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../data/investment_repository.dart';
+import '../domain/investment_close_request.dart';
 import 'investment_controller.dart';
 import 'investment_detail_page.dart';
 
@@ -96,6 +97,11 @@ class _InvestmentPageState extends State<InvestmentPage> {
               child: _InvestmentFullCard(
                 inv: inv,
                 onDetails: () => _showDetails(inv),
+                onReleaseFunds: () => _releaseFunds(inv),
+                onCloseInvestment: () => _closeInvestment(inv),
+                isReleasing: _controller.releasingInvestmentId == inv.id,
+                isClosing: _controller.closingInvestmentId == inv.id,
+                actionsDisabled: _controller.hasActionInFlight,
               ),
             ),
           )
@@ -127,6 +133,84 @@ class _InvestmentPageState extends State<InvestmentPage> {
     if (created == true) {
       await _controller.load();
     }
+  }
+
+  Future<void> _releaseFunds(Investment investment) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Release funds?'),
+          content: Text(
+            'This will open "${investment.title}" and capture the current '
+            'member capital snapshot. This snapshot is used for future '
+            'distribution calculations.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Release Funds'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || confirmed != true) {
+      return;
+    }
+
+    final bool released = await _controller.releaseFunds(investment.id);
+    if (!mounted) {
+      return;
+    }
+
+    const String fallbackMessage = 'Unable to release funds. Please try again.';
+    final String message = released
+        ? 'Funds released successfully.'
+        : (_controller.actionErrorMessage ?? fallbackMessage);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  Future<void> _closeInvestment(Investment investment) async {
+    final InvestmentCloseRequest? request =
+        await showModalBottomSheet<InvestmentCloseRequest>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: AppColors.white,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+          ),
+          builder: (BuildContext context) {
+            return _CloseInvestmentSheet(investment: investment);
+          },
+        );
+
+    if (!mounted || request == null) {
+      return;
+    }
+
+    final bool closed = await _controller.closeInvestment(
+      investment.id,
+      request,
+    );
+    if (!mounted) {
+      return;
+    }
+
+    const String fallbackMessage = 'Unable to close investment. Please try again.';
+    final String message = closed
+        ? 'Investment closed successfully.'
+        : (_controller.actionErrorMessage ?? fallbackMessage);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 }
 
@@ -242,10 +326,23 @@ bool _isOpenInvestment(Investment investment) {
 }
 
 class _InvestmentFullCard extends StatelessWidget {
-  const _InvestmentFullCard({required this.inv, required this.onDetails});
+  const _InvestmentFullCard({
+    required this.inv,
+    required this.onDetails,
+    required this.onReleaseFunds,
+    required this.onCloseInvestment,
+    required this.isReleasing,
+    required this.isClosing,
+    required this.actionsDisabled,
+  });
 
   final Investment inv;
   final VoidCallback onDetails;
+  final VoidCallback onReleaseFunds;
+  final VoidCallback onCloseInvestment;
+  final bool isReleasing;
+  final bool isClosing;
+  final bool actionsDisabled;
 
   @override
   Widget build(BuildContext context) {
@@ -342,19 +439,25 @@ class _InvestmentFullCard extends StatelessWidget {
               if (inv.status == InvestmentStatus.draft)
                 Expanded(
                   child: AppActionButton(
-                    label: 'Release Funds',
-                    background: AppColors.amberLt,
-                    foreground: AppColors.amber,
-                    onTap: () {},
+                    label: isReleasing ? 'Releasing...' : 'Release Funds',
+                    background: actionsDisabled && !isReleasing
+                        ? AppColors.surface
+                        : AppColors.amberLt,
+                    foreground: actionsDisabled && !isReleasing
+                        ? AppColors.textMute
+                        : AppColors.amber,
+                    onTap: actionsDisabled ? null : onReleaseFunds,
                   ),
                 ),
               if (inv.status == InvestmentStatus.open)
                 Expanded(
                   child: AppActionButton(
-                    label: 'Close',
+                    label: isClosing ? 'Closing...' : 'Close',
                     background: AppColors.surface,
-                    foreground: AppColors.text,
-                    onTap: () {},
+                    foreground: actionsDisabled && !isClosing
+                        ? AppColors.textMute
+                        : AppColors.text,
+                    onTap: actionsDisabled ? null : onCloseInvestment,
                   ),
                 ),
               if (inv.status == InvestmentStatus.closed)
@@ -379,6 +482,234 @@ class _InvestmentFullCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _CloseInvestmentSheet extends StatefulWidget {
+  const _CloseInvestmentSheet({required this.investment});
+
+  final Investment investment;
+
+  @override
+  State<_CloseInvestmentSheet> createState() => _CloseInvestmentSheetState();
+}
+
+class _CloseInvestmentSheetState extends State<_CloseInvestmentSheet> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _returnAmountController =
+      TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
+  DateTime _closeDate = DateTime.now();
+
+  @override
+  void dispose() {
+    _returnAmountController.dispose();
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          18,
+          18,
+          18,
+          MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Container(
+                    width: 42,
+                    height: 42,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.lock_outline_rounded,
+                      color: AppColors.text,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        const Text(
+                          'Close Investment',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.text,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.investment.title,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textMute,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close_rounded),
+                    tooltip: 'Close',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              TextFormField(
+                controller: _returnAmountController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Return Amount',
+                  hintText: _amountHint(widget.investment.amount),
+                  prefixIcon: const Icon(Icons.payments_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                validator: _amount,
+              ),
+              const SizedBox(height: 14),
+              Material(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  onTap: _pickCloseDate,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 14,
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 20,
+                          color: AppColors.textMute,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              const Text(
+                                'Close Date',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textMute,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                _formatDate(_closeDate),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.text,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _commentController,
+                minLines: 3,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  labelText: 'Closure Comment',
+                  hintText: 'Optional note',
+                  prefixIcon: const Icon(Icons.notes_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              AppActionButton(
+                label: 'Close Investment',
+                background: AppColors.primary,
+                foreground: Colors.white,
+                onTap: _submit,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String? _amount(String? value) {
+    final String text = value?.trim() ?? '';
+    if (text.isEmpty) {
+      return 'This field is required.';
+    }
+    final num? parsed = num.tryParse(text);
+    return parsed == null || parsed < 0 ? 'Enter a valid amount.' : null;
+  }
+
+  Future<void> _pickCloseDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _closeDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (picked != null) {
+      setState(() => _closeDate = picked);
+    }
+  }
+
+  void _submit() {
+    FocusScope.of(context).unfocus();
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    Navigator.of(context).pop(
+      InvestmentCloseRequest(
+        returnAmount: _returnAmountController.text.trim(),
+        closeDate: _closeDate,
+        closureComment: _commentController.text.trim(),
+      ),
+    );
+  }
+}
+
+String _amountHint(num amount) {
+  return amount.toStringAsFixed(2);
+}
+
+String _formatDate(DateTime value) {
+  final String month = value.month.toString().padLeft(2, '0');
+  final String day = value.day.toString().padLeft(2, '0');
+  return '${value.year}-$month-$day';
 }
 
 class _InvestmentMessage extends StatelessWidget {
