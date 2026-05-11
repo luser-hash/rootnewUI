@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
+import '../../shared/widgets/app_action_button.dart';
 import '../domain/investment_detail.dart';
 
 class InvestmentDetailPage extends StatelessWidget {
@@ -220,6 +221,13 @@ class _InvestmentDetailContent extends StatelessWidget {
         if (detail.closureComment.trim().isNotEmpty) ...<Widget>[
           const SizedBox(height: 14),
           _TextBlock(label: 'Closure Comment', value: detail.closureComment),
+          const SizedBox(height: 10),
+          AppActionButton(
+            label: 'Distributon Record',
+            background: AppColors.blueLt,
+            foreground: AppColors.blue,
+            onTap: () {},
+          ),
         ],
       ],
     );
