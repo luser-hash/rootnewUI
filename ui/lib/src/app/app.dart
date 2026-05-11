@@ -16,6 +16,8 @@ import '../features/ledger/data/member_ledger_api.dart';
 import '../features/ledger/data/member_ledger_repository.dart';
 import '../features/members/data/member_management_api.dart';
 import '../features/members/data/member_management_repository.dart';
+import '../features/reports/data/member_report_api.dart';
+import '../features/reports/data/member_report_repository.dart';
 import '../features/submissions/data/capital_submission_api.dart';
 import '../features/submissions/data/capital_submission_repository.dart';
 
@@ -33,6 +35,7 @@ class _AppState extends State<App> {
   late final InvestmentRepository _investmentRepository;
   late final MemberLedgerRepository _memberLedgerRepository;
   late final MemberManagementRepository _memberManagementRepository;
+  late final MemberReportRepository _memberReportRepository;
   late final GoRouter _router;
 
   @override
@@ -76,12 +79,16 @@ class _AppState extends State<App> {
     _memberManagementRepository = ApiMemberManagementRepository(
       api: MemberManagementApi(apiClient),
     );
+    _memberReportRepository = ApiMemberReportRepository(
+      api: MemberReportApi(apiClient),
+    );
     _router = AppRouter.router(
       authController: _authController,
       capitalSubmissionRepository: _capitalSubmissionRepository,
       investmentRepository: _investmentRepository,
       memberLedgerRepository: _memberLedgerRepository,
       memberManagementRepository: _memberManagementRepository,
+      memberReportRepository: _memberReportRepository,
     );
     _authController.bootstrap();
   }

@@ -20,6 +20,7 @@ import '../../src/features/members/presentation/manage_members.dart';
 import '../../src/features/members/presentation/member_detail_screen.dart';
 import '../../src/features/members/presentation/members_page.dart';
 import '../../src/features/profile/presentation/profile_page.dart';
+import '../../src/features/reports/data/member_report_repository.dart';
 import '../../src/features/reports/presentation/member_report.dart';
 import '../../src/features/shared/finance.dart';
 import '../../src/features/shared/widgets/app_shell.dart';
@@ -42,6 +43,7 @@ class AppRouter {
     required InvestmentRepository investmentRepository,
     required MemberLedgerRepository memberLedgerRepository,
     required MemberManagementRepository memberManagementRepository,
+    required MemberReportRepository memberReportRepository,
   }) {
     return GoRouter(
       initialLocation: RouteNames.login,
@@ -266,7 +268,9 @@ class AppRouter {
             GoRoute(
               path: RouteNames.memberReport,
               builder: (BuildContext context, GoRouterState state) {
-                return _scroll(const MemberReportPage());
+                return _scroll(
+                  MemberReportPage(repository: memberReportRepository),
+                );
               },
             ),
           ],
