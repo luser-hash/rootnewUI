@@ -26,6 +26,7 @@ class RouteNames {
   static const String editMemberSegment = 'edit';
   static const String ledger = '/ledger';
   static const String memberLedger = '/member-ledger';
+  static const String memberReport = '/reports/member';
 
   static String submissionDetail(String requestId) {
     return '$submissions/$requestId';

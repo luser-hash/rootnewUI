@@ -476,6 +476,7 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: '📈',
           label: 'Reports',
           color: Color(0xFFFFF8ED),
+          screen: RouteNames.memberReport,
         ),
       if (role.canManagePermissions)
         const _QuickAction(

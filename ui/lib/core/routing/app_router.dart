@@ -20,6 +20,7 @@ import '../../src/features/members/presentation/manage_members.dart';
 import '../../src/features/members/presentation/member_detail_screen.dart';
 import '../../src/features/members/presentation/members_page.dart';
 import '../../src/features/profile/presentation/profile_page.dart';
+import '../../src/features/reports/presentation/member_report.dart';
 import '../../src/features/shared/finance.dart';
 import '../../src/features/shared/widgets/app_shell.dart';
 import '../../src/features/submissions/data/capital_submission_repository.dart';
@@ -262,6 +263,12 @@ class AppRouter {
                 );
               },
             ),
+            GoRoute(
+              path: RouteNames.memberReport,
+              builder: (BuildContext context, GoRouterState state) {
+                return _scroll(const MemberReportPage());
+              },
+            ),
           ],
         ),
       ],
@@ -299,6 +306,9 @@ class AppRouter {
       return RouteNames.home;
     }
     if (location == RouteNames.memberLedger && role != UserRole.member) {
+      return RouteNames.home;
+    }
+    if (location == RouteNames.memberReport && !role.canViewOwnReports) {
       return RouteNames.home;
     }
 
