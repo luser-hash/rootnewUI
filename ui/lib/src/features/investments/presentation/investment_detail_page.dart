@@ -10,10 +10,12 @@ class InvestmentDetailPage extends StatelessWidget {
     super.key,
     required this.investment,
     required this.detailFuture,
+    required this.onDistributionRecord,
   });
 
   final Investment investment;
   final Future<InvestmentDetail> detailFuture;
+  final VoidCallback onDistributionRecord;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,10 @@ class InvestmentDetailPage extends StatelessWidget {
               foreground: AppColors.red,
             );
           } else {
-            body = _InvestmentDetailContent(detail: snap.data!);
+            body = _InvestmentDetailContent(
+              detail: snap.data!,
+              onDistributionRecord: onDistributionRecord,
+            );
           }
 
           return SingleChildScrollView(
@@ -113,9 +118,13 @@ class InvestmentDetailPage extends StatelessWidget {
 }
 
 class _InvestmentDetailContent extends StatelessWidget {
-  const _InvestmentDetailContent({required this.detail});
+  const _InvestmentDetailContent({
+    required this.detail,
+    required this.onDistributionRecord,
+  });
 
   final InvestmentDetail detail;
+  final VoidCallback onDistributionRecord;
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +235,7 @@ class _InvestmentDetailContent extends StatelessWidget {
             label: 'Distributon Record',
             background: AppColors.blueLt,
             foreground: AppColors.blue,
-            onTap: () {},
+            onTap: onDistributionRecord,
           ),
         ],
       ],

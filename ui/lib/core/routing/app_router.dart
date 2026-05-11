@@ -6,6 +6,7 @@ import '../../src/features/auth/presentation/login_page.dart';
 import '../../src/features/approvals/presentation/approval_page.dart';
 import '../../src/features/auth/domain/auth_session.dart';
 import '../../src/features/investments/data/investment_repository.dart';
+import '../../src/features/investments/presentation/distribution_record.dart';
 import '../../src/features/investments/presentation/investment_create_page.dart';
 import '../../src/features/investments/presentation/investment_page.dart';
 import '../../src/features/landing/presentation/landing_page.dart';
@@ -152,6 +153,19 @@ class AppRouter {
                   builder: (BuildContext context, GoRouterState state) {
                     return _scroll(
                       InvestmentCreatePage(repository: investmentRepository),
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: RouteNames.investmentDistributionSegment,
+                  builder: (BuildContext context, GoRouterState state) {
+                    final String investmentId =
+                        state.pathParameters['investmentId'] ?? '';
+                    return _scroll(
+                      DistributionRecordPage(
+                        repository: investmentRepository,
+                        investmentId: investmentId,
+                      ),
                     );
                   },
                 ),

@@ -1,8 +1,10 @@
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/api_exception.dart';
 import '../../shared/finance.dart';
 import '../domain/investment_close_request.dart';
 import '../domain/investment_create_request.dart';
 import '../domain/investment_detail.dart';
+import '../domain/investment_distribution_record.dart';
 
 class InvestmentApi {
   const InvestmentApi(this._apiClient);
@@ -86,6 +88,40 @@ class InvestmentApi {
     return _detailFromJson(data is Map<String, dynamic> ? data : response);
   }
 
+  Future<List<InvestmentDistributionRecord>> distributionRecords(
+    String investmentId, {
+    InvestmentDistributionStatus? status,
+  }) async {
+    final String encodedId = Uri.encodeComponent(investmentId.trim());
+    final Uri uri = Uri(
+      path: '/investments/$encodedId/distribution/',
+      queryParameters: status == null
+          ? null
+          : <String, String>{'status': status.label},
+    );
+
+    try {
+      final Map<String, dynamic> response = await _apiClient.get(
+        uri.toString(),
+      );
+      final Object? data = response['data'];
+      final Object? payload = data ?? response['results'] ?? response['items'];
+      final List<dynamic> items = payload is List<dynamic>
+          ? payload
+          : <dynamic>[];
+
+      return items
+          .whereType<Map<String, dynamic>>()
+          .map(_distributionRecordFromJson)
+          .toList();
+    } on ApiException catch (error) {
+      if (error.statusCode == 404) {
+        return <InvestmentDistributionRecord>[];
+      }
+      rethrow;
+    }
+  }
+
   Investment _investmentFromJson(Map<String, dynamic> json) {
     return Investment(
       id: '${json['investment_id'] ?? json['id'] ?? ''}',
@@ -127,6 +163,61 @@ class InvestmentApi {
     );
   }
 
+  InvestmentDistributionRecord _distributionRecordFromJson(
+    Map<String, dynamic> json,
+  ) {
+    final Object? postedBy = json['posted_by'];
+    final Object? reversedBy = json['reversed_by'];
+    final Object? rawLines = json['lines'];
+    final List<dynamic> lines = rawLines is List<dynamic>
+        ? rawLines
+        : <dynamic>[];
+
+    return InvestmentDistributionRecord(
+      distributionId: '${json['distribution_id'] ?? ''}',
+      investmentId: '${json['investment_id'] ?? ''}',
+      snapshotId: '${json['snapshot_id'] ?? ''}',
+      pnlAmount: '${json['pnl_amount'] ?? '0.00'}',
+      roundedTotal: '${json['rounded_total'] ?? '0.00'}',
+      remainderApplied: '${json['remainder_applied'] ?? '0.00'}',
+      status: _distributionStatusFromApi(json['status']),
+      postedBy: postedBy is Map<String, dynamic>
+          ? _distributionUserFromJson(postedBy)
+          : null,
+      postedAt: DateTime.tryParse('${json['posted_at'] ?? ''}'),
+      reversedBy: reversedBy is Map<String, dynamic>
+          ? _distributionUserFromJson(reversedBy)
+          : null,
+      reversedAt: DateTime.tryParse('${json['reversed_at'] ?? ''}'),
+      lines: lines
+          .whereType<Map<String, dynamic>>()
+          .map(_distributionLineFromJson)
+          .toList(),
+    );
+  }
+
+  InvestmentDistributionUser _distributionUserFromJson(
+    Map<String, dynamic> json,
+  ) {
+    return InvestmentDistributionUser(
+      userId: '${json['user_id'] ?? ''}',
+      fullName: '${json['full_name'] ?? ''}',
+    );
+  }
+
+  InvestmentDistributionLine _distributionLineFromJson(
+    Map<String, dynamic> json,
+  ) {
+    return InvestmentDistributionLine(
+      distributionLineId: '${json['distribution_line_id'] ?? ''}',
+      userId: '${json['user_id'] ?? ''}',
+      fullName: '${json['full_name'] ?? ''}',
+      ratioUsed: '${json['ratio_used'] ?? ''}',
+      shareAmount: '${json['share_amount'] ?? '0.00'}',
+      ledgerEntryId: '${json['ledger_entry_id'] ?? ''}',
+    );
+  }
+
   num? _optionalNumber(Object? value) {
     if (value == null) {
       return null;
@@ -149,6 +240,13 @@ class InvestmentApi {
       'DISTRIBUTED' => InvestmentStatus.distributed,
       'REVERSED' => InvestmentStatus.reversed,
       _ => InvestmentStatus.draft,
+    };
+  }
+
+  InvestmentDistributionStatus _distributionStatusFromApi(Object? value) {
+    return switch ('$value'.trim().toUpperCase()) {
+      'REVERSED' => InvestmentDistributionStatus.reversed,
+      _ => InvestmentDistributionStatus.posted,
     };
   }
 }

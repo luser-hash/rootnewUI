@@ -15,6 +15,8 @@ class RouteNames {
   static const String investments = '/investments';
   static const String investmentCreate = '/investments/create';
   static const String investmentCreateSegment = 'create';
+  static const String investmentDistributionSegment =
+      ':investmentId/distribution';
   static const String members = '/members';
   static const String manageMembers = '/members/manage';
   static const String manageMembersSegment = 'manage';
@@ -27,5 +29,9 @@ class RouteNames {
 
   static String submissionDetail(String requestId) {
     return '$submissions/$requestId';
+  }
+
+  static String investmentDistribution(String investmentId) {
+    return '$investments/${Uri.encodeComponent(investmentId)}/distribution';
   }
 }

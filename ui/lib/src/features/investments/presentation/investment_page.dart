@@ -117,6 +117,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
   }
 
   Future<void> _showDetails(Investment investment) async {
+    final BuildContext pageContext = context;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -128,6 +129,12 @@ class _InvestmentPageState extends State<InvestmentPage> {
         return InvestmentDetailPage(
           investment: investment,
           detailFuture: widget.repository.detail(investment.id),
+          onDistributionRecord: () {
+            Navigator.of(context).pop();
+            pageContext.push(
+              RouteNames.investmentDistribution(investment.id),
+            );
+          },
         );
       },
     );
