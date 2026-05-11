@@ -115,7 +115,7 @@ extension UserRolePermissions on UserRole {
   bool get canViewOwnLedger => this != UserRole.unknown;
   bool get canViewAllLedger => _isAdminOrAbove;
   bool get canDistribute => _isAdminOrAbove;
-  bool get canViewOwnReports => this != UserRole.unknown;
+  bool get canViewOwnReports => this == UserRole.member;
   bool get canViewAllReports => _isAdminOrAbove;
   bool get canManagePermissions => this == UserRole.superAdmin;
 

@@ -478,6 +478,13 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Color(0xFFFFF8ED),
           screen: RouteNames.memberReport,
         ),
+      if (role.canViewAllReports)
+        const _QuickAction(
+          icon: '📈',
+          label: 'Reports',
+          color: Color(0xFFFFF8ED),
+          screen: RouteNames.staffReport,
+        ),
       if (role.canManagePermissions)
         const _QuickAction(
           icon: '⚙️',
