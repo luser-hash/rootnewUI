@@ -119,26 +119,26 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ### Existing File To Improve
 
-- [ ] Update `lib/src/features/shared/widgets/status_pills.dart`.
+- [x] Update `lib/src/features/shared/widgets/status_pills.dart`.
 
 ### Tasks
 
-- [ ] Add generic `AppStatusPill`.
-- [ ] Keep existing typed wrappers: `SubmissionStatusPill`, `InvestmentStatusPill`, `MemberStatusPill`.
-- [ ] Add `strike` support for reversed report/distribution statuses.
-- [ ] Add one generic color mapping helper only if it does not duplicate domain logic.
+- [x] Add generic `AppStatusPill`.
+- [x] Keep existing typed wrappers: `SubmissionStatusPill`, `InvestmentStatusPill`, `MemberStatusPill`.
+- [x] Add `strike` support for reversed report/distribution statuses.
+- [x] Add one generic color mapping helper only if it does not duplicate domain logic.
 
 ### Replacement Targets
 
-- [ ] Replace `_SubmissionStatusPill` in `submissions/presentation/submissions_page.dart`.
-- [ ] Replace `_SubmissionStatusPill` in `members/presentation/member_detail_screen.dart`.
-- [ ] Replace `_StatusPill` in `reports/presentation/staff_report.dart`.
-- [ ] Replace local investment status pill/card coloring where a typed wrapper already exists.
+- [x] Replace `_SubmissionStatusPill` in `submissions/presentation/submissions_page.dart`.
+- [x] Replace `_SubmissionStatusPill` in `members/presentation/member_detail_screen.dart`.
+- [x] Replace `_StatusPill` in `reports/presentation/staff_report.dart`.
+- [x] Replace local investment status pill/card coloring where a typed wrapper already exists.
 
 ### Acceptance Checks
 
-- [ ] Status labels and colors stay consistent.
-- [ ] Existing typed wrappers continue working.
+- [x] Status labels and colors stay consistent.
+- [x] Existing typed wrappers continue working.
 - [ ] `flutter analyze` passes.
 
 ## Phase 5 - Shared Form Fields

@@ -5,7 +5,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
-import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/status_pills.dart';
 import '../data/capital_submission_repository.dart';
 import '../domain/capital_submission_request.dart';
 import 'submission_list_controller.dart';
@@ -271,7 +271,11 @@ class _SubmissionCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _SubmissionStatusPill(status: submission.status),
+                  AppStatusPill(
+                    label: submission.status.label,
+                    background: _statusBackground(submission.status),
+                    foreground: _statusForeground(submission.status),
+                  ),
                 ],
               ),
               const SizedBox(height: 14),
@@ -342,21 +346,6 @@ class _SubmissionCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _SubmissionStatusPill extends StatelessWidget {
-  const _SubmissionStatusPill({required this.status});
-
-  final CapitalSubmissionStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppPill(
-      label: status.label,
-      background: _statusBackground(status),
-      foreground: _statusForeground(status),
     );
   }
 }

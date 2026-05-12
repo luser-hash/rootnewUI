@@ -5,6 +5,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/status_pills.dart';
 import '../data/staff_report_repository.dart';
 import '../domain/staff_report_models.dart';
 
@@ -924,9 +925,17 @@ class _StatCluster extends StatelessWidget {
               spacing: 7,
               runSpacing: 7,
               children: stats.map((_TinyStat stat) {
-                return _StatusPill(
+                return AppStatusPill(
                   label: '${stat.label} ${stat.value}',
                   color: stat.color,
+                  showBorder: true,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
+                  ),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  textHeight: null,
                 );
               }).toList(),
             ),
@@ -1076,11 +1085,19 @@ class _MemberTable extends StatelessWidget {
                   _Cell(member.joinDate),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: _StatusPill(
+                    child: AppStatusPill(
                       label: valueOrDash(member.status),
                       color: member.status.toUpperCase() == 'ACTIVE'
                           ? AppColors.green
                           : AppColors.textMute,
+                      showBorder: true,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 5,
+                      ),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      textHeight: null,
                     ),
                   ),
                   _MoneyCell(member.balance),
@@ -1141,9 +1158,17 @@ class _InvestmentTable extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: _StatusPill(
+                    child: AppStatusPill(
                       label: prettyEnumLabel(item.status),
                       color: _investmentStatusColor(item.status),
+                      showBorder: true,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 5,
+                      ),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      textHeight: null,
                     ),
                   ),
                   _Cell('${item.memberCount}'),
@@ -1199,10 +1224,18 @@ class _DistributionList extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: _StatusPill(
+                    child: AppStatusPill(
                       label: prettyEnumLabel(item.status),
                       color: reversed ? AppColors.red : AppColors.green,
                       strike: reversed,
+                      showBorder: true,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 5,
+                      ),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      textHeight: null,
                     ),
                   ),
                 ],
@@ -1282,9 +1315,17 @@ class _ApprovalQueueTable extends StatelessWidget {
                   _Cell(item.txnDate),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: _StatusPill(
+                    child: AppStatusPill(
                       label: prettyEnumLabel(item.paymentChannel),
                       color: channelColor,
+                      showBorder: true,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 5,
+                      ),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      textHeight: null,
                     ),
                   ),
                   _Cell(
@@ -1527,41 +1568,6 @@ class _MoneyCell extends StatelessWidget {
         fontWeight: FontWeight.w900,
         color: color,
         fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-      ),
-    );
-  }
-}
-
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({
-    required this.label,
-    required this.color,
-    this.strike = false,
-  });
-
-  final String label;
-  final Color color;
-  final bool strike;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: .12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: .2)),
-      ),
-      child: Text(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w900,
-          color: color,
-          decoration: strike ? TextDecoration.lineThrough : null,
-        ),
       ),
     );
   }

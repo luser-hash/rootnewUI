@@ -16,6 +16,7 @@ import '../../shared/widgets/app_detail_block.dart';
 import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/status_pills.dart';
 import '../../submissions/data/capital_submission_repository.dart';
 import '../../submissions/domain/capital_submission_request.dart';
 import '../../submissions/domain/submission_history.dart';
@@ -632,7 +633,15 @@ class _SubmissionHistoryRow extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  _SubmissionStatusPill(status: submission.status),
+                  AppStatusPill(
+                    label: submission.status.label,
+                    background: _submissionStatusBackground(
+                      submission.status,
+                    ),
+                    foreground: _submissionStatusForeground(
+                      submission.status,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -699,7 +708,15 @@ class _SubmissionHistoryRow extends StatelessWidget {
                         ],
                       ),
                     ),
-                    _SubmissionStatusPill(status: submission.status),
+                    AppStatusPill(
+                      label: submission.status.label,
+                      background: _submissionStatusBackground(
+                        submission.status,
+                      ),
+                      foreground: _submissionStatusForeground(
+                        submission.status,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -807,21 +824,6 @@ class _SubmissionHistoryRow extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _SubmissionStatusPill extends StatelessWidget {
-  const _SubmissionStatusPill({required this.status});
-
-  final CapitalSubmissionStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppPill(
-      label: status.label,
-      background: _submissionStatusBackground(status),
-      foreground: _submissionStatusForeground(status),
     );
   }
 }
