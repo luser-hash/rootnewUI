@@ -7,6 +7,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../data/member_management_repository.dart';
 import '../domain/member_management_models.dart';
@@ -125,16 +126,16 @@ class _EditMemberPageState extends State<EditMemberPage> {
               ),
               const SizedBox(height: 14),
             ],
-            const _EditSectionLabel(title: 'Member details'),
+            const AppSectionLabel(title: 'Member details'),
             const SizedBox(height: 12),
-            _EditTextField(
+            AppTextFormField(
               controller: _nameController,
               label: 'Full name',
               icon: Icons.person_outline,
               validator: _required,
             ),
             const SizedBox(height: 12),
-            _EditTextField(
+            AppTextFormField(
               controller: _phoneController,
               label: 'Contact number',
               icon: Icons.phone_outlined,
@@ -142,7 +143,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
               validator: _required,
             ),
             const SizedBox(height: 12),
-            _EditTextField(
+            AppTextFormField(
               controller: _emailController,
               label: 'Email address',
               icon: Icons.mail_outline,
@@ -150,34 +151,52 @@ class _EditMemberPageState extends State<EditMemberPage> {
               validator: _email,
             ),
             const SizedBox(height: 12),
-            _JoinDateField(
+            AppDateField(
               value: _joinDate,
+              label: 'Join date',
               onTap: _isSubmitting ? null : () => _pickJoinDate(context),
             ),
             const SizedBox(height: 18),
-            const _EditSectionLabel(title: 'Access setup'),
+            const AppSectionLabel(title: 'Access setup'),
             const SizedBox(height: 12),
-            _RoleField(
+            AppDropdownField<UserRole>(
+              label: 'Role',
               value: _role,
-              enabled: !_isSubmitting,
-              onChanged: (UserRole? value) {
-                if (value != null) {
-                  setState(() => _role = value);
-                }
-              },
+              icon: Icons.admin_panel_settings_outlined,
+              values: const <UserRole>[
+                UserRole.member,
+                UserRole.admin,
+                UserRole.superAdmin,
+              ],
+              labelBuilder: _roleLabel,
+              onChanged: _isSubmitting
+                  ? null
+                  : (UserRole? value) {
+                      if (value != null) {
+                        setState(() => _role = value);
+                      }
+                    },
             ),
             const SizedBox(height: 12),
-            _StatusField(
+            AppDropdownField<ManagedUserStatus>(
+              label: 'Status',
               value: _status,
-              enabled: !_isSubmitting,
-              onChanged: (ManagedUserStatus? value) {
-                if (value != null) {
-                  setState(() => _status = value);
-                }
-              },
+              icon: Icons.verified_user_outlined,
+              values: const <ManagedUserStatus>[
+                ManagedUserStatus.active,
+                ManagedUserStatus.inactive,
+              ],
+              labelBuilder: _statusLabel,
+              onChanged: _isSubmitting
+                  ? null
+                  : (ManagedUserStatus? value) {
+                      if (value != null) {
+                        setState(() => _status = value);
+                      }
+                    },
             ),
             const SizedBox(height: 12),
-            _EditTextField(
+            AppTextFormField(
               controller: _notesController,
               label: 'Admin notes',
               icon: Icons.notes_outlined,
@@ -434,201 +453,6 @@ class _EditMemberHeader extends StatelessWidget {
   }
 }
 
-class _EditSectionLabel extends StatelessWidget {
-  const _EditSectionLabel({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-        color: AppColors.text,
-      ),
-    );
-  }
-}
-
-class _EditTextField extends StatelessWidget {
-  const _EditTextField({
-    required this.controller,
-    required this.label,
-    required this.icon,
-    this.keyboardType,
-    this.validator,
-    this.minLines = 1,
-    this.maxLines = 1,
-  });
-
-  final TextEditingController controller;
-  final String label;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final FormFieldValidator<String>? validator;
-  final int minLines;
-  final int maxLines;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      minLines: minLines,
-      maxLines: maxLines,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: AppColors.text,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: AppColors.textMute),
-        filled: true,
-        fillColor: AppColors.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.red),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.red, width: 1.4),
-        ),
-      ),
-    );
-  }
-}
-
-class _JoinDateField extends StatelessWidget {
-  const _JoinDateField({required this.value, required this.onTap});
-
-  final DateTime value;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: <Widget>[
-              const Icon(Icons.event_outlined, color: AppColors.textMute),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Join date: ${_formatDate(value)}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.text,
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: AppColors.textMute,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RoleField extends StatelessWidget {
-  const _RoleField({
-    required this.value,
-    required this.enabled,
-    required this.onChanged,
-  });
-
-  final UserRole value;
-  final bool enabled;
-  final ValueChanged<UserRole?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<UserRole>(
-      initialValue: value,
-      decoration: _dropdownDecoration(
-        label: 'Role',
-        icon: Icons.admin_panel_settings_outlined,
-      ),
-      items: const <DropdownMenuItem<UserRole>>[
-        DropdownMenuItem<UserRole>(
-          value: UserRole.member,
-          child: Text('Member'),
-        ),
-        DropdownMenuItem<UserRole>(value: UserRole.admin, child: Text('Admin')),
-        DropdownMenuItem<UserRole>(
-          value: UserRole.superAdmin,
-          child: Text('Super Admin'),
-        ),
-      ],
-      onChanged: enabled ? onChanged : null,
-    );
-  }
-}
-
-class _StatusField extends StatelessWidget {
-  const _StatusField({
-    required this.value,
-    required this.enabled,
-    required this.onChanged,
-  });
-
-  final ManagedUserStatus value;
-  final bool enabled;
-  final ValueChanged<ManagedUserStatus?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<ManagedUserStatus>(
-      initialValue: value,
-      decoration: _dropdownDecoration(
-        label: 'Status',
-        icon: Icons.verified_user_outlined,
-      ),
-      items: const <DropdownMenuItem<ManagedUserStatus>>[
-        DropdownMenuItem<ManagedUserStatus>(
-          value: ManagedUserStatus.active,
-          child: Text('Active'),
-        ),
-        DropdownMenuItem<ManagedUserStatus>(
-          value: ManagedUserStatus.inactive,
-          child: Text('Inactive'),
-        ),
-      ],
-      onChanged: enabled ? onChanged : null,
-    );
-  }
-}
-
 class _DangerButton extends StatelessWidget {
   const _DangerButton({
     required this.label,
@@ -676,32 +500,18 @@ class _DangerButton extends StatelessWidget {
   }
 }
 
-InputDecoration _dropdownDecoration({
-  required String label,
-  required IconData icon,
-}) {
-  return InputDecoration(
-    labelText: label,
-    prefixIcon: Icon(icon, color: AppColors.textMute),
-    filled: true,
-    fillColor: AppColors.surface,
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide.none,
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
-    ),
-  );
+String _roleLabel(UserRole role) {
+  return switch (role) {
+    UserRole.member => 'Member',
+    UserRole.admin => 'Admin',
+    UserRole.superAdmin => 'Super Admin',
+    UserRole.unknown => role.label,
+  };
 }
 
-String _formatDate(DateTime value) {
-  final String month = value.month.toString().padLeft(2, '0');
-  final String day = value.day.toString().padLeft(2, '0');
-  return '${value.year}-$month-$day';
+String _statusLabel(ManagedUserStatus status) {
+  return switch (status) {
+    ManagedUserStatus.active => 'Active',
+    ManagedUserStatus.inactive => 'Inactive',
+  };
 }

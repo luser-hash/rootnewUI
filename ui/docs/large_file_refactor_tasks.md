@@ -145,29 +145,29 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ### New Files
 
-- [ ] Add `lib/src/features/shared/widgets/app_form_fields.dart`.
+- [x] Add `lib/src/features/shared/widgets/app_form_fields.dart`.
 
 ### New Widgets
 
-- [ ] Add `AppTextFormField`.
-- [ ] Add `AppPasswordField`.
-- [ ] Add `AppDateField`.
-- [ ] Add `AppDropdownField<T>`.
-- [ ] Add `AppSectionLabel`.
+- [x] Add `AppTextFormField`.
+- [x] Add `AppPasswordField`.
+- [x] Add `AppDateField`.
+- [x] Add `AppDropdownField<T>`.
+- [x] Add `AppSectionLabel`.
 
 ### Replacement Targets
 
-- [ ] Replace `_AppTextField`, `_PasswordField`, `_JoinDateField`, and `_ReadOnlyRoleField` in `members/presentation/manage_members.dart`.
-- [ ] Replace `_EditTextField`, `_JoinDateField`, `_RoleField`, and `_StatusField` in `members/presentation/edit_member.dart`.
-- [ ] Replace `_SubmissionTextField` and `_DateField` in `submissions/presentation/submit_funds_page.dart`.
-- [ ] Replace `_InvestmentTextField` and `_DateField` in `investments/presentation/investment_create_page.dart`.
-- [ ] Replace `_LoginTextField` in `auth/presentation/login_page.dart`.
-- [ ] Replace `_PasswordTextField` in `profile/presentation/profile_page.dart`.
+- [x] Replace `_AppTextField`, `_PasswordField`, `_JoinDateField`, and `_ReadOnlyRoleField` in `members/presentation/manage_members.dart`.
+- [x] Replace `_EditTextField`, `_JoinDateField`, `_RoleField`, and `_StatusField` in `members/presentation/edit_member.dart`.
+- [x] Replace `_SubmissionTextField` and `_DateField` in `submissions/presentation/submit_funds_page.dart`.
+- [x] Replace `_InvestmentTextField` and `_DateField` in `investments/presentation/investment_create_page.dart`.
+- [x] Replace `_LoginTextField` in `auth/presentation/login_page.dart`.
+- [x] Replace `_PasswordTextField` in `profile/presentation/profile_page.dart`.
 
 ### Acceptance Checks
 
-- [ ] Form validation behavior is unchanged.
-- [ ] Keyboard types, obscure text behavior, icons, and date picker behavior are preserved.
+- [x] Form validation behavior is unchanged.
+- [x] Keyboard types, obscure text behavior, icons, and date picker behavior are preserved.
 - [ ] `flutter analyze` passes.
 
 ## Phase 6 - Shared Screen Headers

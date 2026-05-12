@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../data/member_management_repository.dart';
@@ -106,16 +107,16 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
               ),
               const SizedBox(height: 14),
             ],
-            const _SectionLabel(title: 'Member details'),
+            const AppSectionLabel(title: 'Member details'),
             const SizedBox(height: 12),
-            _AppTextField(
+            AppTextFormField(
               controller: _nameController,
               label: 'Full name',
               icon: Icons.person_outline,
               validator: _required,
             ),
             const SizedBox(height: 12),
-            _AppTextField(
+            AppTextFormField(
               controller: _phoneController,
               label: 'Contact number',
               icon: Icons.phone_outlined,
@@ -123,7 +124,7 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
               validator: _required,
             ),
             const SizedBox(height: 12),
-            _AppTextField(
+            AppTextFormField(
               controller: _emailController,
               label: 'Email address',
               icon: Icons.mail_outline,
@@ -131,25 +132,31 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
               validator: _email,
             ),
             const SizedBox(height: 12),
-            _JoinDateField(
+            AppDateField(
               value: _joinDate,
+              label: 'Join date',
               onTap: () => _pickJoinDate(context),
             ),
             const SizedBox(height: 18),
-            const _SectionLabel(title: 'Access setup'),
+            const AppSectionLabel(title: 'Access setup'),
             const SizedBox(height: 12),
-            const _ReadOnlyRoleField(),
+            const AppReadOnlyField(
+              label: 'Role',
+              value: 'MEMBER',
+              icon: Icons.badge_outlined,
+            ),
             const SizedBox(height: 12),
-            _PasswordField(
+            AppPasswordField(
               controller: _passwordController,
+              label: 'Initial password',
               obscureText: _obscurePassword,
-              onToggle: () {
+              onToggleVisibility: () {
                 setState(() => _obscurePassword = !_obscurePassword);
               },
               validator: _password,
             ),
             const SizedBox(height: 12),
-            _AppTextField(
+            AppTextFormField(
               controller: _notesController,
               label: 'Admin notes',
               icon: Icons.notes_outlined,
@@ -318,216 +325,4 @@ class _ManageMembersHeader extends StatelessWidget {
       ),
     );
   }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-        color: AppColors.text,
-      ),
-    );
-  }
-}
-
-class _AppTextField extends StatelessWidget {
-  const _AppTextField({
-    required this.controller,
-    required this.label,
-    required this.icon,
-    this.keyboardType,
-    this.validator,
-    this.minLines = 1,
-    this.maxLines = 1,
-  });
-
-  final TextEditingController controller;
-  final String label;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final FormFieldValidator<String>? validator;
-  final int minLines;
-  final int maxLines;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      minLines: minLines,
-      maxLines: maxLines,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: AppColors.text,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: AppColors.textMute),
-        filled: true,
-        fillColor: AppColors.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
-        ),
-      ),
-    );
-  }
-}
-
-class _JoinDateField extends StatelessWidget {
-  const _JoinDateField({required this.value, required this.onTap});
-
-  final DateTime value;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: <Widget>[
-              const Icon(Icons.event_outlined, color: AppColors.textMute),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Join date: ${_formatDate(value)}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.text,
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: AppColors.textMute,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ReadOnlyRoleField extends StatelessWidget {
-  const _ReadOnlyRoleField();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: const Row(
-        children: <Widget>[
-          Icon(Icons.badge_outlined, color: AppColors.textMute),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Role: MEMBER',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.text,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PasswordField extends StatelessWidget {
-  const _PasswordField({
-    required this.controller,
-    required this.obscureText,
-    required this.onToggle,
-    required this.validator,
-  });
-
-  final TextEditingController controller;
-  final bool obscureText;
-  final VoidCallback onToggle;
-  final FormFieldValidator<String> validator;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      validator: validator,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: AppColors.text,
-      ),
-      decoration: InputDecoration(
-        labelText: 'Initial password',
-        prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textMute),
-        suffixIcon: IconButton(
-          onPressed: onToggle,
-          icon: Icon(
-            obscureText
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-            color: AppColors.textMute,
-          ),
-          tooltip: obscureText ? 'Show password' : 'Hide password',
-        ),
-        filled: true,
-        fillColor: AppColors.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
-        ),
-      ),
-    );
-  }
-}
-
-String _formatDate(DateTime value) {
-  final String month = value.month.toString().padLeft(2, '0');
-  final String day = value.day.toString().padLeft(2, '0');
-  return '${value.year}-$month-$day';
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../data/capital_submission_repository.dart';
 import '../domain/capital_submission_request.dart';
@@ -97,10 +98,19 @@ class _SubmitFundsPageState extends State<SubmitFundsPage> {
               ),
               const SizedBox(height: 14),
             ],
-            _DropdownField<CapitalRequestType>(
+            AppDropdownField<CapitalRequestType>(
               label: 'Request Type',
               value: _requestType,
               values: CapitalRequestType.values,
+              hint: 'Request Type',
+              icon: Icons.tune_rounded,
+              dropdownIcon: const Icon(Icons.keyboard_arrow_down_rounded),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 16,
+              ),
+              focusedBorderWidth: 1.5,
+              borderSideNone: false,
               labelBuilder: (CapitalRequestType value) => value.label,
               onChanged: (CapitalRequestType? value) {
                 if (value != null) {
@@ -109,23 +119,51 @@ class _SubmitFundsPageState extends State<SubmitFundsPage> {
               },
             ),
             const SizedBox(height: 14),
-            _SubmissionTextField(
+            AppTextFormField(
               controller: _amountController,
               label: 'Amount',
               hint: '5000.00',
-              prefixIcon: Icons.payments_outlined,
+              icon: Icons.payments_outlined,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
               validator: _validateAmount,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 16,
+              ),
+              prefixIconSize: 20,
+              focusedBorderWidth: 1.5,
+              borderSideNone: false,
             ),
             const SizedBox(height: 14),
-            _DateField(value: _txnDate, onTap: _pickDate),
+            AppDateField(
+              value: _txnDate,
+              onTap: _pickDate,
+              label: 'Transaction Date',
+              icon: Icons.calendar_today_outlined,
+              inputDecorator: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 16,
+              ),
+              focusedBorderWidth: 1.5,
+              borderSideNone: false,
+            ),
             const SizedBox(height: 14),
-            _DropdownField<PaymentChannel>(
+            AppDropdownField<PaymentChannel>(
               label: 'Payment Channel',
               value: _paymentChannel,
               values: PaymentChannel.values,
+              hint: 'Payment Channel',
+              icon: Icons.tune_rounded,
+              dropdownIcon: const Icon(Icons.keyboard_arrow_down_rounded),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 16,
+              ),
+              focusedBorderWidth: 1.5,
+              borderSideNone: false,
               labelBuilder: (PaymentChannel value) => value.label,
               onChanged: (PaymentChannel? value) {
                 if (value != null) {
@@ -134,21 +172,35 @@ class _SubmitFundsPageState extends State<SubmitFundsPage> {
               },
             ),
             const SizedBox(height: 14),
-            _SubmissionTextField(
+            AppTextFormField(
               controller: _referenceController,
               label: 'External Reference',
               hint: 'TXN123456789',
-              prefixIcon: Icons.receipt_long_outlined,
+              icon: Icons.receipt_long_outlined,
               validator: _required('External reference is required'),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 16,
+              ),
+              prefixIconSize: 20,
+              focusedBorderWidth: 1.5,
+              borderSideNone: false,
             ),
             const SizedBox(height: 14),
-            _SubmissionTextField(
+            AppTextFormField(
               controller: _notesController,
               label: 'Notes',
               hint: 'June installment',
-              prefixIcon: Icons.notes_outlined,
+              icon: Icons.notes_outlined,
               maxLines: 3,
               validator: _required('Notes are required'),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 16,
+              ),
+              prefixIconSize: 20,
+              focusedBorderWidth: 1.5,
+              borderSideNone: false,
             ),
             const SizedBox(height: 22),
             AppActionButton(
@@ -276,159 +328,4 @@ class _SubmitFundsHeader extends StatelessWidget {
       ),
     );
   }
-}
-
-class _SubmissionTextField extends StatelessWidget {
-  const _SubmissionTextField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    required this.prefixIcon,
-    this.keyboardType,
-    this.maxLines = 1,
-    this.validator,
-  });
-
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final IconData prefixIcon;
-  final TextInputType? keyboardType;
-  final int maxLines;
-  final FormFieldValidator<String>? validator;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      validator: validator,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: AppColors.text,
-      ),
-      decoration: _fieldDecoration(
-        label: label,
-        hint: hint,
-        prefixIcon: prefixIcon,
-      ),
-    );
-  }
-}
-
-class _DropdownField<T> extends StatelessWidget {
-  const _DropdownField({
-    required this.label,
-    required this.value,
-    required this.values,
-    required this.labelBuilder,
-    required this.onChanged,
-  });
-
-  final String label;
-  final T value;
-  final List<T> values;
-  final String Function(T value) labelBuilder;
-  final ValueChanged<T?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<T>(
-      initialValue: value,
-      decoration: _fieldDecoration(
-        label: label,
-        hint: label,
-        prefixIcon: Icons.tune_rounded,
-      ),
-      icon: const Icon(Icons.keyboard_arrow_down_rounded),
-      items: values
-          .map(
-            (T value) => DropdownMenuItem<T>(
-              value: value,
-              child: Text(labelBuilder(value)),
-            ),
-          )
-          .toList(),
-      onChanged: onChanged,
-    );
-  }
-}
-
-class _DateField extends StatelessWidget {
-  const _DateField({required this.value, required this.onTap});
-
-  final DateTime value;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: InputDecorator(
-        decoration: _fieldDecoration(
-          label: 'Transaction Date',
-          hint: 'Transaction Date',
-          prefixIcon: Icons.calendar_today_outlined,
-        ),
-        child: Text(
-          _formatDate(value),
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: AppColors.text,
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime value) {
-    final String month = value.month.toString().padLeft(2, '0');
-    final String day = value.day.toString().padLeft(2, '0');
-    return '${value.year}-$month-$day';
-  }
-}
-
-InputDecoration _fieldDecoration({
-  required String label,
-  required String hint,
-  required IconData prefixIcon,
-}) {
-  return InputDecoration(
-    labelText: label,
-    hintText: hint,
-    prefixIcon: Icon(prefixIcon, size: 20, color: AppColors.textMute),
-    filled: true,
-    fillColor: AppColors.surface,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-    labelStyle: const TextStyle(
-      fontSize: 13,
-      fontWeight: FontWeight.w700,
-      color: AppColors.textMute,
-    ),
-    hintStyle: const TextStyle(
-      fontSize: 13,
-      fontWeight: FontWeight.w600,
-      color: AppColors.textMute,
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.red),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.red, width: 1.5),
-    ),
-  );
 }

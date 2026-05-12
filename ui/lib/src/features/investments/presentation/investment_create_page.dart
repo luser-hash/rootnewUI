@@ -5,6 +5,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../data/investment_repository.dart';
 import '../domain/investment_create_request.dart';
@@ -93,20 +94,22 @@ class _InvestmentCreatePageState extends State<InvestmentCreatePage> {
               ),
               const SizedBox(height: 14),
             ],
-            const _SectionLabel(title: 'Investment details'),
+            const AppSectionLabel(title: 'Investment details'),
             const SizedBox(height: 12),
-            _InvestmentTextField(
+            AppTextFormField(
               controller: _titleController,
               label: 'Title',
               hint: 'Root Fixed Deposit',
-              prefixIcon: Icons.title_rounded,
+              icon: Icons.title_rounded,
               validator: _required,
             ),
             const SizedBox(height: 14),
-            _DropdownField<_InvestmentType>(
+            AppDropdownField<_InvestmentType>(
               label: 'Investment Type',
               value: _type,
               values: _InvestmentType.values,
+              icon: Icons.category_outlined,
+              hint: '',
               labelBuilder: (_InvestmentType value) => value.label,
               onChanged: _isSubmitting
                   ? null
@@ -117,35 +120,36 @@ class _InvestmentCreatePageState extends State<InvestmentCreatePage> {
                     },
             ),
             const SizedBox(height: 14),
-            _InvestmentTextField(
+            AppTextFormField(
               controller: _investedToController,
               label: 'Invested To',
               hint: 'Bank Asia',
-              prefixIcon: Icons.account_balance_outlined,
+              icon: Icons.account_balance_outlined,
               validator: _required,
             ),
             const SizedBox(height: 14),
-            _InvestmentTextField(
+            AppTextFormField(
               controller: _amountController,
               label: 'Invested Amount',
               hint: '100000.00',
-              prefixIcon: Icons.payments_outlined,
+              icon: Icons.payments_outlined,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
               validator: _amount,
             ),
             const SizedBox(height: 14),
-            _DateField(
+            AppDateField(
               value: _createdDate,
+              label: 'Created date',
               onTap: _isSubmitting ? null : _pickDate,
             ),
             const SizedBox(height: 14),
-            _InvestmentTextField(
+            AppTextFormField(
               controller: _commentController,
               label: 'Comment',
               hint: 'Optional note',
-              prefixIcon: Icons.notes_outlined,
+              icon: Icons.notes_outlined,
               minLines: 3,
               maxLines: 5,
             ),
@@ -309,190 +313,6 @@ class _InvestmentCreateHeader extends StatelessWidget {
       ),
     );
   }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-        color: AppColors.text,
-      ),
-    );
-  }
-}
-
-class _InvestmentTextField extends StatelessWidget {
-  const _InvestmentTextField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    required this.prefixIcon,
-    this.keyboardType,
-    this.validator,
-    this.minLines = 1,
-    this.maxLines = 1,
-  });
-
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final IconData prefixIcon;
-  final TextInputType? keyboardType;
-  final FormFieldValidator<String>? validator;
-  final int minLines;
-  final int maxLines;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      minLines: minLines,
-      maxLines: maxLines,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: AppColors.text,
-      ),
-      decoration: _inputDecoration(
-        label: label,
-        hint: hint,
-        prefixIcon: prefixIcon,
-      ),
-    );
-  }
-}
-
-class _DropdownField<T> extends StatelessWidget {
-  const _DropdownField({
-    required this.label,
-    required this.value,
-    required this.values,
-    required this.labelBuilder,
-    required this.onChanged,
-  });
-
-  final String label;
-  final T value;
-  final List<T> values;
-  final String Function(T value) labelBuilder;
-  final ValueChanged<T?>? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<T>(
-      initialValue: value,
-      decoration: _inputDecoration(
-        label: label,
-        hint: '',
-        prefixIcon: Icons.category_outlined,
-      ),
-      items: values
-          .map(
-            (T item) => DropdownMenuItem<T>(
-              value: item,
-              child: Text(labelBuilder(item)),
-            ),
-          )
-          .toList(),
-      onChanged: onChanged,
-    );
-  }
-}
-
-class _DateField extends StatelessWidget {
-  const _DateField({required this.value, required this.onTap});
-
-  final DateTime value;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: <Widget>[
-              const Icon(Icons.event_outlined, color: AppColors.textMute),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Created date: ${_formatDate(value)}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.text,
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: AppColors.textMute,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-InputDecoration _inputDecoration({
-  required String label,
-  required String hint,
-  required IconData prefixIcon,
-}) {
-  return InputDecoration(
-    labelText: label,
-    hintText: hint,
-    prefixIcon: Icon(prefixIcon, color: AppColors.textMute),
-    filled: true,
-    fillColor: AppColors.surface,
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide.none,
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.red),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.red, width: 1.4),
-    ),
-  );
-}
-
-String _formatDate(DateTime value) {
-  final String month = value.month.toString().padLeft(2, '0');
-  final String day = value.day.toString().padLeft(2, '0');
-  return '${value.year}-$month-$day';
 }
 
 enum _InvestmentType {

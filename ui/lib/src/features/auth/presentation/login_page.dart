@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_form_fields.dart';
 import 'auth_controller.dart';
 import 'auth_scope.dart';
 
@@ -122,23 +123,30 @@ class _LoginPageState extends State<LoginPage> {
               _LoginErrorMessage(message: authController.errorMessage!),
             ],
             const SizedBox(height: 24),
-            _LoginTextField(
+            AppTextFormField(
               controller: _phoneController,
               label: 'Phone number',
               hint: '+880 1712 345678',
               keyboardType: TextInputType.phone,
-              prefixIcon: Icons.phone_outlined,
+              icon: Icons.phone_outlined,
               validator: _validatePhone,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 16,
+              ),
+              prefixIconSize: 20,
+              focusedBorderWidth: 1.5,
+              borderSideNone: false,
             ),
             const SizedBox(height: 14),
-            _LoginTextField(
+            AppTextFormField(
               controller: _passwordController,
               label: 'Password',
               hint: 'Enter your password',
               obscureText: _obscurePassword,
-              prefixIcon: Icons.lock_outline_rounded,
+              icon: Icons.lock_outline_rounded,
               validator: _validatePassword,
-              suffix: IconButton(
+              suffixIcon: IconButton(
                 onPressed: () {
                   setState(() => _obscurePassword = !_obscurePassword);
                 },
@@ -151,6 +159,13 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 tooltip: _obscurePassword ? 'Show password' : 'Hide password',
               ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 16,
+              ),
+              prefixIconSize: 20,
+              focusedBorderWidth: 1.5,
+              borderSideNone: false,
             ),
             const SizedBox(height: 12),
             Row(
@@ -382,81 +397,6 @@ class _BrandMark extends StatelessWidget {
         Icons.account_balance_rounded,
         color: AppColors.accentLt,
         size: 28,
-      ),
-    );
-  }
-}
-
-class _LoginTextField extends StatelessWidget {
-  const _LoginTextField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    required this.prefixIcon,
-    this.keyboardType,
-    this.obscureText = false,
-    this.validator,
-    this.suffix,
-  });
-
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final IconData prefixIcon;
-  final TextInputType? keyboardType;
-  final bool obscureText;
-  final FormFieldValidator<String>? validator;
-  final Widget? suffix;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      validator: validator,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: AppColors.text,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: Icon(prefixIcon, size: 20, color: AppColors.textMute),
-        suffixIcon: suffix,
-        filled: true,
-        fillColor: AppColors.surface,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 16,
-        ),
-        labelStyle: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textMute,
-        ),
-        hintStyle: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textMute,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.red),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.red, width: 1.5),
-        ),
       ),
     );
   }

@@ -10,6 +10,7 @@ import '../../ledger/presentation/total_balance_card.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_detail_row.dart';
+import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 
@@ -326,7 +327,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                 ),
               ],
               const SizedBox(height: 16),
-              _PasswordTextField(
+              AppPasswordField(
                 controller: _currentPasswordController,
                 label: 'Current password',
                 obscureText: _obscurePasswords,
@@ -336,7 +337,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                 onToggleVisibility: _togglePasswordVisibility,
               ),
               const SizedBox(height: 12),
-              _PasswordTextField(
+              AppPasswordField(
                 controller: _newPasswordController,
                 label: 'New password',
                 obscureText: _obscurePasswords,
@@ -346,7 +347,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                 onToggleVisibility: _togglePasswordVisibility,
               ),
               const SizedBox(height: 12),
-              _PasswordTextField(
+              AppPasswordField(
                 controller: _confirmPasswordController,
                 label: 'Confirm new password',
                 obscureText: _obscurePasswords,
@@ -438,81 +439,6 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
       _isSubmitting = false;
       _errorMessage = error;
     });
-  }
-}
-
-class _PasswordTextField extends StatelessWidget {
-  const _PasswordTextField({
-    required this.controller,
-    required this.label,
-    required this.obscureText,
-    required this.enabled,
-    required this.textInputAction,
-    required this.validator,
-    required this.onToggleVisibility,
-    this.onFieldSubmitted,
-  });
-
-  final TextEditingController controller;
-  final String label;
-  final bool obscureText;
-  final bool enabled;
-  final TextInputAction textInputAction;
-  final FormFieldValidator<String> validator;
-  final VoidCallback onToggleVisibility;
-  final ValueChanged<String>? onFieldSubmitted;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      enabled: enabled,
-      validator: validator,
-      textInputAction: textInputAction,
-      onFieldSubmitted: onFieldSubmitted,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: AppColors.text,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textMute),
-        suffixIcon: IconButton(
-          onPressed: enabled ? onToggleVisibility : null,
-          icon: Icon(
-            obscureText
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined,
-            color: AppColors.textMute,
-          ),
-          tooltip: obscureText ? 'Show password' : 'Hide password',
-        ),
-        filled: true,
-        fillColor: AppColors.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.red),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.red, width: 1.4),
-        ),
-      ),
-    );
   }
 }
 

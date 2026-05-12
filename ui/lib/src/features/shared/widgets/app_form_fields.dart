@@ -136,7 +136,9 @@ class AppPasswordField extends StatelessWidget {
       suffixIcon: IconButton(
         onPressed: enabled == false ? null : onToggleVisibility,
         icon: Icon(
-          obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          obscureText
+              ? Icons.visibility_outlined
+              : Icons.visibility_off_outlined,
           color: AppColors.textMute,
         ),
         tooltip: obscureText ? 'Show password' : 'Hide password',
@@ -185,7 +187,7 @@ class AppDropdownField<T> extends StatelessWidget {
         focusedBorderWidth: focusedBorderWidth,
         borderSideNone: borderSideNone,
       ),
-      icon: dropdownIcon,
+      icon: dropdownIcon ?? const Icon(Icons.arrow_drop_down),
       items: values
           .map(
             (T value) => DropdownMenuItem<T>(
@@ -272,6 +274,38 @@ class AppDateField extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AppReadOnlyField extends StatelessWidget {
+  const AppReadOnlyField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: <Widget>[
+          Icon(icon, color: AppColors.textMute),
+          const SizedBox(width: 12),
+          Expanded(child: Text('$label: $value', style: _fieldTextStyle)),
+        ],
       ),
     );
   }
