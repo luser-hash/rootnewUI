@@ -48,7 +48,8 @@ class MemberDetailScreen extends StatefulWidget {
 class _MemberDetailScreenState extends State<MemberDetailScreen> {
   late final MemberDetailController _controller;
   late final MemberDetailLedgerController _ledgerController;
-  late final MemberDetailSubmissionHistoryController _submissionHistoryController;
+  late final MemberDetailSubmissionHistoryController
+  _submissionHistoryController;
   late Member _member;
 
   @override
@@ -351,22 +352,22 @@ class _AccountDetailsCard extends StatelessWidget {
             _AccountInfoRow(
               icon: Icons.badge_outlined,
               label: 'User ID',
-              value: _valueOrDash(profile.userId),
+              value: valueOrDash(profile.userId),
             ),
             _AccountInfoRow(
               icon: Icons.phone_outlined,
               label: 'Contact No',
-              value: _valueOrDash(profile.contactNo),
+              value: valueOrDash(profile.contactNo),
             ),
             _AccountInfoRow(
               icon: Icons.mail_outline,
               label: 'Email',
-              value: _valueOrDash(profile.email),
+              value: valueOrDash(profile.email),
             ),
             _AccountInfoRow(
               icon: Icons.calendar_today_outlined,
               label: 'Join Date',
-              value: _valueOrDash(profile.joinDate),
+              value: valueOrDash(profile.joinDate),
             ),
             _AccountInfoRow(
               icon: Icons.admin_panel_settings_outlined,
@@ -381,17 +382,17 @@ class _AccountDetailsCard extends StatelessWidget {
             _AccountInfoRow(
               icon: Icons.notes_outlined,
               label: 'Notes',
-              value: _valueOrDash(profile.notes),
+              value: valueOrDash(profile.notes),
             ),
             _AccountInfoRow(
               icon: Icons.history_outlined,
               label: 'Created At',
-              value: _formatDateTime(profile.createdAt),
+              value: formatDateTimeShort(profile.createdAt),
             ),
             _AccountInfoRow(
               icon: Icons.update_outlined,
               label: 'Updated At',
-              value: _formatDateTime(profile.updatedAt),
+              value: formatDateTimeShort(profile.updatedAt),
               isLast: true,
             ),
           ],
@@ -602,10 +603,7 @@ class _SubmissionHistorySection extends StatelessWidget {
 }
 
 class _SubmissionHistoryRow extends StatelessWidget {
-  const _SubmissionHistoryRow({
-    required this.submission,
-    this.isLast = false,
-  });
+  const _SubmissionHistoryRow({required this.submission, this.isLast = false});
 
   final SubmissionHistoryItem submission;
   final bool isLast;
@@ -659,7 +657,7 @@ class _SubmissionHistoryRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${_valueOrDash(submission.txnDate)} · ${submission.requestId}',
+                      '${valueOrDash(submission.txnDate)} · ${submission.requestId}',
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 11,
@@ -779,26 +777,26 @@ class _SubmissionHistoryRow extends StatelessWidget {
                     ),
                     _DetailBox(
                       label: 'Txn Date',
-                      value: _valueOrDash(submission.txnDate),
+                      value: valueOrDash(submission.txnDate),
                     ),
                     _DetailBox(
                       label: 'Reviewed',
-                      value: _formatDateTime(submission.reviewedAt),
+                      value: formatDateTimeShort(submission.reviewedAt),
                     ),
                     _DetailBox(
                       label: 'Reference',
-                      value: _valueOrDash(submission.externalReference),
+                      value: valueOrDash(submission.externalReference),
                     ),
                     _DetailBox(
                       label: 'Reviewed By',
-                      value: _valueOrDash(submission.reviewedBy?.fullName),
+                      value: valueOrDash(submission.reviewedBy?.fullName),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 _DetailTextBlock(
                   label: 'Request ID',
-                  value: _valueOrDash(submission.requestId),
+                  value: valueOrDash(submission.requestId),
                 ),
                 if ((submission.memberName).trim().isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
@@ -814,14 +812,14 @@ class _SubmissionHistoryRow extends StatelessWidget {
                     value: submission.memberContact,
                   ),
                 ],
-                if ((submission.reviewedBy?.userId ?? '').isNotEmpty)
-                  ...<Widget>[
-                    const SizedBox(height: 8),
-                    _DetailTextBlock(
-                      label: 'Reviewer ID',
-                      value: submission.reviewedBy!.userId,
-                    ),
-                  ],
+                if ((submission.reviewedBy?.userId ?? '')
+                    .isNotEmpty) ...<Widget>[
+                  const SizedBox(height: 8),
+                  _DetailTextBlock(
+                    label: 'Reviewer ID',
+                    value: submission.reviewedBy!.userId,
+                  ),
+                ],
                 if (submission.rejectionReason.trim().isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
                   _DetailTextBlock(
@@ -895,7 +893,9 @@ class _MemberLedgerSection extends StatelessWidget {
 
     final String? error = controller.errorMessage;
     if (error != null) {
-      return AppCardList(children: <Widget>[_LedgerInfoMessage(message: error)]);
+      return AppCardList(
+        children: <Widget>[_LedgerInfoMessage(message: error)],
+      );
     }
 
     final MemberLedgerStatement? statement = controller.statement;
@@ -1064,7 +1064,7 @@ class _MemberLedgerRow extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            _valueOrDash(
+                            valueOrDash(
                               user?.fullName.isNotEmpty == true
                                   ? user?.fullName
                                   : entry.memberName,
@@ -1113,50 +1113,50 @@ class _MemberLedgerRow extends StatelessWidget {
                     _DetailBox(label: 'Currency', value: entry.currency),
                     _DetailBox(
                       label: 'Txn Date',
-                      value: _valueOrDash(entry.txnDate),
+                      value: valueOrDash(entry.txnDate),
                     ),
                     _DetailBox(
                       label: 'Created',
-                      value: _formatDateTime(entry.createdAt),
+                      value: formatDateTimeShort(entry.createdAt),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 _DetailTextBlock(
                   label: 'User ID',
-                  value: _valueOrDash(user?.userId ?? entry.userId),
+                  value: valueOrDash(user?.userId ?? entry.userId),
                 ),
                 const SizedBox(height: 8),
                 _DetailTextBlock(
                   label: 'Full Name',
-                  value: _valueOrDash(user?.fullName ?? entry.memberName),
+                  value: valueOrDash(user?.fullName ?? entry.memberName),
                 ),
                 const SizedBox(height: 8),
                 _DetailTextBlock(
                   label: 'Contact No',
-                  value: _valueOrDash(user?.contactNo ?? entry.memberContact),
+                  value: valueOrDash(user?.contactNo ?? entry.memberContact),
                 ),
                 const SizedBox(height: 8),
                 _DetailTextBlock(label: 'Ledger ID', value: entry.ledgerId),
                 const SizedBox(height: 8),
                 _DetailTextBlock(
                   label: 'Reference Type',
-                  value: _valueOrDash(entry.referenceType),
+                  value: valueOrDash(entry.referenceType),
                 ),
                 const SizedBox(height: 8),
                 _DetailTextBlock(
                   label: 'Reference ID',
-                  value: _valueOrDash(entry.referenceId),
+                  value: valueOrDash(entry.referenceId),
                 ),
                 const SizedBox(height: 8),
                 _DetailTextBlock(
                   label: 'Comment',
-                  value: _valueOrDash(entry.comment),
+                  value: valueOrDash(entry.comment),
                 ),
                 const SizedBox(height: 8),
                 _DetailTextBlock(
                   label: 'Created By',
-                  value: _valueOrDash(entry.createdByName),
+                  value: valueOrDash(entry.createdByName),
                 ),
               ],
             ),
@@ -1321,17 +1321,12 @@ class _StatusBar extends StatelessWidget {
   }
 }
 
-String _valueOrDash(String? value) {
-  final String? trimmed = value?.trim();
-  return trimmed == null || trimmed.isEmpty ? '-' : trimmed;
-}
-
 bool _isApprovedHistory(SubmissionHistoryItem submission) {
   return submission.isApproved;
 }
 
 String _submissionMeta(SubmissionHistoryItem submission) {
-  return '${submission.paymentChannel.label} · ${_valueOrDash(submission.txnDate)}';
+  return '${submission.paymentChannel.label} · ${valueOrDash(submission.txnDate)}';
 }
 
 Color _submissionStatusBackground(CapitalSubmissionStatus status) {
@@ -1402,17 +1397,4 @@ bool _isLedgerInflow(MemberLedgerEntryType type, double amount) {
 String _formatMoney(String? value) {
   final double amount = double.tryParse(value ?? '0') ?? 0;
   return '৳${amount.abs().toStringAsFixed(2)}';
-}
-
-String _formatDateTime(DateTime? value) {
-  if (value == null) {
-    return '-';
-  }
-
-  final DateTime local = value.toLocal();
-  final String month = local.month.toString().padLeft(2, '0');
-  final String day = local.day.toString().padLeft(2, '0');
-  final String hour = local.hour.toString().padLeft(2, '0');
-  final String minute = local.minute.toString().padLeft(2, '0');
-  return '${local.year}-$month-$day $hour:$minute';
 }

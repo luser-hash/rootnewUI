@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../shared/finance.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../data/capital_submission_repository.dart';
 import '../domain/capital_submission_request.dart';
@@ -211,7 +212,7 @@ class _SubmissionDetailCard extends StatelessWidget {
           _DetailLine(label: 'Notes', value: submission.notes),
           _DetailLine(
             label: 'Requested At',
-            value: _formatDateTime(submission.requestedAt),
+            value: formatDateTimeShort(submission.requestedAt),
           ),
           if (submission.reviewedBy != null)
             _DetailLine(
@@ -221,7 +222,7 @@ class _SubmissionDetailCard extends StatelessWidget {
           if (submission.reviewedAt != null)
             _DetailLine(
               label: 'Reviewed At',
-              value: _formatDateTime(submission.reviewedAt),
+              value: formatDateTimeShort(submission.reviewedAt),
             ),
           if ((submission.rejectionReason ?? '').trim().isNotEmpty)
             _DetailLine(
@@ -354,17 +355,4 @@ IconData _statusIcon(CapitalSubmissionStatus status) {
     CapitalSubmissionStatus.approved => Icons.check_rounded,
     CapitalSubmissionStatus.rejected => Icons.close_rounded,
   };
-}
-
-String _formatDateTime(DateTime? value) {
-  if (value == null) {
-    return '-';
-  }
-
-  final DateTime local = value.toLocal();
-  final String month = local.month.toString().padLeft(2, '0');
-  final String day = local.day.toString().padLeft(2, '0');
-  final String hour = local.hour.toString().padLeft(2, '0');
-  final String minute = local.minute.toString().padLeft(2, '0');
-  return '${local.year}-$month-$day $hour:$minute';
 }

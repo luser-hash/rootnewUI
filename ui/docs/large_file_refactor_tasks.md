@@ -16,36 +16,36 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ### Tasks
 
-- [ ] Update `lib/src/features/shared/utils/finance_formatters.dart`.
-- [ ] Add `formatMoneySigned(num value)`.
-- [ ] Add `formatMoneyUnsigned(num value)`.
-- [ ] Add `formatMoneyCompactSigned(num value)`.
-- [ ] Preserve minus signs for negative values.
-- [ ] Keep existing `fmt` and `fmtSh` temporarily as compatibility wrappers if many call sites still use them.
-- [ ] Add `lib/src/features/shared/utils/date_formatters.dart`.
-- [ ] Add `formatDateTimeShort(DateTime? value)`.
-- [ ] Add `lib/src/features/shared/utils/text_formatters.dart`.
-- [ ] Add `valueOrDash(String? value)`.
-- [ ] Add `prettyEnumLabel(String value)`.
-- [ ] Export new helper files from `lib/src/features/shared/finance.dart` or a new shared barrel if appropriate.
+- [x] Update `lib/src/features/shared/utils/finance_formatters.dart`.
+- [x] Add `formatMoneySigned(num value)`.
+- [x] Add `formatMoneyUnsigned(num value)`.
+- [x] Add `formatMoneyCompactSigned(num value)`.
+- [x] Preserve minus signs for negative values.
+- [x] Keep existing `fmt` and `fmtSh` temporarily as compatibility wrappers if many call sites still use them.
+- [x] Add `lib/src/features/shared/utils/date_formatters.dart`.
+- [x] Add `formatDateTimeShort(DateTime? value)`.
+- [x] Add `lib/src/features/shared/utils/text_formatters.dart`.
+- [x] Add `valueOrDash(String? value)`.
+- [x] Add `prettyEnumLabel(String value)`.
+- [x] Export new helper files from `lib/src/features/shared/finance.dart` or a new shared barrel if appropriate.
 
 ### First Replacement Targets
 
-- [ ] Replace `_money` in `reports/presentation/member_report.dart`.
-- [ ] Replace `_money` in `reports/presentation/staff_report.dart`.
-- [ ] Replace `_money` in `investments/presentation/distribution_record.dart`.
-- [ ] Replace `_formatDateTime` in `submission_detail_page.dart`.
-- [ ] Replace `_formatDateTime` in `member_detail_screen.dart`.
-- [ ] Replace `_formatDateTime` in `ledger_page.dart`.
-- [ ] Replace `_valueOrDash` in `member_detail_screen.dart`.
-- [ ] Replace `_valueOrDash` in `profile_page.dart`.
-- [ ] Replace `_valueOrDash` in `staff_report.dart`.
+- [x] Replace `_money` in `reports/presentation/member_report.dart`.
+- [x] Replace `_money` in `reports/presentation/staff_report.dart`.
+- [x] Replace `_money` in `investments/presentation/distribution_record.dart`.
+- [x] Replace `_formatDateTime` in `submission_detail_page.dart`.
+- [x] Replace `_formatDateTime` in `member_detail_screen.dart`.
+- [x] Replace `_formatDateTime` in `ledger_page.dart`.
+- [x] Replace `_valueOrDash` in `member_detail_screen.dart`.
+- [x] Replace `_valueOrDash` in `profile_page.dart`.
+- [x] Replace `_valueOrDash` in `staff_report.dart`.
 
 ### Acceptance Checks
 
-- [ ] Negative values render with `-`.
-- [ ] Existing screens compile without changing visible business behavior.
-- [ ] `flutter analyze` passes or only reports unrelated pre-existing issues.
+- [x] Negative values render with `-`.
+- [x] Existing screens compile without changing visible business behavior.
+- [x] `flutter analyze` passes or only reports unrelated pre-existing issues.
 
 ## Phase 2 - Shared Message Cards
 

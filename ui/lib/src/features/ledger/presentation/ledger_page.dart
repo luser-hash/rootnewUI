@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../shared/finance.dart';
 import '../../shared/widgets/app_card_list.dart';
 import '../data/member_ledger_repository.dart';
 import '../domain/member_ledger_statement.dart';
@@ -194,9 +195,7 @@ class _LedgerHeader extends StatelessWidget {
                         width: 40,
                         height: 40,
                         child: Icon(
-                          isPosting
-                              ? Icons.hourglass_empty_rounded
-                              : Icons.add,
+                          isPosting ? Icons.hourglass_empty_rounded : Icons.add,
                           size: 20,
                           color: Colors.white,
                         ),
@@ -531,8 +530,7 @@ class _AdminLedgerPostSheetState extends State<_AdminLedgerPostSheet> {
 
     setState(() {
       _isSubmitting = false;
-      _errorMessage =
-          widget.errorMessage() ?? 'Unable to post ledger entry.';
+      _errorMessage = widget.errorMessage() ?? 'Unable to post ledger entry.';
     });
   }
 }
@@ -1032,7 +1030,7 @@ class _LedgerRow extends StatelessWidget {
                     _DetailBox(label: 'Txn Date', value: entry.txnDate),
                     _DetailBox(
                       label: 'Created',
-                      value: _formatDateTime(entry.createdAt),
+                      value: formatDateTimeShort(entry.createdAt),
                     ),
                     _DetailBox(
                       label: 'Reference Type',
@@ -1288,17 +1286,4 @@ String _formatDate(DateTime value) {
   final String month = value.month.toString().padLeft(2, '0');
   final String day = value.day.toString().padLeft(2, '0');
   return '${value.year}-$month-$day';
-}
-
-String _formatDateTime(DateTime? value) {
-  if (value == null) {
-    return '-';
-  }
-
-  final DateTime local = value.toLocal();
-  final String month = local.month.toString().padLeft(2, '0');
-  final String day = local.day.toString().padLeft(2, '0');
-  final String hour = local.hour.toString().padLeft(2, '0');
-  final String minute = local.minute.toString().padLeft(2, '0');
-  return '${local.year}-$month-$day $hour:$minute';
 }

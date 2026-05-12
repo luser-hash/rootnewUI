@@ -7,6 +7,7 @@ import '../../auth/presentation/auth_scope.dart';
 import '../../ledger/data/member_ledger_repository.dart';
 import '../../ledger/presentation/member_ledger_controller.dart';
 import '../../ledger/presentation/total_balance_card.dart';
+import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_pill.dart';
 
@@ -193,27 +194,27 @@ class _ProfileDetailsCard extends StatelessWidget {
           _ProfileInfoRow(
             icon: Icons.badge_outlined,
             label: 'Member ID',
-            value: _valueOrDash(user?.id),
+            value: valueOrDash(user?.id),
           ),
           _ProfileInfoRow(
             icon: Icons.phone_outlined,
             label: 'Contact No',
-            value: _valueOrDash(user?.phone),
+            value: valueOrDash(user?.phone),
           ),
           _ProfileInfoRow(
             icon: Icons.mail_outline_rounded,
             label: 'Email',
-            value: _valueOrDash(user?.email),
+            value: valueOrDash(user?.email),
           ),
           _ProfileInfoRow(
             icon: Icons.calendar_today_outlined,
             label: 'Join Date',
-            value: _valueOrDash(user?.joinDate),
+            value: valueOrDash(user?.joinDate),
           ),
           _ProfileInfoRow(
             icon: Icons.verified_user_outlined,
             label: 'Status',
-            value: _valueOrDash(user?.status),
+            value: valueOrDash(user?.status),
             isLast: true,
           ),
         ],
@@ -639,9 +640,4 @@ String _initials(String name) {
   }
   return '${parts.first.characters.first}${parts.last.characters.first}'
       .toUpperCase();
-}
-
-String _valueOrDash(String? value) {
-  final String? trimmed = value?.trim();
-  return trimmed == null || trimmed.isEmpty ? '-' : trimmed;
 }

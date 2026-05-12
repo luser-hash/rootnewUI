@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../shared/finance.dart';
 import '../data/staff_report_repository.dart';
 import '../domain/staff_report_models.dart';
 
@@ -173,7 +174,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _TimestampBar(
-          label: 'Generated at: ${_formatDateTime(report.generatedAt)}',
+          label: 'Generated at: ${formatDateTimeShort(report.generatedAt)}',
           onRefresh: () {
             setState(() {
               _summaryFuture = _track(widget.repository.associationSummary());
@@ -327,7 +328,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _TimestampBar(
-          label: 'Fetched at: ${_formatDateTime(_fetchedAt)}',
+          label: 'Fetched at: ${formatDateTimeShort(_fetchedAt)}',
           onRefresh: () =>
               setState(() => _memberFuture = _loadMemberBalances()),
         ),
@@ -359,7 +360,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
                 child: Text(
                   'Showing ${report.memberCount} $statusText members - '
-                  'Total Capital: ${_money(report.totalCapital)}',
+                  'Total Capital: ${formatMoneyTextSigned(report.totalCapital)}',
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
@@ -403,7 +404,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _TimestampBar(
-          label: 'Fetched at: ${_formatDateTime(_fetchedAt)}',
+          label: 'Fetched at: ${formatDateTimeShort(_fetchedAt)}',
           onRefresh: () => setState(() {
             _investmentFuture = _track(widget.repository.investmentRegister());
           }),
@@ -482,7 +483,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _TimestampBar(
-          label: 'Fetched at: ${_formatDateTime(_fetchedAt)}',
+          label: 'Fetched at: ${formatDateTimeShort(_fetchedAt)}',
           onRefresh: () => setState(() {
             _distributionFuture = _track(widget.repository.distributionLogs());
           }),
@@ -554,7 +555,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _TimestampBar(
-          label: 'Fetched at: ${_formatDateTime(_fetchedAt)}',
+          label: 'Fetched at: ${formatDateTimeShort(_fetchedAt)}',
           onRefresh: () => setState(() {
             _approvalFuture = _track(widget.repository.approvalQueueReport());
           }),
@@ -577,14 +578,14 @@ class _StaffReportPageState extends State<StaffReportPage> {
                     ),
                     _SmallMetric(
                       label: 'Pending Amount',
-                      value: _money(report.totalPendingAmount),
+                      value: formatMoneyTextSigned(report.totalPendingAmount),
                       color: AppColors.primary,
                     ),
                     ...report.byChannel.entries.map((entry) {
                       return _SmallMetric(
-                        label: _pretty(entry.key),
+                        label: prettyEnumLabel(entry.key),
                         value:
-                            '${entry.value.count} - ${_money(entry.value.totalAmount)}',
+                            '${entry.value.count} - ${formatMoneyTextSigned(entry.value.totalAmount)}',
                         color: _channelColor(entry.key),
                       );
                     }),
@@ -839,7 +840,7 @@ class _KpiCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            _money(metric.value),
+            formatMoneyTextSigned(metric.value),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -1057,7 +1058,7 @@ class _MemberTable extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: _StatusPill(
-                      label: _valueOrDash(member.status),
+                      label: valueOrDash(member.status),
                       color: member.status.toUpperCase() == 'ACTIVE'
                           ? AppColors.green
                           : AppColors.textMute,
@@ -1107,7 +1108,7 @@ class _InvestmentTable extends StatelessWidget {
                 onTap: () => context.go(RouteNames.investments),
                 cells: <Widget>[
                   _Cell(item.title),
-                  _Cell(_pretty(item.investmentType)),
+                  _Cell(prettyEnumLabel(item.investmentType)),
                   _Cell(item.investedTo),
                   _MoneyCell(item.investedAmount),
                   _MoneyCell(item.returnAmount),
@@ -1122,13 +1123,13 @@ class _InvestmentTable extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: _StatusPill(
-                      label: _pretty(item.status),
+                      label: prettyEnumLabel(item.status),
                       color: _investmentStatusColor(item.status),
                     ),
                   ),
                   _Cell('${item.memberCount}'),
                   _Cell(
-                    '${_valueOrDash(item.createdBy)}\nFund: ${_valueOrDash(item.fundReleasedBy)}',
+                    '${valueOrDash(item.createdBy)}\nFund: ${valueOrDash(item.fundReleasedBy)}',
                   ),
                   _Cell(
                     item.closeDate.trim().isEmpty
@@ -1180,7 +1181,7 @@ class _DistributionList extends StatelessWidget {
                   ),
                   Expanded(
                     child: _StatusPill(
-                      label: _pretty(item.status),
+                      label: prettyEnumLabel(item.status),
                       color: reversed ? AppColors.red : AppColors.green,
                       strike: reversed,
                     ),
@@ -1188,8 +1189,8 @@ class _DistributionList extends StatelessWidget {
                 ],
               ),
               subtitle: Text(
-                'Posted by ${_valueOrDash(item.postedBy)} at ${_formatDateTime(item.postedAt)} - '
-                'Reversed by ${_valueOrDash(item.reversedBy)} at ${_formatDateTime(item.reversedAt)} - '
+                'Posted by ${valueOrDash(item.postedBy)} at ${formatDateTimeShort(item.postedAt)} - '
+                'Reversed by ${valueOrDash(item.reversedBy)} at ${formatDateTimeShort(item.reversedAt)} - '
                 '${item.memberCount} members',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -1253,24 +1254,24 @@ class _ApprovalQueueTable extends StatelessWidget {
                 cells: <Widget>[
                   _Cell(item.memberName),
                   _Cell(item.memberContact),
-                  _Cell(_pretty(item.requestType)),
+                  _Cell(prettyEnumLabel(item.requestType)),
                   _MoneyCell(item.amount),
                   _Cell(item.txnDate),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: _StatusPill(
-                      label: _pretty(item.paymentChannel),
+                      label: prettyEnumLabel(item.paymentChannel),
                       color: channelColor,
                     ),
                   ),
                   _Cell(
-                    _valueOrDash(item.externalReference),
+                    valueOrDash(item.externalReference),
                     color: missingReference ? AppColors.red : AppColors.text,
                     mono: true,
                   ),
-                  _Cell(_valueOrDash(item.notes), maxLines: 1),
+                  _Cell(valueOrDash(item.notes), maxLines: 1),
                   _Cell('clip ${item.attachmentCount}'),
-                  _Cell(_formatDateTime(item.requestedAt)),
+                  _Cell(formatDateTimeShort(item.requestedAt)),
                 ],
               );
             }),
@@ -1317,7 +1318,7 @@ class _ChipFilterBar extends StatelessWidget {
               final bool active = selected.contains(value);
               return FilterChip(
                 selected: active,
-                label: Text(_pretty(value)),
+                label: Text(prettyEnumLabel(value)),
                 selectedColor: AppColors.primary,
                 backgroundColor: AppColors.white,
                 labelStyle: TextStyle(
@@ -1469,7 +1470,7 @@ class _Cell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      _valueOrDash(value),
+      valueOrDash(value),
       maxLines: maxLines,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
@@ -1494,7 +1495,7 @@ class _MoneyCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      _money(value),
+      formatMoneyTextSigned(value),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       textAlign: TextAlign.end,
@@ -1610,9 +1611,9 @@ class _DistributionLineTile extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Expanded(child: _Cell(line.fullName)),
-          Expanded(child: _Cell('Ratio ${_valueOrDash(line.ratioUsed)}')),
+          Expanded(child: _Cell('Ratio ${valueOrDash(line.ratioUsed)}')),
           Expanded(child: _MoneyCell(line.shareAmount)),
-          Expanded(child: _Cell('Ledger ${_valueOrDash(line.ledgerEntryId)}')),
+          Expanded(child: _Cell('Ledger ${valueOrDash(line.ledgerEntryId)}')),
         ],
       ),
     );
@@ -1837,60 +1838,6 @@ void _toggle(Set<String> selected, String value) {
   if (!selected.add(value)) {
     selected.remove(value);
   }
-}
-
-String _valueOrDash(String? value) {
-  final String text = value?.trim() ?? '';
-  return text.isEmpty ? '-' : text;
-}
-
-String _formatDateTime(DateTime? value) {
-  if (value == null) {
-    return '-';
-  }
-  final DateTime local = value.toLocal();
-  final String month = local.month.toString().padLeft(2, '0');
-  final String day = local.day.toString().padLeft(2, '0');
-  final String hour = local.hour.toString().padLeft(2, '0');
-  final String minute = local.minute.toString().padLeft(2, '0');
-  return '${local.year}-$month-$day $hour:$minute';
-}
-
-String _money(String value) {
-  final num number = num.tryParse(value) ?? 0;
-  final String sign = number < 0 ? '-' : '';
-  final String fixed = number.abs().toStringAsFixed(2);
-  final List<String> parts = fixed.split('.');
-  final String whole = parts.first;
-  final String grouped;
-  if (whole.length <= 3) {
-    grouped = whole;
-  } else {
-    final String lastThree = whole.substring(whole.length - 3);
-    String head = whole.substring(0, whole.length - 3);
-    final List<String> groups = <String>[];
-    while (head.length > 2) {
-      groups.insert(0, head.substring(head.length - 2));
-      head = head.substring(0, head.length - 2);
-    }
-    if (head.isNotEmpty) {
-      groups.insert(0, head);
-    }
-    grouped = '${groups.join(',')},$lastThree';
-  }
-  return '$sign৳$grouped.${parts.last}';
-}
-
-String _pretty(String value) {
-  final String normalized = value.trim().replaceAll('_', ' ').toLowerCase();
-  if (normalized.isEmpty) {
-    return '-';
-  }
-  return normalized
-      .split(RegExp(r'\s+'))
-      .where((String part) => part.isNotEmpty)
-      .map((String part) => '${part[0].toUpperCase()}${part.substring(1)}')
-      .join(' ');
 }
 
 Color _investmentStatusColor(String status) {

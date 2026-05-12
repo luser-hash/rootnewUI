@@ -36,87 +36,91 @@ class _MemberReportPageState extends State<MemberReportPage> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           child: FutureBuilder<_MemberReportData>(
             future: _reportFuture,
-            builder: (
-              BuildContext context,
-              AsyncSnapshot<_MemberReportData> snapshot,
-            ) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Padding(
-                  padding: EdgeInsets.only(top: 32),
-                  child: Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  ),
-                );
-              }
+            builder:
+                (
+                  BuildContext context,
+                  AsyncSnapshot<_MemberReportData> snapshot,
+                ) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Padding(
+                      padding: EdgeInsets.only(top: 32),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    );
+                  }
 
-              if (snapshot.hasError || !snapshot.hasData) {
-                return const _ReportMessage(
-                  icon: Icons.error_outline,
-                  message: 'Unable to load member report. Please try again.',
-                  foreground: AppColors.red,
-                  background: AppColors.redLt,
-                );
-              }
+                  if (snapshot.hasError || !snapshot.hasData) {
+                    return const _ReportMessage(
+                      icon: Icons.error_outline,
+                      message:
+                          'Unable to load member report. Please try again.',
+                      foreground: AppColors.red,
+                      background: AppColors.redLt,
+                    );
+                  }
 
-              final _MemberReportData report = snapshot.data!;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  _StatementLabel(
-                    date: DateTime.now(),
-                    member: report.statement.member,
-                  ),
-                  const SizedBox(height: 12),
-                  _SummaryCards(report: report),
-                  const SizedBox(height: 16),
-                  _TransactionPanel(
-                    statement: report.statement,
-                    entryType: _entryType,
-                    fromDate: _fromDate,
-                    toDate: _toDate,
-                    onEntryTypeChanged: (MemberReportEntryType? value) {
-                      setState(() {
-                        _entryType = value;
-                        _reportFuture = _loadReport();
-                      });
-                    },
-                    onFromDateTap: () => _pickDate(
-                      initialDate: _fromDate,
-                      onPicked: (DateTime date) {
-                        setState(() {
-                          _fromDate = date;
-                          _reportFuture = _loadReport();
-                        });
-                      },
-                    ),
-                    onToDateTap: () => _pickDate(
-                      initialDate: _toDate,
-                      onPicked: (DateTime date) {
-                        setState(() {
-                          _toDate = date;
-                          _reportFuture = _loadReport();
-                        });
-                      },
-                    ),
-                    onClear: _filter.hasFilters
-                        ? () {
+                  final _MemberReportData report = snapshot.data!;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      _StatementLabel(
+                        date: DateTime.now(),
+                        member: report.statement.member,
+                      ),
+                      const SizedBox(height: 12),
+                      _SummaryCards(report: report),
+                      const SizedBox(height: 16),
+                      _TransactionPanel(
+                        statement: report.statement,
+                        entryType: _entryType,
+                        fromDate: _fromDate,
+                        toDate: _toDate,
+                        onEntryTypeChanged: (MemberReportEntryType? value) {
+                          setState(() {
+                            _entryType = value;
+                            _reportFuture = _loadReport();
+                          });
+                        },
+                        onFromDateTap: () => _pickDate(
+                          initialDate: _fromDate,
+                          onPicked: (DateTime date) {
                             setState(() {
-                              _entryType = null;
-                              _fromDate = null;
-                              _toDate = null;
+                              _fromDate = date;
                               _reportFuture = _loadReport();
                             });
-                          }
-                        : null,
-                    onDownloadCsv: () => _showCsv(report.statement),
-                  ),
-                  const SizedBox(height: 16),
-                  _PendingRequestsPanel(statement: report.statement),
-                  const SizedBox(height: 16),
-                  _DistributionsPanel(report: report.distributions),
-                ],
-              );
-            },
+                          },
+                        ),
+                        onToDateTap: () => _pickDate(
+                          initialDate: _toDate,
+                          onPicked: (DateTime date) {
+                            setState(() {
+                              _toDate = date;
+                              _reportFuture = _loadReport();
+                            });
+                          },
+                        ),
+                        onClear: _filter.hasFilters
+                            ? () {
+                                setState(() {
+                                  _entryType = null;
+                                  _fromDate = null;
+                                  _toDate = null;
+                                  _reportFuture = _loadReport();
+                                });
+                              }
+                            : null,
+                        onDownloadCsv: () => _showCsv(report.statement),
+                      ),
+                      const SizedBox(height: 16),
+                      _PendingRequestsPanel(statement: report.statement),
+                      const SizedBox(height: 16),
+                      _DistributionsPanel(report: report.distributions),
+                    ],
+                  );
+                },
           ),
         ),
       ],
@@ -250,15 +254,15 @@ class _SummaryCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final num contributed = report.statement.entries.fold<num>(
-      0,
-      (num sum, MemberReportEntry entry) {
-        if (entry.entryType != MemberReportEntryType.submission) {
-          return sum;
-        }
-        return sum + (num.tryParse(entry.amount) ?? 0);
-      },
-    );
+    final num contributed = report.statement.entries.fold<num>(0, (
+      num sum,
+      MemberReportEntry entry,
+    ) {
+      if (entry.entryType != MemberReportEntryType.submission) {
+        return sum;
+      }
+      return sum + (num.tryParse(entry.amount) ?? 0);
+    });
     final List<_SummaryMetric> metrics = <_SummaryMetric>[
       _SummaryMetric(
         label: 'Total Capital Contributed',
@@ -323,7 +327,7 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            _money(metric.value),
+            formatMoneySigned(metric.value),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -566,7 +570,7 @@ class _TransactionRow extends StatelessWidget {
               SizedBox(
                 width: 98,
                 child: Text(
-                  _money(num.tryParse(entry.runningBalance) ?? 0),
+                  formatMoneySigned(num.tryParse(entry.runningBalance) ?? 0),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.end,
@@ -608,7 +612,7 @@ class _ReferenceBlock extends StatelessWidget {
           _ReferenceLine(label: 'Created By', value: entry.createdByFullName),
           _ReferenceLine(
             label: 'Created At',
-            value: _formatDateTime(entry.createdAt),
+            value: formatDateTimeShort(entry.createdAt),
           ),
         ],
       ),
@@ -638,7 +642,7 @@ class _PendingRequestsPanel extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Pending Requests '
-                    '${_money(num.tryParse(statement.pendingTotal) ?? 0)}',
+                    '${formatMoneySigned(num.tryParse(statement.pendingTotal) ?? 0)}',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
@@ -649,11 +653,11 @@ class _PendingRequestsPanel extends StatelessWidget {
               ],
             ),
           ),
-          ...statement.pendingRequests.map(
-            (MemberReportPendingRequest request) {
-              return _PendingRequestTile(request: request);
-            },
-          ),
+          ...statement.pendingRequests.map((
+            MemberReportPendingRequest request,
+          ) {
+            return _PendingRequestTile(request: request);
+          }),
         ],
       ),
     );
@@ -683,7 +687,7 @@ class _PendingRequestTile extends StatelessWidget {
             ),
           ),
           Text(
-            _money(num.tryParse(request.amount) ?? 0),
+            formatMoneySigned(num.tryParse(request.amount) ?? 0),
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
@@ -722,7 +726,7 @@ class _DistributionsPanel extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  _money(num.tryParse(report.totalReceived) ?? 0),
+                  formatMoneySigned(num.tryParse(report.totalReceived) ?? 0),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w900,
@@ -772,7 +776,7 @@ class _DistributionTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${item.distributionStatus} · ${_formatDateTime(item.postedAt)}',
+                  '${item.distributionStatus} · ${formatDateTimeShort(item.postedAt)}',
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
@@ -784,7 +788,7 @@ class _DistributionTile extends StatelessWidget {
             ),
           ),
           Text(
-            _money(num.tryParse(item.shareAmount) ?? 0),
+            formatMoneySigned(num.tryParse(item.shareAmount) ?? 0),
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
@@ -1065,24 +1069,8 @@ String _formatDate(DateTime value) {
   return '${value.year}-$month-$day';
 }
 
-String _formatDateTime(DateTime? value) {
-  if (value == null) {
-    return '-';
-  }
-  final DateTime local = value.toLocal();
-  final String month = local.month.toString().padLeft(2, '0');
-  final String day = local.day.toString().padLeft(2, '0');
-  final String hour = local.hour.toString().padLeft(2, '0');
-  final String minute = local.minute.toString().padLeft(2, '0');
-  return '${local.year}-$month-$day $hour:$minute';
-}
-
-String _money(num value) {
-  return '${value < 0 ? '-' : ''}${fmt(value)}';
-}
-
 String _signedMoney(num value) {
-  return '${value >= 0 ? '+' : '-'}${fmt(value)}';
+  return '${value >= 0 ? '+' : ''}${formatMoneySigned(value)}';
 }
 
 String _referenceText(MemberReportEntry entry) {
