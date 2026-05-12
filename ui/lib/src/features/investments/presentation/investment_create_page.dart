@@ -5,6 +5,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../data/investment_repository.dart';
 import '../domain/investment_create_request.dart';
 
@@ -67,20 +68,28 @@ class _InvestmentCreatePageState extends State<InvestmentCreatePage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             if (_errorMessage != null) ...<Widget>[
-              _InvestmentCreateMessage(
+              AppMessageCard(
                 icon: Icons.error_outline,
                 message: _errorMessage!,
                 background: AppColors.redLt,
                 foreground: AppColors.red,
+                padding: const EdgeInsets.all(12),
+                borderRadius: 14,
+                iconSize: 18,
+                compact: true,
               ),
               const SizedBox(height: 14),
             ],
             if (_submitted) ...<Widget>[
-              const _InvestmentCreateMessage(
+              const AppMessageCard(
                 icon: Icons.check_circle_outline_rounded,
                 message: 'Investment draft created successfully.',
                 background: AppColors.greenLt,
                 foreground: AppColors.green,
+                padding: EdgeInsets.all(12),
+                borderRadius: 14,
+                iconSize: 18,
+                compact: true,
               ),
               const SizedBox(height: 14),
             ],
@@ -315,49 +324,6 @@ class _SectionLabel extends StatelessWidget {
         fontSize: 13,
         fontWeight: FontWeight.w800,
         color: AppColors.text,
-      ),
-    );
-  }
-}
-
-class _InvestmentCreateMessage extends StatelessWidget {
-  const _InvestmentCreateMessage({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, size: 18, color: foreground),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 12,
-                height: 1.35,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

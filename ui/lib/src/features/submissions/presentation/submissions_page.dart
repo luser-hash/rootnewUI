@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../data/capital_submission_repository.dart';
 import '../domain/capital_submission_request.dart';
@@ -70,20 +71,22 @@ class _SubmissionsPageState extends State<SubmissionsPage> {
 
     final String? error = _controller.errorMessage;
     if (error != null) {
-      return _MessageCard(
+      return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
         background: AppColors.redLt,
         foreground: AppColors.red,
+        margin: const EdgeInsets.only(top: 8),
       );
     }
 
     if (_controller.submissions.isEmpty) {
-      return const _MessageCard(
+      return const AppMessageCard(
         icon: Icons.inbox_outlined,
         message: 'No submissions found for this filter.',
         background: AppColors.surface,
         foreground: AppColors.textMute,
+        margin: EdgeInsets.only(top: 8),
       );
     }
 
@@ -376,50 +379,6 @@ class _SubmissionStatusPill extends StatelessWidget {
       label: status.label,
       background: _statusBackground(status),
       foreground: _statusForeground(status),
-    );
-  }
-}
-
-class _MessageCard extends StatelessWidget {
-  const _MessageCard({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                height: 1.35,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

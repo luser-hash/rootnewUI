@@ -9,6 +9,7 @@ import '../../ledger/presentation/member_ledger_controller.dart';
 import '../../ledger/presentation/total_balance_card.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -380,11 +381,15 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
               ),
               if (_errorMessage != null) ...<Widget>[
                 const SizedBox(height: 14),
-                _ProfileMessage(
+                AppMessageCard(
                   icon: Icons.error_outline,
                   message: _errorMessage!,
                   background: AppColors.redLt,
                   foreground: AppColors.red,
+                  padding: const EdgeInsets.all(12),
+                  borderRadius: 14,
+                  iconSize: 18,
+                  compact: true,
                 ),
               ],
               const SizedBox(height: 16),
@@ -573,49 +578,6 @@ class _PasswordTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.red, width: 1.4),
         ),
-      ),
-    );
-  }
-}
-
-class _ProfileMessage extends StatelessWidget {
-  const _ProfileMessage({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, size: 18, color: foreground),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 11,
-                height: 1.35,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

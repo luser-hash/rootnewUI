@@ -51,35 +51,35 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ### New Files
 
-- [ ] Add `lib/src/features/shared/widgets/app_message_card.dart`.
+- [x] Add `lib/src/features/shared/widgets/app_message_card.dart`.
 
 ### New Widgets
 
-- [ ] Add `AppMessageTone`.
-- [ ] Add `AppMessageCard`.
-- [ ] Support info, success, warning, error, and neutral tones.
-- [ ] Support compact and regular layout.
-- [ ] Support optional title.
-- [ ] Support optional icon override.
+- [x] Add `AppMessageTone`.
+- [x] Add `AppMessageCard`.
+- [x] Support info, success, warning, error, and neutral tones.
+- [x] Support compact and regular layout.
+- [x] Support optional title.
+- [x] Support optional icon override.
 
 ### Replacement Targets
 
-- [ ] Replace `_MessageCard` in `submissions/presentation/submissions_page.dart`.
-- [ ] Replace `_MessageCard` in `submissions/presentation/submission_detail_page.dart`.
-- [ ] Replace `_SubmissionMessage` in `submissions/presentation/submit_funds_page.dart`.
-- [ ] Replace `_InvestmentMessage` in `investments/presentation/investment_page.dart`.
-- [ ] Replace `_InvestmentMessage` in `investments/presentation/investment_detail_page.dart`.
-- [ ] Replace `_MessageCard` in `investments/presentation/distribution_record.dart`.
-- [ ] Replace `_MemberMessage` in `members/presentation/manage_members.dart`.
-- [ ] Replace `_EditMemberMessage` in `members/presentation/edit_member.dart`.
-- [ ] Replace `_ProfileMessage` in `profile/presentation/profile_page.dart`.
-- [ ] Replace `_InlineMessage` and `_ReportMessage` in report pages after simpler pages are stable.
+- [x] Replace `_MessageCard` in `submissions/presentation/submissions_page.dart`.
+- [x] Replace `_MessageCard` in `submissions/presentation/submission_detail_page.dart`.
+- [x] Replace `_SubmissionMessage` in `submissions/presentation/submit_funds_page.dart`.
+- [x] Replace `_InvestmentMessage` in `investments/presentation/investment_page.dart`.
+- [x] Replace `_InvestmentMessage` in `investments/presentation/investment_detail_page.dart`.
+- [x] Replace `_MessageCard` in `investments/presentation/distribution_record.dart`.
+- [x] Replace `_MemberMessage` in `members/presentation/manage_members.dart`.
+- [x] Replace `_EditMemberMessage` in `members/presentation/edit_member.dart`.
+- [x] Replace `_ProfileMessage` in `profile/presentation/profile_page.dart`.
+- [x] Replace `_InlineMessage` and `_ReportMessage` in report pages after simpler pages are stable.
 
 ### Acceptance Checks
 
-- [ ] Empty/loading/error states look equivalent or intentionally more consistent.
-- [ ] No controller state changes.
-- [ ] `flutter analyze` passes.
+- [x] Empty/loading/error states look equivalent or intentionally more consistent.
+- [x] No controller state changes.
+- [x] `flutter analyze` reports only unrelated existing issues.
 
 ## Phase 3 - Shared Detail Rows And Blocks
 

@@ -7,6 +7,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../data/member_management_repository.dart';
 import '../domain/member_management_models.dart';
 import '../domain/member_update_request.dart';
@@ -88,11 +89,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
         _EditMemberHeader(onBack: () => _closePage(context)),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-          child: _buildFormCard(
-            context,
-            isSelf: isSelf,
-            canDelete: canDelete,
-          ),
+          child: _buildFormCard(context, isSelf: isSelf, canDelete: canDelete),
         ),
       ],
     );
@@ -116,11 +113,15 @@ class _EditMemberPageState extends State<EditMemberPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             if (_errorMessage != null) ...<Widget>[
-              _EditMemberMessage(
+              AppMessageCard(
                 icon: Icons.error_outline,
                 message: _errorMessage!,
                 background: AppColors.redLt,
                 foreground: AppColors.red,
+                textColor: AppColors.red,
+                padding: const EdgeInsets.all(12),
+                borderRadius: 14,
+                showBorder: false,
               ),
               const SizedBox(height: 14),
             ],
@@ -583,10 +584,7 @@ class _RoleField extends StatelessWidget {
           value: UserRole.member,
           child: Text('Member'),
         ),
-        DropdownMenuItem<UserRole>(
-          value: UserRole.admin,
-          child: Text('Admin'),
-        ),
+        DropdownMenuItem<UserRole>(value: UserRole.admin, child: Text('Admin')),
         DropdownMenuItem<UserRole>(
           value: UserRole.superAdmin,
           child: Text('Super Admin'),
@@ -627,47 +625,6 @@ class _StatusField extends StatelessWidget {
         ),
       ],
       onChanged: enabled ? onChanged : null,
-    );
-  }
-}
-
-class _EditMemberMessage extends StatelessWidget {
-  const _EditMemberMessage({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: foreground,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

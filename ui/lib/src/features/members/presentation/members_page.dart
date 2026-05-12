@@ -6,6 +6,7 @@ import '../../auth/presentation/auth_scope.dart';
 import '../../shared/models/finance_models.dart';
 import '../../shared/utils/finance_formatters.dart';
 import '../../shared/widgets/app_avatar.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
@@ -84,21 +85,29 @@ class _MembersPageState extends State<MembersPage> {
 
     final String? error = _controller.errorMessage;
     if (error != null) {
-      return _MessageCard(
+      return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
         background: AppColors.redLt,
         foreground: AppColors.red,
+        textColor: AppColors.red,
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        borderRadius: 18,
+        showBorder: false,
       );
     }
 
     final List<ManagedUser> users = _controller.users;
     if (users.isEmpty) {
-      return const _MessageCard(
+      return const AppMessageCard(
         icon: Icons.group_outlined,
         message: 'No members found for this filter.',
         background: AppColors.surface,
         foreground: AppColors.textMute,
+        textColor: AppColors.textMute,
+        margin: EdgeInsets.symmetric(horizontal: 16),
+        borderRadius: 18,
+        showBorder: false,
       );
     }
 
@@ -281,9 +290,7 @@ class _StatusFilter extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
           items: const <DropdownMenuItem<ManagedUserStatus?>>[
-            DropdownMenuItem<ManagedUserStatus?>(
-              child: Text('All status'),
-            ),
+            DropdownMenuItem<ManagedUserStatus?>(child: Text('All status')),
             DropdownMenuItem<ManagedUserStatus?>(
               value: ManagedUserStatus.active,
               child: Text('Active'),
@@ -450,47 +457,5 @@ class _MemberRow extends StatelessWidget {
       if (user.email.isNotEmpty) user.email,
     ];
     return parts.isEmpty ? 'No contact information' : parts.join(' - ');
-  }
-}
-
-class _MessageCard extends StatelessWidget {
-  const _MessageCard({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: foreground,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

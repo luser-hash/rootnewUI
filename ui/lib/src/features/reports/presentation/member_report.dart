@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../data/member_report_repository.dart';
 import '../domain/member_report_models.dart';
 
@@ -53,12 +54,14 @@ class _MemberReportPageState extends State<MemberReportPage> {
                   }
 
                   if (snapshot.hasError || !snapshot.hasData) {
-                    return const _ReportMessage(
+                    return const AppMessageCard(
                       icon: Icons.error_outline,
                       message:
                           'Unable to load member report. Please try again.',
                       foreground: AppColors.red,
                       background: AppColors.redLt,
+                      padding: EdgeInsets.all(18),
+                      borderRadius: 18,
                     );
                   }
 
@@ -457,7 +460,13 @@ class _TransactionPanel extends StatelessWidget {
           ),
           const _TransactionTableHeader(),
           if (statement.entries.isEmpty)
-            const _InlineMessage(message: 'No transactions match the filters.')
+            const AppMessageCard(
+              message: 'No transactions match the filters.',
+              tone: AppMessageTone.neutral,
+              background: Colors.transparent,
+              padding: EdgeInsets.all(14),
+              showBorder: false,
+            )
           else
             ...statement.entries.map(
               (MemberReportEntry entry) => _TransactionRow(entry: entry),
@@ -737,7 +746,13 @@ class _DistributionsPanel extends StatelessWidget {
             ),
           ),
           if (report.distributions.isEmpty)
-            const _InlineMessage(message: 'No distribution history found.')
+            const AppMessageCard(
+              message: 'No distribution history found.',
+              tone: AppMessageTone.neutral,
+              background: Colors.transparent,
+              padding: EdgeInsets.all(14),
+              showBorder: false,
+            )
           else
             ...report.distributions.map(
               (MemberDistributionReportItem item) =>
@@ -886,77 +901,6 @@ class _ClearFiltersButton extends StatelessWidget {
           height: 54,
           child: Icon(Icons.close_rounded, color: AppColors.textMute),
         ),
-      ),
-    );
-  }
-}
-
-class _ReportMessage extends StatelessWidget {
-  const _ReportMessage({
-    required this.icon,
-    required this.message,
-    required this.foreground,
-    required this.background,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color foreground;
-  final Color background;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InlineMessage extends StatelessWidget {
-  const _InlineMessage({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        children: <Widget>[
-          const Icon(Icons.info_outline_rounded, color: AppColors.textMute),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

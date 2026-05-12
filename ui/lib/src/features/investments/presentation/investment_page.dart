@@ -7,6 +7,7 @@ import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../data/investment_repository.dart';
@@ -76,20 +77,22 @@ class _InvestmentPageState extends State<InvestmentPage> {
 
     final String? error = _controller.errorMessage;
     if (error != null) {
-      return _InvestmentMessage(
+      return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
         background: AppColors.redLt,
         foreground: AppColors.red,
+        fullWidth: true,
       );
     }
 
     if (items.isEmpty) {
-      return const _InvestmentMessage(
+      return const AppMessageCard(
         icon: Icons.savings_outlined,
         message: 'No investments found.',
         background: AppColors.surface,
         foreground: AppColors.textMute,
+        fullWidth: true,
       );
     }
 
@@ -106,8 +109,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
                 onDistribute: () => _distribute(inv),
                 isReleasing: _controller.releasingInvestmentId == inv.id,
                 isClosing: _controller.closingInvestmentId == inv.id,
-                isDistributing:
-                    _controller.distributingInvestmentId == inv.id,
+                isDistributing: _controller.distributingInvestmentId == inv.id,
                 actionsDisabled: _controller.hasActionInFlight,
               ),
             ),
@@ -131,9 +133,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
           detailFuture: widget.repository.detail(investment.id),
           onDistributionRecord: () {
             Navigator.of(context).pop();
-            pageContext.push(
-              RouteNames.investmentDistribution(investment.id),
-            );
+            pageContext.push(RouteNames.investmentDistribution(investment.id));
           },
         );
       },
@@ -141,9 +141,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
   }
 
   Future<void> _openCreatePage() async {
-    final bool? created = await context.push<bool>(
-      RouteNames.investmentCreate,
-    );
+    final bool? created = await context.push<bool>(RouteNames.investmentCreate);
     if (created == true) {
       await _controller.load();
     }
@@ -187,9 +185,9 @@ class _InvestmentPageState extends State<InvestmentPage> {
     final String message = released
         ? 'Funds released successfully.'
         : (_controller.actionErrorMessage ?? fallbackMessage);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _closeInvestment(Investment investment) async {
@@ -218,13 +216,14 @@ class _InvestmentPageState extends State<InvestmentPage> {
       return;
     }
 
-    const String fallbackMessage = 'Unable to close investment. Please try again.';
+    const String fallbackMessage =
+        'Unable to close investment. Please try again.';
     final String message = closed
         ? 'Investment closed successfully.'
         : (_controller.actionErrorMessage ?? fallbackMessage);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _distribute(Investment investment) async {
@@ -266,9 +265,9 @@ class _InvestmentPageState extends State<InvestmentPage> {
     final String message = distributed
         ? 'P&L distributed successfully.'
         : (_controller.actionErrorMessage ?? fallbackMessage);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -289,19 +288,11 @@ class _InvestmentsHeader extends StatelessWidget {
       0,
       (num sum, Investment item) => sum + (item.pnl ?? 0),
     );
-    final List<({String label, String value})> stats = <({
-      String label,
-      String value,
-    })>[
-      (
-        label: 'Open',
-        value: '${investments.where(_isOpenInvestment).length}',
-      ),
+    final List<({String label, String value})>
+    stats = <({String label, String value})>[
+      (label: 'Open', value: '${investments.where(_isOpenInvestment).length}'),
       (label: 'Total', value: '${investments.length}'),
-      (
-        label: 'P&L',
-        value: '${pnlTotal >= 0 ? '+' : '-'}${fmtSh(pnlTotal)}',
-      ),
+      (label: 'P&L', value: '${pnlTotal >= 0 ? '+' : '-'}${fmtSh(pnlTotal)}'),
     ];
 
     return Container(
@@ -566,8 +557,7 @@ class _CloseInvestmentSheet extends StatefulWidget {
 
 class _CloseInvestmentSheetState extends State<_CloseInvestmentSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _returnAmountController =
-      TextEditingController();
+  final TextEditingController _returnAmountController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
   DateTime _closeDate = DateTime.now();
 
@@ -781,49 +771,6 @@ String _formatDate(DateTime value) {
   final String month = value.month.toString().padLeft(2, '0');
   final String day = value.day.toString().padLeft(2, '0');
   return '${value.year}-$month-$day';
-}
-
-class _InvestmentMessage extends StatelessWidget {
-  const _InvestmentMessage({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _MoneyBox extends StatelessWidget {

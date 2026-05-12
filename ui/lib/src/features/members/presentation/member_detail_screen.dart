@@ -12,6 +12,7 @@ import '../../ledger/presentation/total_balance_card.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_avatar.dart';
 import '../../shared/widgets/app_card_list.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../../submissions/data/capital_submission_repository.dart';
 import '../../submissions/domain/capital_submission_request.dart';
@@ -345,9 +346,27 @@ class _AccountDetailsCard extends StatelessWidget {
               ),
             )
           else if (error != null)
-            _AccountInfoMessage(message: error)
+            AppMessageCard(
+              message: error,
+              tone: AppMessageTone.neutral,
+              background: Colors.transparent,
+              textColor: AppColors.textMute,
+              padding: const EdgeInsets.all(20),
+              showBorder: false,
+              showIcon: false,
+              textAlign: TextAlign.center,
+            )
           else if (profile == null)
-            const _AccountInfoMessage(message: 'No account details found.')
+            const AppMessageCard(
+              message: 'No account details found.',
+              tone: AppMessageTone.neutral,
+              background: Colors.transparent,
+              textColor: AppColors.textMute,
+              padding: EdgeInsets.all(20),
+              showBorder: false,
+              showIcon: false,
+              textAlign: TextAlign.center,
+            )
           else ...<Widget>[
             _AccountInfoRow(
               icon: Icons.badge_outlined,
@@ -470,26 +489,6 @@ class _AccountInfoRow extends StatelessWidget {
   }
 }
 
-class _AccountInfoMessage extends StatelessWidget {
-  const _AccountInfoMessage({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Center(
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 13, color: AppColors.textMute),
-        ),
-      ),
-    );
-  }
-}
-
 class _StatCard extends StatelessWidget {
   const _StatCard({
     required this.icon,
@@ -573,7 +572,18 @@ class _SubmissionHistorySection extends StatelessWidget {
     final String? error = controller.errorMessage;
     if (error != null) {
       return AppCardList(
-        children: <Widget>[_SubmissionInfoMessage(message: error)],
+        children: <Widget>[
+          AppMessageCard(
+            message: error,
+            tone: AppMessageTone.neutral,
+            background: Colors.transparent,
+            textColor: AppColors.textMute,
+            padding: const EdgeInsets.all(20),
+            showBorder: false,
+            showIcon: false,
+            textAlign: TextAlign.center,
+          ),
+        ],
       );
     }
 
@@ -581,7 +591,16 @@ class _SubmissionHistorySection extends StatelessWidget {
     if (submissions.isEmpty) {
       return const AppCardList(
         children: <Widget>[
-          _SubmissionInfoMessage(message: 'No submissions yet.'),
+          AppMessageCard(
+            message: 'No submissions yet.',
+            tone: AppMessageTone.neutral,
+            background: Colors.transparent,
+            textColor: AppColors.textMute,
+            padding: EdgeInsets.all(20),
+            showBorder: false,
+            showIcon: false,
+            textAlign: TextAlign.center,
+          ),
         ],
       );
     }
@@ -836,26 +855,6 @@ class _SubmissionHistoryRow extends StatelessWidget {
   }
 }
 
-class _SubmissionInfoMessage extends StatelessWidget {
-  const _SubmissionInfoMessage({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Center(
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 13, color: AppColors.textMute),
-        ),
-      ),
-    );
-  }
-}
-
 class _SubmissionStatusPill extends StatelessWidget {
   const _SubmissionStatusPill({required this.status});
 
@@ -894,7 +893,18 @@ class _MemberLedgerSection extends StatelessWidget {
     final String? error = controller.errorMessage;
     if (error != null) {
       return AppCardList(
-        children: <Widget>[_LedgerInfoMessage(message: error)],
+        children: <Widget>[
+          AppMessageCard(
+            message: error,
+            tone: AppMessageTone.neutral,
+            background: Colors.transparent,
+            textColor: AppColors.textMute,
+            padding: const EdgeInsets.all(20),
+            showBorder: false,
+            showIcon: false,
+            textAlign: TextAlign.center,
+          ),
+        ],
       );
     }
 
@@ -904,7 +914,16 @@ class _MemberLedgerSection extends StatelessWidget {
     if (entries.isEmpty) {
       return const AppCardList(
         children: <Widget>[
-          _LedgerInfoMessage(message: 'No ledger entries yet.'),
+          AppMessageCard(
+            message: 'No ledger entries yet.',
+            tone: AppMessageTone.neutral,
+            background: Colors.transparent,
+            textColor: AppColors.textMute,
+            padding: EdgeInsets.all(20),
+            showBorder: false,
+            showIcon: false,
+            textAlign: TextAlign.center,
+          ),
         ],
       );
     }
@@ -1163,26 +1182,6 @@ class _MemberLedgerRow extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _LedgerInfoMessage extends StatelessWidget {
-  const _LedgerInfoMessage({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Center(
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 13, color: AppColors.textMute),
-        ),
-      ),
     );
   }
 }

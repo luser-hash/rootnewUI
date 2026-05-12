@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../data/capital_submission_repository.dart';
 import '../domain/capital_submission_request.dart';
@@ -68,7 +69,7 @@ class _SubmissionDetailPageState extends State<SubmissionDetailPage> {
 
     final String? error = _controller.errorMessage;
     if (error != null) {
-      return _MessageCard(
+      return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
         background: AppColors.redLt,
@@ -78,7 +79,7 @@ class _SubmissionDetailPageState extends State<SubmissionDetailPage> {
 
     final CapitalSubmission? submission = _controller.submission;
     if (submission == null) {
-      return const _MessageCard(
+      return const AppMessageCard(
         icon: Icons.inbox_outlined,
         message: 'Submission detail not found.',
         background: AppColors.surface,
@@ -281,49 +282,6 @@ class _DetailLine extends StatelessWidget {
                 height: 1.35,
                 fontWeight: FontWeight.w800,
                 color: valueColor,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MessageCard extends StatelessWidget {
-  const _MessageCard({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                height: 1.35,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
               ),
             ),
           ),

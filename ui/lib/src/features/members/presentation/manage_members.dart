@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../data/member_management_repository.dart';
 import '../domain/member_create_request.dart';
@@ -80,20 +81,28 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             if (_controller.errorMessage != null) ...<Widget>[
-              _MemberMessage(
+              AppMessageCard(
                 icon: Icons.error_outline,
                 message: _controller.errorMessage!,
                 background: AppColors.redLt,
                 foreground: AppColors.red,
+                textColor: AppColors.red,
+                padding: const EdgeInsets.all(12),
+                borderRadius: 14,
+                showBorder: false,
               ),
               const SizedBox(height: 14),
             ],
             if (_controller.submitted) ...<Widget>[
-              const _MemberMessage(
+              const AppMessageCard(
                 icon: Icons.check_circle_outline,
                 message: 'Member created successfully.',
                 background: AppColors.greenLt,
                 foreground: AppColors.green,
+                textColor: AppColors.green,
+                padding: EdgeInsets.all(12),
+                borderRadius: 14,
+                showBorder: false,
               ),
               const SizedBox(height: 14),
             ],
@@ -512,47 +521,6 @@ class _PasswordField extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
         ),
-      ),
-    );
-  }
-}
-
-class _MemberMessage extends StatelessWidget {
-  const _MemberMessage({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: TextStyle(
-                color: foreground,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

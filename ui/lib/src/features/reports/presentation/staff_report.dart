@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../data/staff_report_repository.dart';
 import '../domain/staff_report_models.dart';
 
@@ -130,11 +131,13 @@ class _StaffReportPageState extends State<StaffReportPage> {
           );
         }
         if (snapshot.hasError || !snapshot.hasData) {
-          return _ReportMessage(
+          return AppMessageCard(
             icon: Icons.error_outline,
             message: error,
             foreground: AppColors.red,
             background: AppColors.redLt,
+            padding: const EdgeInsets.all(18),
+            borderRadius: 18,
           );
         }
         return builder(snapshot.data as T);
@@ -369,8 +372,12 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 ),
               ),
               if (members.isEmpty)
-                const _InlineMessage(
+                const AppMessageCard(
                   message: 'No members match the selected filters.',
+                  tone: AppMessageTone.neutral,
+                  background: Colors.transparent,
+                  padding: EdgeInsets.all(14),
+                  showBorder: false,
                 )
               else
                 _MemberTable(
@@ -440,8 +447,12 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 ),
               ),
               if (investments.isEmpty)
-                const _InlineMessage(
+                const AppMessageCard(
                   message: 'No investments match the selected filters.',
+                  tone: AppMessageTone.neutral,
+                  background: Colors.transparent,
+                  padding: EdgeInsets.all(14),
+                  showBorder: false,
                 )
               else
                 _InvestmentTable(items: investments),
@@ -538,8 +549,12 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 ),
               ),
               if (distributions.isEmpty)
-                const _InlineMessage(
+                const AppMessageCard(
                   message: 'No distributions match the selected filters.',
+                  tone: AppMessageTone.neutral,
+                  background: Colors.transparent,
+                  padding: EdgeInsets.all(14),
+                  showBorder: false,
                 )
               else
                 _DistributionList(items: distributions),
@@ -604,8 +619,12 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 ),
               ),
               if (report.items.isEmpty)
-                const _InlineMessage(
+                const AppMessageCard(
                   message: 'No pending submissions - all caught up.',
+                  tone: AppMessageTone.neutral,
+                  background: Colors.transparent,
+                  padding: EdgeInsets.all(14),
+                  showBorder: false,
                 )
               else
                 _ApprovalQueueTable(items: report.items),
@@ -1202,8 +1221,12 @@ class _DistributionList extends StatelessWidget {
               ),
               children: <Widget>[
                 if (item.lines.isEmpty)
-                  const _InlineMessage(
+                  const AppMessageCard(
                     message: 'No per-member distribution lines returned.',
+                    tone: AppMessageTone.neutral,
+                    background: Colors.transparent,
+                    padding: EdgeInsets.all(14),
+                    showBorder: false,
                   )
                 else
                   ...item.lines.map((line) {
@@ -1662,77 +1685,6 @@ class _ReportPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(decoration: _panelDecoration(), child: child);
-  }
-}
-
-class _ReportMessage extends StatelessWidget {
-  const _ReportMessage({
-    required this.icon,
-    required this.message,
-    required this.foreground,
-    required this.background,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color foreground;
-  final Color background;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InlineMessage extends StatelessWidget {
-  const _InlineMessage({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        children: <Widget>[
-          const Icon(Icons.info_outline_rounded, color: AppColors.textMute),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

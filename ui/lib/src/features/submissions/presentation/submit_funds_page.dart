@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../data/capital_submission_repository.dart';
 import '../domain/capital_submission_request.dart';
 import 'capital_submission_controller.dart';
@@ -71,20 +72,28 @@ class _SubmitFundsPageState extends State<SubmitFundsPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             if (_controller.errorMessage != null) ...<Widget>[
-              _SubmissionMessage(
+              AppMessageCard(
                 icon: Icons.error_outline,
                 message: _controller.errorMessage!,
                 background: AppColors.redLt,
                 foreground: AppColors.red,
+                padding: const EdgeInsets.all(12),
+                borderRadius: 14,
+                iconSize: 18,
+                compact: true,
               ),
               const SizedBox(height: 14),
             ],
             if (_controller.submitted) ...<Widget>[
-              const _SubmissionMessage(
+              const AppMessageCard(
                 icon: Icons.check_circle_outline_rounded,
                 message: 'Submission request created successfully.',
                 background: AppColors.greenLt,
                 foreground: AppColors.green,
+                padding: EdgeInsets.all(12),
+                borderRadius: 14,
+                iconSize: 18,
+                compact: true,
               ),
               const SizedBox(height: 14),
             ],
@@ -380,49 +389,6 @@ class _DateField extends StatelessWidget {
     final String month = value.month.toString().padLeft(2, '0');
     final String day = value.day.toString().padLeft(2, '0');
     return '${value.year}-$month-$day';
-  }
-}
-
-class _SubmissionMessage extends StatelessWidget {
-  const _SubmissionMessage({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: foreground.withValues(alpha: .22)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, size: 18, color: foreground),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 11,
-                height: 1.35,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../data/investment_repository.dart';
 import '../domain/investment_distribution_record.dart';
 
@@ -96,23 +97,25 @@ class _DistributionRecordPageState extends State<DistributionRecordPage> {
                   }
 
                   if (snapshot.hasError) {
-                    return const _MessageCard(
+                    return const AppMessageCard(
                       icon: Icons.error_outline,
                       message:
                           'Unable to load distribution records. Please try again.',
                       background: AppColors.redLt,
                       foreground: AppColors.red,
+                      fullWidth: true,
                     );
                   }
 
                   final List<InvestmentDistributionRecord> records =
                       snapshot.data ?? <InvestmentDistributionRecord>[];
                   if (records.isEmpty) {
-                    return const _MessageCard(
+                    return const AppMessageCard(
                       icon: Icons.call_split_rounded,
                       message: 'No distribution record exists yet.',
                       background: AppColors.surface,
                       foreground: AppColors.textMute,
+                      fullWidth: true,
                     );
                   }
 
@@ -480,50 +483,6 @@ class _TextBlock extends StatelessWidget {
               height: 1.35,
               fontWeight: FontWeight.w700,
               color: AppColors.textMid,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MessageCard extends StatelessWidget {
-  const _MessageCard({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                height: 1.35,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
             ),
           ),
         ],

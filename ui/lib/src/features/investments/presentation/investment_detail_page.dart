@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../domain/investment_detail.dart';
 
 class InvestmentDetailPage extends StatelessWidget {
@@ -32,11 +33,12 @@ class InvestmentDetailPage extends StatelessWidget {
               ),
             );
           } else if (snap.hasError || !snap.hasData) {
-            body = const _InvestmentMessage(
+            body = const AppMessageCard(
               icon: Icons.error_outline,
               message: 'Unable to load investment details. Please try again.',
               background: AppColors.redLt,
               foreground: AppColors.red,
+              fullWidth: true,
             );
           } else {
             body = _InvestmentDetailContent(
@@ -337,49 +339,6 @@ class _TextBlock extends StatelessWidget {
   }
 }
 
-class _InvestmentMessage extends StatelessWidget {
-  const _InvestmentMessage({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _MoneyBox extends StatelessWidget {
   const _MoneyBox({
     required this.label,
@@ -442,9 +401,7 @@ String _prettyType(String value) {
   return normalized
       .split(RegExp(r'\s+'))
       .where((String part) => part.isNotEmpty)
-      .map(
-        (String part) => '${part[0].toUpperCase()}${part.substring(1)}',
-      )
+      .map((String part) => '${part[0].toUpperCase()}${part.substring(1)}')
       .join(' ');
 }
 
