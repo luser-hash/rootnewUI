@@ -21,6 +21,7 @@ import '../../src/features/members/presentation/member_detail_screen.dart';
 import '../../src/features/members/presentation/members_page.dart';
 import '../../src/features/profile/presentation/profile_page.dart';
 import '../../src/features/reports/data/member_report_repository.dart';
+import '../../src/features/reports/data/staff_report_repository.dart';
 import '../../src/features/reports/presentation/member_report.dart';
 import '../../src/features/reports/presentation/staff_report.dart';
 import '../../src/features/shared/finance.dart';
@@ -45,6 +46,7 @@ class AppRouter {
     required MemberLedgerRepository memberLedgerRepository,
     required MemberManagementRepository memberManagementRepository,
     required MemberReportRepository memberReportRepository,
+    required StaffReportRepository staffReportRepository,
   }) {
     return GoRouter(
       initialLocation: RouteNames.login,
@@ -277,7 +279,9 @@ class AppRouter {
             GoRoute(
               path: RouteNames.staffReport,
               builder: (BuildContext context, GoRouterState state) {
-                return _scroll(const StaffReportPage());
+                return _scroll(
+                  StaffReportPage(repository: staffReportRepository),
+                );
               },
             ),
           ],
