@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
+import '../../shared/widgets/app_detail_block.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../data/investment_repository.dart';
 import '../domain/investment_distribution_record.dart';
@@ -281,33 +282,84 @@ class _DistributionRecordCard extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               childAspectRatio: 2.25,
               children: <Widget>[
-                _InfoBox(
+                AppDetailBlock(
                   label: 'Rounded',
                   value: formatMoneyTextSigned(record.roundedTotal),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  borderRadius: 12,
+                  center: true,
+                  valueMaxLines: 1,
+                  valueFontSize: 13,
+                  valueWeight: FontWeight.w800,
                 ),
-                _InfoBox(
+                AppDetailBlock(
                   label: 'Remainder',
                   value: formatMoneyTextSigned(record.remainderApplied),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  borderRadius: 12,
+                  center: true,
+                  valueMaxLines: 1,
+                  valueFontSize: 13,
+                  valueWeight: FontWeight.w800,
                 ),
-                _InfoBox(label: 'Lines', value: '${record.lines.length}'),
-                _InfoBox(
+                AppDetailBlock(
+                  label: 'Lines',
+                  value: '${record.lines.length}',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  borderRadius: 12,
+                  center: true,
+                  valueMaxLines: 1,
+                  valueFontSize: 13,
+                  valueWeight: FontWeight.w800,
+                ),
+                AppDetailBlock(
                   label: 'Posted By',
                   value: valueOrDash(record.postedBy?.fullName),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  borderRadius: 12,
+                  center: true,
+                  valueMaxLines: 1,
+                  valueFontSize: 13,
+                  valueWeight: FontWeight.w800,
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            _TextBlock(label: 'Distribution ID', value: record.distributionId),
+            AppDetailBlock(
+              label: 'Distribution ID',
+              value: record.distributionId,
+              fullWidth: true,
+              selectable: true,
+            ),
             const SizedBox(height: 8),
-            _TextBlock(label: 'Snapshot ID', value: record.snapshotId),
+            AppDetailBlock(
+              label: 'Snapshot ID',
+              value: record.snapshotId,
+              fullWidth: true,
+              selectable: true,
+            ),
             if (record.reversedAt != null ||
                 record.reversedBy != null) ...<Widget>[
               const SizedBox(height: 8),
-              _TextBlock(
+              AppDetailBlock(
                 label: 'Reversed',
                 value:
                     '${formatDateTimeShort(record.reversedAt)} by '
                     '${valueOrDash(record.reversedBy?.fullName)}',
+                fullWidth: true,
+                selectable: true,
               ),
             ],
             if (record.lines.isNotEmpty) ...<Widget>[
@@ -395,94 +447,6 @@ class _DistributionLineTile extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w800,
               color: AppColors.text,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoBox extends StatelessWidget {
-  const _InfoBox({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: AppColors.text,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TextBlock extends StatelessWidget {
-  const _TextBlock({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 4),
-          SelectableText(
-            valueOrDash(value),
-            style: const TextStyle(
-              fontSize: 12,
-              height: 1.35,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textMid,
             ),
           ),
         ],

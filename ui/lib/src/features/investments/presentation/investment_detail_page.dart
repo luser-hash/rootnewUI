@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_detail_block.dart';
+import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../domain/investment_detail.dart';
 
@@ -177,61 +179,171 @@ class _InvestmentDetailContent extends StatelessWidget {
           ),
           child: Column(
             children: <Widget>[
-              _DetailRow(label: 'Investment ID', value: detail.id),
-              _DetailRow(label: 'Status', value: detail.status.label),
-              _DetailRow(
+              AppDetailRow(
+                label: 'Investment ID',
+                value: detail.id,
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+              ),
+              AppDetailRow(
+                label: 'Status',
+                value: detail.status.label,
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+              ),
+              AppDetailRow(
                 label: 'Type',
                 value: _prettyType(detail.investmentType),
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
-              _DetailRow(label: 'Invested To', value: detail.investedTo),
-              _DetailRow(label: 'Created Date', value: detail.createdDate),
-              _DetailRow(
+              AppDetailRow(
+                label: 'Invested To',
+                value: detail.investedTo,
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+              ),
+              AppDetailRow(
+                label: 'Created Date',
+                value: detail.createdDate,
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+              ),
+              AppDetailRow(
                 label: 'Return Amount',
                 value: returned == null ? '-' : fmt(returned),
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
-              _DetailRow(
+              AppDetailRow(
                 label: 'Close Date',
                 value: _valueOrDash(detail.closeDate),
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
-              _DetailRow(
+              AppDetailRow(
                 label: 'Fund Released At',
                 value: _formatDateTime(detail.fundReleasedAt),
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
-              _DetailRow(
+              AppDetailRow(
                 label: 'Fund Released By',
                 value: _valueOrDash(detail.fundReleasedBy),
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
-              _DetailRow(
+              AppDetailRow(
                 label: 'Created By',
                 value: _valueOrDash(detail.createdBy?.fullName),
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
-              _DetailRow(
+              AppDetailRow(
                 label: 'Created By ID',
                 value: _valueOrDash(detail.createdBy?.userId),
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
-              _DetailRow(
+              AppDetailRow(
                 label: 'Snapshot',
                 value: detail.hasSnapshot ? 'Available' : 'Not available',
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
-              _DetailRow(
+              AppDetailRow(
                 label: 'Created At',
                 value: _formatDateTime(detail.createdAt),
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
-              _DetailRow(
+              AppDetailRow(
                 label: 'Updated At',
                 value: _formatDateTime(detail.updatedAt),
                 isLast: true,
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
               ),
             ],
           ),
         ),
         if (detail.comment.trim().isNotEmpty) ...<Widget>[
           const SizedBox(height: 14),
-          _TextBlock(label: 'Comment', value: detail.comment),
+          AppDetailBlock(
+            label: 'Comment',
+            value: detail.comment,
+            padding: const EdgeInsets.all(14),
+            borderRadius: 16,
+            valueColor: AppColors.textMid,
+            valueFontSize: 13,
+          ),
         ],
         if (detail.closureComment.trim().isNotEmpty) ...<Widget>[
           const SizedBox(height: 14),
-          _TextBlock(label: 'Closure Comment', value: detail.closureComment),
+          AppDetailBlock(
+            label: 'Closure Comment',
+            value: detail.closureComment,
+            padding: const EdgeInsets.all(14),
+            borderRadius: 16,
+            valueColor: AppColors.textMid,
+            valueFontSize: 13,
+          ),
           const SizedBox(height: 10),
           AppActionButton(
             label: 'Distributon Record',
@@ -241,100 +353,6 @@ class _InvestmentDetailContent extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.label,
-    required this.value,
-    this.isLast = false,
-  });
-
-  final String label;
-  final String value;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: isLast
-              ? BorderSide.none
-              : const BorderSide(color: AppColors.border),
-        ),
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMute,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Flexible(
-            child: Text(
-              _valueOrDash(value),
-              textAlign: TextAlign.end,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: AppColors.text,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TextBlock extends StatelessWidget {
-  const _TextBlock({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textMute,
-              letterSpacing: .4,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 13,
-              height: 1.45,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textMid,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_card_list.dart';
+import '../../shared/widgets/app_detail_block.dart';
 import '../data/member_ledger_repository.dart';
 import '../domain/member_ledger_statement.dart';
 import 'admin_ledger_controller.dart';
@@ -1025,20 +1026,20 @@ class _LedgerRow extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.45,
                   children: <Widget>[
-                    _DetailBox(label: 'Type', value: entry.entryType.label),
-                    _DetailBox(label: 'Currency', value: entry.currency),
-                    _DetailBox(label: 'Txn Date', value: entry.txnDate),
-                    _DetailBox(
+                    AppDetailBlock(label: 'Type', value: entry.entryType.label),
+                    AppDetailBlock(label: 'Currency', value: entry.currency),
+                    AppDetailBlock(label: 'Txn Date', value: entry.txnDate),
+                    AppDetailBlock(
                       label: 'Created',
                       value: formatDateTimeShort(entry.createdAt),
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Reference Type',
                       value: entry.referenceType.isEmpty
                           ? '-'
                           : entry.referenceType,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Reference ID',
                       value: entry.referenceId.isEmpty
                           ? '-'
@@ -1047,20 +1048,33 @@ class _LedgerRow extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(label: 'Ledger ID', value: entry.ledgerId),
+                AppDetailBlock(
+                  label: 'Ledger ID',
+                  value: entry.ledgerId,
+                  selectable: true,
+                ),
                 if (entry.userId.isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
-                  _DetailTextBlock(label: 'User ID', value: entry.userId),
+                  AppDetailBlock(
+                    label: 'User ID',
+                    value: entry.userId,
+                    selectable: true,
+                  ),
                 ],
                 if (entry.comment.isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
-                  _DetailTextBlock(label: 'Comment', value: entry.comment),
+                  AppDetailBlock(
+                    label: 'Comment',
+                    value: entry.comment,
+                    selectable: true,
+                  ),
                 ],
                 if (entry.createdByName.isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
-                  _DetailTextBlock(
+                  AppDetailBlock(
                     label: 'Created By',
                     value: entry.createdByName,
+                    selectable: true,
                   ),
                 ],
               ],
@@ -1109,91 +1123,6 @@ class _MessageCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 color: AppColors.textMid,
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailBox extends StatelessWidget {
-  const _DetailBox({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.text,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailTextBlock extends StatelessWidget {
-  const _DetailTextBlock({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              height: 1.35,
-              fontWeight: FontWeight.w700,
-              color: AppColors.text,
             ),
           ),
         ],

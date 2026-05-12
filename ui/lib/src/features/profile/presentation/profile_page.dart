@@ -9,6 +9,7 @@ import '../../ledger/presentation/member_ledger_controller.dart';
 import '../../ledger/presentation/total_balance_card.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 
@@ -192,99 +193,31 @@ class _ProfileDetailsCard extends StatelessWidget {
       ),
       child: Column(
         children: <Widget>[
-          _ProfileInfoRow(
+          AppDetailRow(
             icon: Icons.badge_outlined,
             label: 'Member ID',
             value: valueOrDash(user?.id),
           ),
-          _ProfileInfoRow(
+          AppDetailRow(
             icon: Icons.phone_outlined,
             label: 'Contact No',
             value: valueOrDash(user?.phone),
           ),
-          _ProfileInfoRow(
+          AppDetailRow(
             icon: Icons.mail_outline_rounded,
             label: 'Email',
             value: valueOrDash(user?.email),
           ),
-          _ProfileInfoRow(
+          AppDetailRow(
             icon: Icons.calendar_today_outlined,
             label: 'Join Date',
             value: valueOrDash(user?.joinDate),
           ),
-          _ProfileInfoRow(
+          AppDetailRow(
             icon: Icons.verified_user_outlined,
             label: 'Status',
             value: valueOrDash(user?.status),
             isLast: true,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProfileInfoRow extends StatelessWidget {
-  const _ProfileInfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.isLast = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: isLast
-              ? BorderSide.none
-              : const BorderSide(color: AppColors.border),
-        ),
-      ),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.greenLt,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, size: 20, color: AppColors.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textMute,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  value,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.text,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

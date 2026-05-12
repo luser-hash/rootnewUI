@@ -85,35 +85,35 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ### New Files
 
-- [ ] Add `lib/src/features/shared/widgets/app_detail_row.dart`.
-- [ ] Add `lib/src/features/shared/widgets/app_detail_block.dart`.
+- [x] Add `lib/src/features/shared/widgets/app_detail_row.dart`.
+- [x] Add `lib/src/features/shared/widgets/app_detail_block.dart`.
 
 ### New Widgets
 
-- [ ] Add `AppDetailRow`.
-- [ ] Add `AppDetailBlock`.
-- [ ] Support optional icon.
-- [ ] Support optional color.
-- [ ] Support monospace value.
-- [ ] Support max lines and overflow where needed.
+- [x] Add `AppDetailRow`.
+- [x] Add `AppDetailBlock`.
+- [x] Support optional icon.
+- [x] Support optional color.
+- [x] Support monospace value.
+- [x] Support max lines and overflow where needed.
 
 ### Replacement Targets
 
-- [ ] Replace `_DetailLine` in `submissions/presentation/submission_detail_page.dart`.
-- [ ] Replace `_DetailLine` in `submissions/presentation/submissions_page.dart`.
-- [ ] Replace `_DetailRow` in `investments/presentation/investment_detail_page.dart`.
-- [ ] Replace `_TextBlock` in `investments/presentation/investment_detail_page.dart`.
-- [ ] Replace `_InfoBox` and `_TextBlock` in `investments/presentation/distribution_record.dart`.
-- [ ] Replace `_AccountInfoRow` in `members/presentation/member_detail_screen.dart`.
-- [ ] Replace `_ProfileInfoRow` in `profile/presentation/profile_page.dart`.
-- [ ] Replace `_DetailBox` and `_DetailTextBlock` in `approvals/presentation/approval_page.dart`.
-- [ ] Replace `_DetailBox` and `_DetailTextBlock` in `ledger/presentation/ledger_page.dart`.
+- [x] Replace `_DetailLine` in `submissions/presentation/submission_detail_page.dart`.
+- [x] Replace `_DetailLine` in `submissions/presentation/submissions_page.dart`.
+- [x] Replace `_DetailRow` in `investments/presentation/investment_detail_page.dart`.
+- [x] Replace `_TextBlock` in `investments/presentation/investment_detail_page.dart`.
+- [x] Replace `_InfoBox` and `_TextBlock` in `investments/presentation/distribution_record.dart`.
+- [x] Replace `_AccountInfoRow` in `members/presentation/member_detail_screen.dart`.
+- [x] Replace `_ProfileInfoRow` in `profile/presentation/profile_page.dart`.
+- [x] Replace `_DetailBox` and `_DetailTextBlock` in `approvals/presentation/approval_page.dart`.
+- [x] Replace `_DetailBox` and `_DetailTextBlock` in `ledger/presentation/ledger_page.dart`.
 
 ### Acceptance Checks
 
-- [ ] Detail screens keep same data order.
-- [ ] Long text still truncates or wraps correctly.
-- [ ] `flutter analyze` passes.
+- [x] Detail screens keep same data order.
+- [x] Long text still truncates or wraps correctly.
+- [x] `flutter analyze` reports only unrelated existing issues.
 
 ## Phase 4 - Status Pills
 

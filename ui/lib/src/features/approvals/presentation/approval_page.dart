@@ -5,6 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/state/app_state.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
+import '../../shared/widgets/app_detail_block.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../../submissions/data/capital_submission_repository.dart';
@@ -527,34 +528,34 @@ class _SubmissionCard extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.6,
                   children: <Widget>[
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Type',
                       value: submission.requestType.label,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Channel',
                       value: submission.paymentChannel.label,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Requested',
                       value: _formatRequestedAt(submission.requestedAt),
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Reference',
                       value: submission.externalReference.isEmpty
                           ? '-'
                           : submission.externalReference,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Attachments',
                       value: '${submission.attachmentCount}',
                     ),
-                    _DetailBox(label: 'ID', value: submission.requestId),
+                    AppDetailBlock(label: 'ID', value: submission.requestId),
                   ],
                 ),
                 if (submission.notes.trim().isNotEmpty) ...<Widget>[
                   const SizedBox(height: 10),
-                  _DetailBox(label: 'Notes', value: submission.notes),
+                  AppDetailBlock(label: 'Notes', value: submission.notes),
                 ],
               ],
             ),
@@ -637,91 +638,6 @@ class _QueueMessageCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 color: foreground,
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailBox extends StatelessWidget {
-  const _DetailBox({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.text,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailTextBlock extends StatelessWidget {
-  const _DetailTextBlock({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              height: 1.35,
-              fontWeight: FontWeight.w700,
-              color: AppColors.text,
             ),
           ),
         ],
@@ -989,47 +905,50 @@ class _ReviewedSubmissionList extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.45,
                   children: <Widget>[
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Type',
                       value: submission.requestType.label,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Channel',
                       value: submission.paymentChannel.label,
                     ),
-                    _DetailBox(label: 'Txn Date', value: submission.txnDate),
-                    _DetailBox(
+                    AppDetailBlock(
+                      label: 'Txn Date',
+                      value: submission.txnDate,
+                    ),
+                    AppDetailBlock(
                       label: 'Reviewed',
                       value: _formatRequestedAt(submission.reviewedAt),
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Reference',
                       value: submission.externalReference.isEmpty
                           ? '-'
                           : submission.externalReference,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Reviewed By',
                       value: submission.reviewedBy?.fullName ?? '-',
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(
+                AppDetailBlock(
                   label: 'Request ID',
                   value: submission.requestId,
                 ),
-                if ((submission.reviewedBy?.userId ?? '').isNotEmpty)
-                  ...<Widget>[
-                    const SizedBox(height: 8),
-                    _DetailTextBlock(
-                      label: 'Reviewer ID',
-                      value: submission.reviewedBy!.userId,
-                    ),
-                  ],
+                if ((submission.reviewedBy?.userId ?? '')
+                    .isNotEmpty) ...<Widget>[
+                  const SizedBox(height: 8),
+                  AppDetailBlock(
+                    label: 'Reviewer ID',
+                    value: submission.reviewedBy!.userId,
+                  ),
+                ],
                 if (submission.rejectionReason.trim().isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
-                  _DetailTextBlock(
+                  AppDetailBlock(
                     label: 'Rejection Reason',
                     value: submission.rejectionReason,
                   ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
+import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../data/capital_submission_repository.dart';
@@ -203,88 +204,61 @@ class _SubmissionDetailCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 18),
-          _DetailLine(label: 'Request ID', value: submission.requestId),
-          _DetailLine(label: 'Transaction Date', value: submission.txnDate),
-          _DetailLine(
+          AppDetailRow(
+            label: 'Request ID',
+            value: submission.requestId,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+          ),
+          AppDetailRow(
+            label: 'Transaction Date',
+            value: submission.txnDate,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+          ),
+          AppDetailRow(
             label: 'Payment Channel',
             value: submission.paymentChannel.label,
+            padding: const EdgeInsets.symmetric(vertical: 10),
           ),
-          _DetailLine(label: 'Reference', value: submission.externalReference),
-          _DetailLine(label: 'Notes', value: submission.notes),
-          _DetailLine(
+          AppDetailRow(
+            label: 'Reference',
+            value: submission.externalReference,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+          ),
+          AppDetailRow(
+            label: 'Notes',
+            value: submission.notes,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+          ),
+          AppDetailRow(
             label: 'Requested At',
             value: formatDateTimeShort(submission.requestedAt),
+            padding: const EdgeInsets.symmetric(vertical: 10),
           ),
           if (submission.reviewedBy != null)
-            _DetailLine(
+            AppDetailRow(
               label: 'Reviewed By',
               value: submission.reviewedBy!.fullName,
+              padding: const EdgeInsets.symmetric(vertical: 10),
             ),
           if (submission.reviewedAt != null)
-            _DetailLine(
+            AppDetailRow(
               label: 'Reviewed At',
               value: formatDateTimeShort(submission.reviewedAt),
+              padding: const EdgeInsets.symmetric(vertical: 10),
             ),
           if ((submission.rejectionReason ?? '').trim().isNotEmpty)
-            _DetailLine(
+            AppDetailRow(
               label: 'Rejection Reason',
               value: submission.rejectionReason!,
               valueColor: AppColors.red,
+              padding: const EdgeInsets.symmetric(vertical: 10),
             ),
           if ((submission.resultingLedgerId ?? '').trim().isNotEmpty)
-            _DetailLine(
+            AppDetailRow(
               label: 'Ledger ID',
               value: submission.resultingLedgerId!,
+              padding: const EdgeInsets.symmetric(vertical: 10),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailLine extends StatelessWidget {
-  const _DetailLine({
-    required this.label,
-    required this.value,
-    this.valueColor = AppColors.text,
-  });
-
-  final String label;
-  final String value;
-  final Color valueColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.border)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(
-            width: 116,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMute,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value.trim().isEmpty ? '-' : value,
-              style: TextStyle(
-                fontSize: 12,
-                height: 1.35,
-                fontWeight: FontWeight.w800,
-                color: valueColor,
-              ),
-            ),
-          ),
         ],
       ),
     );

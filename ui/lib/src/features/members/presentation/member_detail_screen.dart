@@ -12,6 +12,8 @@ import '../../ledger/presentation/total_balance_card.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_avatar.dart';
 import '../../shared/widgets/app_card_list.dart';
+import '../../shared/widgets/app_detail_block.dart';
+import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../../submissions/data/capital_submission_repository.dart';
@@ -368,121 +370,53 @@ class _AccountDetailsCard extends StatelessWidget {
               textAlign: TextAlign.center,
             )
           else ...<Widget>[
-            _AccountInfoRow(
+            AppDetailRow(
               icon: Icons.badge_outlined,
               label: 'User ID',
               value: valueOrDash(profile.userId),
             ),
-            _AccountInfoRow(
+            AppDetailRow(
               icon: Icons.phone_outlined,
               label: 'Contact No',
               value: valueOrDash(profile.contactNo),
             ),
-            _AccountInfoRow(
+            AppDetailRow(
               icon: Icons.mail_outline,
               label: 'Email',
               value: valueOrDash(profile.email),
             ),
-            _AccountInfoRow(
+            AppDetailRow(
               icon: Icons.calendar_today_outlined,
               label: 'Join Date',
               value: valueOrDash(profile.joinDate),
             ),
-            _AccountInfoRow(
+            AppDetailRow(
               icon: Icons.admin_panel_settings_outlined,
               label: 'Role',
               value: profile.role.label,
             ),
-            _AccountInfoRow(
+            AppDetailRow(
               icon: Icons.verified_user_outlined,
               label: 'Status',
               value: profile.status.label,
             ),
-            _AccountInfoRow(
+            AppDetailRow(
               icon: Icons.notes_outlined,
               label: 'Notes',
               value: valueOrDash(profile.notes),
             ),
-            _AccountInfoRow(
+            AppDetailRow(
               icon: Icons.history_outlined,
               label: 'Created At',
               value: formatDateTimeShort(profile.createdAt),
             ),
-            _AccountInfoRow(
+            AppDetailRow(
               icon: Icons.update_outlined,
               label: 'Updated At',
               value: formatDateTimeShort(profile.updatedAt),
               isLast: true,
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _AccountInfoRow extends StatelessWidget {
-  const _AccountInfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.isLast = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: isLast
-              ? BorderSide.none
-              : const BorderSide(color: AppColors.border),
-        ),
-      ),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.greenLt,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, size: 20, color: AppColors.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textMute,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  value,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.text,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -786,64 +720,86 @@ class _SubmissionHistoryRow extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.45,
                   children: <Widget>[
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Type',
                       value: submission.requestType.label,
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Channel',
                       value: submission.paymentChannel.label,
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Txn Date',
                       value: valueOrDash(submission.txnDate),
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Reviewed',
                       value: formatDateTimeShort(submission.reviewedAt),
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Reference',
                       value: valueOrDash(submission.externalReference),
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Reviewed By',
                       value: valueOrDash(submission.reviewedBy?.fullName),
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(
+                AppDetailBlock(
                   label: 'Request ID',
                   value: valueOrDash(submission.requestId),
+                  borderColor: AppColors.border,
+                  selectable: true,
                 ),
                 if ((submission.memberName).trim().isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
-                  _DetailTextBlock(
+                  AppDetailBlock(
                     label: 'Member',
                     value: submission.memberName,
+                    borderColor: AppColors.border,
+                    selectable: true,
                   ),
                 ],
                 if ((submission.memberContact).trim().isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
-                  _DetailTextBlock(
+                  AppDetailBlock(
                     label: 'Contact',
                     value: submission.memberContact,
+                    borderColor: AppColors.border,
+                    selectable: true,
                   ),
                 ],
                 if ((submission.reviewedBy?.userId ?? '')
                     .isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
-                  _DetailTextBlock(
+                  AppDetailBlock(
                     label: 'Reviewer ID',
                     value: submission.reviewedBy!.userId,
+                    borderColor: AppColors.border,
+                    selectable: true,
                   ),
                 ],
                 if (submission.rejectionReason.trim().isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
-                  _DetailTextBlock(
+                  AppDetailBlock(
                     label: 'Rejection Reason',
                     value: submission.rejectionReason,
+                    borderColor: AppColors.border,
+                    selectable: true,
                   ),
                 ],
               ],
@@ -1117,160 +1073,105 @@ class _MemberLedgerRow extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.45,
                   children: <Widget>[
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Balance',
                       value: _formatMoney(statement?.currentBalance),
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Pending',
                       value: _formatMoney(statement?.pendingTotal),
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Entries',
                       value: '${statement?.entryCount ?? 0}',
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
-                    _DetailBox(label: 'Currency', value: entry.currency),
-                    _DetailBox(
+                    AppDetailBlock(
+                      label: 'Currency',
+                      value: entry.currency,
+                      borderColor: AppColors.border,
+                      center: true,
+                    ),
+                    AppDetailBlock(
                       label: 'Txn Date',
                       value: valueOrDash(entry.txnDate),
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
-                    _DetailBox(
+                    AppDetailBlock(
                       label: 'Created',
                       value: formatDateTimeShort(entry.createdAt),
+                      borderColor: AppColors.border,
+                      center: true,
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(
+                AppDetailBlock(
                   label: 'User ID',
                   value: valueOrDash(user?.userId ?? entry.userId),
+                  borderColor: AppColors.border,
+                  selectable: true,
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(
+                AppDetailBlock(
                   label: 'Full Name',
                   value: valueOrDash(user?.fullName ?? entry.memberName),
+                  borderColor: AppColors.border,
+                  selectable: true,
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(
+                AppDetailBlock(
                   label: 'Contact No',
                   value: valueOrDash(user?.contactNo ?? entry.memberContact),
+                  borderColor: AppColors.border,
+                  selectable: true,
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(label: 'Ledger ID', value: entry.ledgerId),
+                AppDetailBlock(
+                  label: 'Ledger ID',
+                  value: entry.ledgerId,
+                  borderColor: AppColors.border,
+                  selectable: true,
+                ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(
+                AppDetailBlock(
                   label: 'Reference Type',
                   value: valueOrDash(entry.referenceType),
+                  borderColor: AppColors.border,
+                  selectable: true,
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(
+                AppDetailBlock(
                   label: 'Reference ID',
                   value: valueOrDash(entry.referenceId),
+                  borderColor: AppColors.border,
+                  selectable: true,
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(
+                AppDetailBlock(
                   label: 'Comment',
                   value: valueOrDash(entry.comment),
+                  borderColor: AppColors.border,
+                  selectable: true,
                 ),
                 const SizedBox(height: 8),
-                _DetailTextBlock(
+                AppDetailBlock(
                   label: 'Created By',
                   value: valueOrDash(entry.createdByName),
+                  borderColor: AppColors.border,
+                  selectable: true,
                 ),
               ],
             ),
           ),
         );
       },
-    );
-  }
-}
-
-class _DetailBox extends StatelessWidget {
-  const _DetailBox({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 12,
-              height: 1.35,
-              fontWeight: FontWeight.w700,
-              color: AppColors.text,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailTextBlock extends StatelessWidget {
-  const _DetailTextBlock({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 4),
-          SelectableText(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              height: 1.35,
-              fontWeight: FontWeight.w700,
-              color: AppColors.text,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../data/capital_submission_repository.dart';
@@ -284,26 +285,49 @@ class _SubmissionCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              _DetailLine(
+              AppDetailRow(
                 label: 'Reference',
                 value: submission.externalReference,
+                labelWidth: 96,
+                padding: const EdgeInsets.only(bottom: 7),
+                showDivider: false,
+                valueWeight: FontWeight.w700,
               ),
-              _DetailLine(label: 'Notes', value: submission.notes),
+              AppDetailRow(
+                label: 'Notes',
+                value: submission.notes,
+                labelWidth: 96,
+                padding: const EdgeInsets.only(bottom: 7),
+                showDivider: false,
+                valueWeight: FontWeight.w700,
+              ),
               if (submission.reviewedBy != null)
-                _DetailLine(
+                AppDetailRow(
                   label: 'Reviewed By',
                   value: submission.reviewedBy!.fullName,
+                  labelWidth: 96,
+                  padding: const EdgeInsets.only(bottom: 7),
+                  showDivider: false,
+                  valueWeight: FontWeight.w700,
                 ),
               if ((submission.rejectionReason ?? '').trim().isNotEmpty)
-                _DetailLine(
+                AppDetailRow(
                   label: 'Rejection Reason',
                   value: submission.rejectionReason!,
                   valueColor: AppColors.red,
+                  labelWidth: 96,
+                  padding: const EdgeInsets.only(bottom: 7),
+                  showDivider: false,
+                  valueWeight: FontWeight.w700,
                 ),
               if ((submission.resultingLedgerId ?? '').trim().isNotEmpty)
-                _DetailLine(
+                AppDetailRow(
                   label: 'Ledger ID',
                   value: submission.resultingLedgerId!,
+                  labelWidth: 96,
+                  padding: const EdgeInsets.only(bottom: 7),
+                  showDivider: false,
+                  valueWeight: FontWeight.w700,
                 ),
               const SizedBox(height: 4),
               const Align(
@@ -317,52 +341,6 @@ class _SubmissionCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _DetailLine extends StatelessWidget {
-  const _DetailLine({
-    required this.label,
-    required this.value,
-    this.valueColor = AppColors.text,
-  });
-
-  final String label;
-  final String value;
-  final Color valueColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 7),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(
-            width: 96,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMute,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value.isEmpty ? '-' : value,
-              style: TextStyle(
-                fontSize: 12,
-                height: 1.3,
-                fontWeight: FontWeight.w700,
-                color: valueColor,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
