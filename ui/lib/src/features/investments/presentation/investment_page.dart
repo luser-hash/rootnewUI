@@ -12,14 +12,20 @@ import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../data/investment_repository.dart';
 import '../domain/investment_close_request.dart';
+import '../../reports/data/staff_report_repository.dart';
 import 'investment_controller.dart';
 import 'investment_detail_page.dart';
 import 'p&l_wallet.dart';
 
 class InvestmentPage extends StatefulWidget {
-  const InvestmentPage({super.key, required this.repository});
+  const InvestmentPage({
+    super.key,
+    required this.repository,
+    required this.staffReportRepository,
+  });
 
   final InvestmentRepository repository;
+  final StaffReportRepository staffReportRepository;
 
   @override
   State<InvestmentPage> createState() => _InvestmentPageState();
@@ -58,7 +64,9 @@ class _InvestmentPageState extends State<InvestmentPage> {
                 Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) {
-                      return PnlWalletPage(investments: items);
+                      return PnlWalletPage(
+                        repository: widget.staffReportRepository,
+                      );
                     },
                   ),
                 );

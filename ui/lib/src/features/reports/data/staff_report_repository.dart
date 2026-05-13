@@ -20,6 +20,8 @@ abstract class StaffReportRepository {
   });
 
   Future<StaffApprovalQueueReport> approvalQueueReport();
+
+  Future<InvestmentPnlProfileReport> investmentPnlProfile();
 }
 
 class ApiStaffReportRepository implements StaffReportRepository {
@@ -62,5 +64,10 @@ class ApiStaffReportRepository implements StaffReportRepository {
   @override
   Future<StaffApprovalQueueReport> approvalQueueReport() {
     return _api.approvalQueueReport();
+  }
+
+  @override
+  Future<InvestmentPnlProfileReport> investmentPnlProfile() {
+    return _api.investmentPnlProfile();
   }
 }

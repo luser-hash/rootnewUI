@@ -150,7 +150,10 @@ class AppRouter {
               path: RouteNames.investments,
               builder: (BuildContext context, GoRouterState state) {
                 return _scroll(
-                  InvestmentPage(repository: investmentRepository),
+                  InvestmentPage(
+                    repository: investmentRepository,
+                    staffReportRepository: staffReportRepository,
+                  ),
                 );
               },
               routes: <RouteBase>[

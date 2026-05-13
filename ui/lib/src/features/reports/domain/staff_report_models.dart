@@ -470,6 +470,56 @@ class StaffApprovalQueueItem {
   }
 }
 
+class InvestmentPnlProfileReport {
+  const InvestmentPnlProfileReport({required this.summary});
+
+  final InvestmentPnlProfileSummary summary;
+
+  factory InvestmentPnlProfileReport.fromJson(Map<String, dynamic> json) {
+    return InvestmentPnlProfileReport(
+      summary: InvestmentPnlProfileSummary.fromJson(_map(json['summary'])),
+    );
+  }
+}
+
+class InvestmentPnlProfileSummary {
+  const InvestmentPnlProfileSummary({
+    required this.investmentCount,
+    required this.profitableCount,
+    required this.lossCount,
+    required this.breakEvenCount,
+    required this.totalInvestedAmount,
+    required this.totalReturnAmount,
+    required this.totalProfit,
+    required this.totalLoss,
+    required this.netPnl,
+  });
+
+  final int investmentCount;
+  final int profitableCount;
+  final int lossCount;
+  final int breakEvenCount;
+  final String totalInvestedAmount;
+  final String totalReturnAmount;
+  final String totalProfit;
+  final String totalLoss;
+  final String netPnl;
+
+  factory InvestmentPnlProfileSummary.fromJson(Map<String, dynamic> json) {
+    return InvestmentPnlProfileSummary(
+      investmentCount: _int(json['investment_count']),
+      profitableCount: _int(json['profitable_count']),
+      lossCount: _int(json['loss_count']),
+      breakEvenCount: _int(json['break_even_count']),
+      totalInvestedAmount: '${json['total_invested_amount'] ?? '0.00'}',
+      totalReturnAmount: '${json['total_return_amount'] ?? '0.00'}',
+      totalProfit: '${json['total_profit'] ?? '0.00'}',
+      totalLoss: '${json['total_loss'] ?? '0.00'}',
+      netPnl: '${json['net_pnl'] ?? '0.00'}',
+    );
+  }
+}
+
 Map<String, dynamic> _map(Object? value) {
   return value is Map<String, dynamic> ? value : <String, dynamic>{};
 }

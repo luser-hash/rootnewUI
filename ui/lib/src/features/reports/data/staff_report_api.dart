@@ -70,6 +70,13 @@ class StaffReportApi {
     return StaffApprovalQueueReport.fromJson(_payload(response));
   }
 
+  Future<InvestmentPnlProfileReport> investmentPnlProfile() async {
+    final Map<String, dynamic> response = await _apiClient.get(
+      '/reports/investment-pnl-profile/',
+    );
+    return InvestmentPnlProfileReport.fromJson(_payload(response));
+  }
+
   Map<String, dynamic> _payload(Map<String, dynamic> response) {
     final Object? data = response['data'];
     return data is Map<String, dynamic> ? data : response;
