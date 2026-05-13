@@ -422,22 +422,34 @@ class _StaffReportPageState extends State<StaffReportPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              _ChipFilterBar(
-                title: 'Status',
+              _DropdownFilterField(
+                label: 'Status',
+                icon: Icons.fact_check_outlined,
+                value: _investmentStatuses.isEmpty
+                    ? null
+                    : _investmentStatuses.first,
+                allLabel: 'All statuses',
                 values: _investmentStatusValues,
-                selected: _investmentStatuses,
-                onChanged: (value) =>
-                    setState(() => _toggle(_investmentStatuses, value)),
+                onChanged: (value) => setState(() {
+                  _investmentStatuses
+                    ..clear()
+                    ..addAll(value == null ? <String>[] : <String>[value]);
+                }),
               ),
-              _ChipFilterBar(
-                title: 'Type',
+              _DropdownFilterField(
+                label: 'Type',
+                icon: Icons.category_outlined,
+                value: _investmentTypes.isEmpty ? null : _investmentTypes.first,
+                allLabel: 'All types',
                 values: _investmentTypeValues,
-                selected: _investmentTypes,
-                onChanged: (value) =>
-                    setState(() => _toggle(_investmentTypes, value)),
+                onChanged: (value) => setState(() {
+                  _investmentTypes
+                    ..clear()
+                    ..addAll(value == null ? <String>[] : <String>[value]);
+                }),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(14, 2, 14, 12),
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
                 child: Text(
                   'Showing ${investments.length} investments',
                   style: const TextStyle(
@@ -1396,6 +1408,48 @@ class _ChipFilterBar extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
+      ),
+    );
+  }
+}
+
+class _DropdownFilterField extends StatelessWidget {
+  const _DropdownFilterField({
+    required this.label,
+    required this.icon,
+    required this.value,
+    required this.allLabel,
+    required this.values,
+    required this.onChanged,
+  });
+
+  final String label;
+  final IconData icon;
+  final String? value;
+  final String allLabel;
+  final List<String> values;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+      child: DropdownButtonFormField<String?>(
+        initialValue: value,
+        decoration: _fieldDecoration(label: label, icon: icon),
+        items: <DropdownMenuItem<String?>>[
+          DropdownMenuItem<String?>(
+            value: null,
+            child: Text(allLabel),
+          ),
+          ...values.map(
+            (String value) => DropdownMenuItem<String?>(
+              value: value,
+              child: Text(prettyEnumLabel(value)),
+            ),
+          ),
+        ],
+        onChanged: onChanged,
       ),
     );
   }

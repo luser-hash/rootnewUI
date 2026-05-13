@@ -104,6 +104,9 @@ class _InvestmentPageState extends State<InvestmentPage> {
               child: _InvestmentFullCard(
                 inv: inv,
                 onDetails: () => _showDetails(inv),
+                onPnlTap: () {
+                  context.push(RouteNames.investmentDistribution(inv.id));
+                },
                 onReleaseFunds: () => _releaseFunds(inv),
                 onCloseInvestment: () => _closeInvestment(inv),
                 onDistribute: () => _distribute(inv),
@@ -381,6 +384,7 @@ class _InvestmentFullCard extends StatelessWidget {
   const _InvestmentFullCard({
     required this.inv,
     required this.onDetails,
+    required this.onPnlTap,
     required this.onReleaseFunds,
     required this.onCloseInvestment,
     required this.onDistribute,
@@ -392,6 +396,7 @@ class _InvestmentFullCard extends StatelessWidget {
 
   final Investment inv;
   final VoidCallback onDetails;
+  final VoidCallback onPnlTap;
   final VoidCallback onReleaseFunds;
   final VoidCallback onCloseInvestment;
   final VoidCallback onDistribute;
@@ -485,6 +490,7 @@ class _InvestmentFullCard extends StatelessWidget {
                       : pnl >= 0
                       ? AppColors.green
                       : AppColors.red,
+                  onTap: onPnlTap,
                 ),
               ),
             ],
@@ -779,44 +785,52 @@ class _MoneyBox extends StatelessWidget {
     required this.value,
     required this.background,
     required this.valueColor,
+    this.onTap,
   });
 
   final String label;
   final String value;
   final Color background;
   final Color valueColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
+    final BorderRadius borderRadius = BorderRadius.circular(12);
+
+    return Material(
+      color: background,
+      borderRadius: borderRadius,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: borderRadius,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                label.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textMute,
+                  letterSpacing: 0.4,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                value,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: valueColor,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 3),
-          Text(
-            value,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: valueColor,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
