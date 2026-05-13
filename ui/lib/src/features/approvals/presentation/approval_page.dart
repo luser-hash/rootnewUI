@@ -7,6 +7,7 @@ import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_detail_block.dart';
 import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../../submissions/data/capital_submission_repository.dart';
 import '../../submissions/domain/capital_submission_request.dart';
@@ -109,7 +110,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            _ApprovalHeader(
+            _ApprovalHeaderContent(
               reviewed: reviewed,
               pendingCount: _queueController.count,
             ),
@@ -255,8 +256,11 @@ class _PaymentChannelFilter extends StatelessWidget {
   }
 }
 
-class _ApprovalHeader extends StatelessWidget {
-  const _ApprovalHeader({required this.reviewed, required this.pendingCount});
+class _ApprovalHeaderContent extends StatelessWidget {
+  const _ApprovalHeaderContent({
+    required this.reviewed,
+    required this.pendingCount,
+  });
 
   final List<SubmissionHistoryItem> reviewed;
   final int pendingCount;
@@ -278,15 +282,9 @@ class _ApprovalHeader extends StatelessWidget {
       ),
     ];
 
-    return Container(
+    return AppScreenHeader(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[AppColors.primary, AppColors.primaryDk],
-        ),
-      ),
+      gradientColors: const <Color>[AppColors.primary, AppColors.primaryDk],
       child: Column(
         children: <Widget>[
           Padding(

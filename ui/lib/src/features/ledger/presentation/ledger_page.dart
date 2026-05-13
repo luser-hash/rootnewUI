@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_card_list.dart';
 import '../../shared/widgets/app_detail_block.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../data/member_ledger_repository.dart';
 import '../domain/member_ledger_statement.dart';
 import 'admin_ledger_controller.dart';
@@ -41,7 +42,7 @@ class _LedgerPageState extends State<LedgerPage> {
         final AdminLedgerStatement? statement = _controller.statement;
         return Column(
           children: <Widget>[
-            _LedgerHeader(
+            _LedgerHeaderContent(
               statement: statement,
               isPosting: _controller.isPosting,
               onAdd: _showAdminPostSheet,
@@ -140,8 +141,8 @@ class _LedgerPageState extends State<LedgerPage> {
   }
 }
 
-class _LedgerHeader extends StatelessWidget {
-  const _LedgerHeader({
+class _LedgerHeaderContent extends StatelessWidget {
+  const _LedgerHeaderContent({
     required this.statement,
     required this.isPosting,
     required this.onAdd,
@@ -160,15 +161,9 @@ class _LedgerHeader extends StatelessWidget {
           (label: 'Entries', value: '${statement?.entryCount ?? 0}'),
         ];
 
-    return Container(
+    return AppScreenHeader(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[Color(0xFF003D35), AppColors.primaryDk],
-        ),
-      ),
+      gradientColors: const <Color>[Color(0xFF003D35), AppColors.primaryDk],
       child: Column(
         children: <Widget>[
           Padding(

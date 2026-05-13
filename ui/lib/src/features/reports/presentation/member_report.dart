@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../data/member_report_repository.dart';
 import '../domain/member_report_models.dart';
 
@@ -32,7 +33,12 @@ class _MemberReportPageState extends State<MemberReportPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        const _ReportHeader(),
+        const AppScreenHeader(
+          title: 'Member Report',
+          subtitle: 'Capital, balance, and transaction statement.',
+          padding: EdgeInsets.fromLTRB(20, 12, 20, 24),
+          gradientColors: <Color>[Color(0xFF5B4A1D), Color(0xFF2F473E)],
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           child: FutureBuilder<_MemberReportData>(
@@ -184,46 +190,6 @@ class _MemberReportPageState extends State<MemberReportPage> {
           ],
         );
       },
-    );
-  }
-}
-
-class _ReportHeader extends StatelessWidget {
-  const _ReportHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[Color(0xFF5B4A1D), Color(0xFF2F473E)],
-        ),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'Member Report',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            'Capital, balance, and transaction statement.',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xCCFFFFFF),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

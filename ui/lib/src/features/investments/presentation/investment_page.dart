@@ -9,6 +9,7 @@ import '../../reports/data/staff_report_repository.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../data/investment_repository.dart';
@@ -58,7 +59,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
 
         return Column(
           children: <Widget>[
-            _InvestmentsHeader(
+            _InvestmentsHeaderContent(
               investments: items,
               capitalSummary: _controller.capitalSummary,
               onCreate: _openCreatePage,
@@ -294,8 +295,8 @@ class _InvestmentPageState extends State<InvestmentPage> {
   }
 }
 
-class _InvestmentsHeader extends StatelessWidget {
-  const _InvestmentsHeader({
+class _InvestmentsHeaderContent extends StatelessWidget {
+  const _InvestmentsHeaderContent({
     required this.investments,
     required this.capitalSummary,
     required this.onCreate,
@@ -338,15 +339,9 @@ class _InvestmentsHeader extends StatelessWidget {
           ),
         ];
 
-    return Container(
+    return AppScreenHeader(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[Color(0xFF1E3A5F), Color(0xFF152B45)],
-        ),
-      ),
+      gradientColors: const <Color>[Color(0xFF1E3A5F), Color(0xFF152B45)],
       child: Column(
         children: <Widget>[
           Padding(

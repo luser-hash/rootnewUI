@@ -9,6 +9,7 @@ import '../../auth/presentation/auth_scope.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../data/member_management_repository.dart';
 import '../domain/member_management_models.dart';
 import '../domain/member_update_request.dart';
@@ -87,7 +88,34 @@ class _EditMemberPageState extends State<EditMemberPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        _EditMemberHeader(onBack: () => _closePage(context)),
+        AppScreenHeader(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+          gradientColors: const <Color>[AppColors.primaryDk, AppColors.primary],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              AppHeaderBackButton(onPressed: () => _closePage(context)),
+              const SizedBox(height: 18),
+              const Text(
+                'Edit Member',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Update account details, access role, and member status.',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white70,
+                ),
+              ),
+            ],
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
           child: _buildFormCard(context, isSelf: isSelf, canDelete: canDelete),
@@ -398,58 +426,6 @@ class _EditMemberPageState extends State<EditMemberPage> {
       return null;
     }
     return DateTime.tryParse(trimmed);
-  }
-}
-
-class _EditMemberHeader extends StatelessWidget {
-  const _EditMemberHeader({required this.onBack});
-
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[AppColors.primaryDk, AppColors.primary],
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          IconButton(
-            onPressed: onBack,
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-            tooltip: 'Back',
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white24,
-              minimumSize: const Size(42, 42),
-            ),
-          ),
-          const SizedBox(height: 18),
-          const Text(
-            'Edit Member',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Update account details, access role, and member status.',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.white70,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

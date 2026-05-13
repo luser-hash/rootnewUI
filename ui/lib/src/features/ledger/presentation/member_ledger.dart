@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_card_list.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../data/member_ledger_repository.dart';
 import '../domain/member_ledger_statement.dart';
 import 'member_ledger_controller.dart';
@@ -40,7 +41,7 @@ class _MemberLedgerPageState extends State<MemberLedgerPage> {
 
         return Column(
           children: <Widget>[
-            _MemberLedgerHeader(statement: statement),
+            _MemberLedgerHeaderContent(statement: statement),
             _MemberLedgerFilters(
               filter: _controller.filter,
               onChanged: (MemberLedgerFilter filter) {
@@ -107,8 +108,8 @@ class _MemberLedgerPageState extends State<MemberLedgerPage> {
   }
 }
 
-class _MemberLedgerHeader extends StatelessWidget {
-  const _MemberLedgerHeader({required this.statement});
+class _MemberLedgerHeaderContent extends StatelessWidget {
+  const _MemberLedgerHeaderContent({required this.statement});
 
   final MemberLedgerStatement? statement;
 
@@ -127,15 +128,9 @@ class _MemberLedgerHeader extends StatelessWidget {
           (label: 'Entries', value: '${statement?.entryCount ?? 0}'),
         ];
 
-    return Container(
+    return AppScreenHeader(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[Color(0xFF003D35), AppColors.primaryDk],
-        ),
-      ),
+      gradientColors: const <Color>[Color(0xFF003D35), AppColors.primaryDk],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

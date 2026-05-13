@@ -5,6 +5,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../data/capital_submission_repository.dart';
 import '../domain/capital_submission_request.dart';
@@ -43,7 +44,18 @@ class _SubmissionsPageState extends State<SubmissionsPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            const _SubmissionsHeader(),
+            const AppScreenHeader(
+              title: 'My Submissions',
+              subtitle: 'Track your submitted fund requests and review status.',
+              padding: EdgeInsets.fromLTRB(20, 14, 20, 24),
+              gradientColors: <Color>[
+                AppColors.primary,
+                AppColors.primaryDk,
+                Color(0xFF003830),
+              ],
+              titleFontSize: 24,
+              subtitleFontSize: 13,
+            ),
             _StatusFilterBar(
               selected: _controller.status,
               onSelected: (CapitalSubmissionStatus? status) {
@@ -102,52 +114,6 @@ class _SubmissionsPageState extends State<SubmissionsPage> {
             ),
           )
           .toList(),
-    );
-  }
-}
-
-class _SubmissionsHeader extends StatelessWidget {
-  const _SubmissionsHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[
-            AppColors.primary,
-            AppColors.primaryDk,
-            Color(0xFF003830),
-          ],
-        ),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'My Submissions',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              height: 1.15,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Track your submitted fund requests and review status.',
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.45,
-              fontWeight: FontWeight.w600,
-              color: Color(0xCFFFFFFF),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

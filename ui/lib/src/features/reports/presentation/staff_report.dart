@@ -5,6 +5,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../data/staff_report_repository.dart';
 import '../domain/staff_report_models.dart';
@@ -55,7 +56,13 @@ class _StaffReportPageState extends State<StaffReportPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        const _ReportHero(),
+        const AppScreenHeader(
+          title: 'Staff Reports',
+          subtitle:
+              'Association summary, balances, investments, distributions, and pending submissions.',
+          padding: EdgeInsets.fromLTRB(20, 12, 20, 24),
+          gradientColors: <Color>[Color(0xFF003D35), AppColors.primaryDk],
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
           child: Column(
@@ -736,46 +743,6 @@ class _StaffReportPageState extends State<StaffReportPage> {
       ),
     };
     return _memberAscending ? result : -result;
-  }
-}
-
-class _ReportHero extends StatelessWidget {
-  const _ReportHero();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[Color(0xFF003D35), AppColors.primaryDk],
-        ),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'Staff Reports',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            'Association summary, balances, investments, distributions, and pending submissions.',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xCCFFFFFF),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

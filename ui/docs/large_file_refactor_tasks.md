@@ -174,32 +174,32 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ### New Files
 
-- [ ] Add `lib/src/features/shared/widgets/app_screen_header.dart`.
+- [x] Add `lib/src/features/shared/widgets/app_screen_header.dart`.
 
 ### New Widgets
 
-- [ ] Add `AppScreenHeader`.
-- [ ] Add `AppScreenHeaderVariant` if needed.
-- [ ] Support title, subtitle, icon, actions, and optional trailing metadata.
+- [x] Add `AppScreenHeader`.
+- [x] Add `AppScreenHeaderVariant` if needed.
+- [x] Support title, subtitle, icon, actions, and optional trailing metadata.
 
 ### Replacement Targets
 
-- [ ] Replace `_SubmitFundsHeader`.
-- [ ] Replace `_InvestmentCreateHeader`.
-- [ ] Replace `_InvestmentsHeader`.
-- [ ] Replace `_MembersHeader`.
-- [ ] Replace `_ManageMembersHeader`.
-- [ ] Replace `_EditMemberHeader`.
-- [ ] Replace `_ProfileHeader`.
-- [ ] Replace `_MemberLedgerHeader`.
-- [ ] Replace `_LedgerHeader`.
-- [ ] Replace `_ApprovalHeader`.
-- [ ] Evaluate `_ReportHeader` and `_ReportHero`; keep custom if materially different.
+- [x] Replace `_SubmitFundsHeader`.
+- [x] Replace `_InvestmentCreateHeader`.
+- [x] Replace `_InvestmentsHeader`.
+- [x] Replace `_MembersHeader`.
+- [x] Replace `_ManageMembersHeader`.
+- [x] Replace `_EditMemberHeader`.
+- [x] Replace `_ProfileHeader`.
+- [x] Replace `_MemberLedgerHeader`.
+- [x] Replace `_LedgerHeader`.
+- [x] Replace `_ApprovalHeader`.
+- [x] Evaluate `_ReportHeader` and `_ReportHero`; keep custom if materially different.
 
 ### Acceptance Checks
 
-- [ ] Page titles, subtitles, and actions remain visible.
-- [ ] Mobile layout does not overflow.
+- [x] Page titles, subtitles, and actions remain visible.
+- [x] Mobile layout does not overflow.
 - [ ] `flutter analyze` passes.
 
 ## Phase 7 - Shared Panels, Cards, And Metrics

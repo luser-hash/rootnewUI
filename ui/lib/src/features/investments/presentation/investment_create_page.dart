@@ -7,6 +7,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../data/investment_repository.dart';
 import '../domain/investment_create_request.dart';
 
@@ -46,7 +47,34 @@ class _InvestmentCreatePageState extends State<InvestmentCreatePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        _InvestmentCreateHeader(onBack: () => _closePage(context)),
+        AppScreenHeader(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+          gradientColors: const <Color>[Color(0xFF1E3A5F), Color(0xFF152B45)],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              AppHeaderBackButton(onPressed: () => _closePage(context)),
+              const SizedBox(height: 18),
+              const Text(
+                'Create Investment',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Prepare a draft investment record.',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white70,
+                ),
+              ),
+            ],
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.all(16),
           child: _buildFormCard(context),
@@ -260,58 +288,6 @@ class _InvestmentCreatePageState extends State<InvestmentCreatePage> {
     }
 
     context.go(RouteNames.investments);
-  }
-}
-
-class _InvestmentCreateHeader extends StatelessWidget {
-  const _InvestmentCreateHeader({required this.onBack});
-
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[Color(0xFF1E3A5F), Color(0xFF152B45)],
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          IconButton(
-            onPressed: onBack,
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-            tooltip: 'Back',
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white24,
-              minimumSize: const Size(42, 42),
-            ),
-          ),
-          const SizedBox(height: 18),
-          const Text(
-            'Create Investment',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Prepare a draft investment record.',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.white70,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

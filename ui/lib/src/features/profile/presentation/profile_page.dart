@@ -13,6 +13,7 @@ import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/app_screen_header.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.ledgerRepository});
@@ -51,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            _ProfileHeader(
+            _ProfileHeaderContent(
               user: user,
               onEdit: () => _showChangePasswordSheet(context),
             ),
@@ -94,8 +95,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.user, required this.onEdit});
+class _ProfileHeaderContent extends StatelessWidget {
+  const _ProfileHeaderContent({required this.user, required this.onEdit});
 
   final AuthUser? user;
   final VoidCallback onEdit;
@@ -104,19 +105,13 @@ class _ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final String name = _displayName(user);
 
-    return Container(
+    return AppScreenHeader(
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[
-            AppColors.primary,
-            AppColors.primaryDk,
-            Color(0xFF003830),
-          ],
-        ),
-      ),
+      gradientColors: const <Color>[
+        AppColors.primary,
+        AppColors.primaryDk,
+        Color(0xFF003830),
+      ],
       child: Row(
         children: <Widget>[
           Container(

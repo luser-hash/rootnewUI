@@ -7,6 +7,7 @@ import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../data/member_management_repository.dart';
 import '../domain/member_create_request.dart';
 import 'manage_members_controller.dart';
@@ -57,7 +58,54 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            _ManageMembersHeader(onBack: () => _closePage(context)),
+            AppScreenHeader(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+              gradientColors: const <Color>[
+                AppColors.primaryDk,
+                AppColors.primary,
+              ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  AppHeaderBackButton(onPressed: () => _closePage(context)),
+                  const SizedBox(height: 18),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'Manage Members',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                              'Create member accounts with MANAGE_USERS access.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      AppPill(
+                        label: 'ADMIN',
+                        background: AppColors.accent,
+                        foreground: Colors.white,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               child: _buildFormCard(context),
@@ -255,74 +303,5 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
     }
 
     context.go(RouteNames.members);
-  }
-}
-
-class _ManageMembersHeader extends StatelessWidget {
-  const _ManageMembersHeader({required this.onBack});
-
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[AppColors.primaryDk, AppColors.primary],
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          IconButton(
-            onPressed: onBack,
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-            tooltip: 'Back',
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white24,
-              minimumSize: const Size(42, 42),
-            ),
-          ),
-          const SizedBox(height: 18),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Manage Members',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      'Create member accounts with MANAGE_USERS access.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              AppPill(
-                label: 'ADMIN',
-                background: AppColors.accent,
-                foreground: Colors.white,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }

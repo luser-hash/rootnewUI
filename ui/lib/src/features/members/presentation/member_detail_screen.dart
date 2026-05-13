@@ -16,6 +16,7 @@ import '../../shared/widgets/app_detail_block.dart';
 import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../../submissions/data/capital_submission_repository.dart';
 import '../../submissions/domain/capital_submission_request.dart';
@@ -212,15 +213,9 @@ class _MemberDetailHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppScreenHeader(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[AppColors.primary, Color(0xFF004A40)],
-        ),
-      ),
+      gradientColors: const <Color>[AppColors.primary, Color(0xFF004A40)],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

@@ -8,6 +8,7 @@ import '../../shared/utils/finance_formatters.dart';
 import '../../shared/widgets/app_avatar.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../data/member_management_repository.dart';
@@ -55,7 +56,7 @@ class _MembersPageState extends State<MembersPage> {
       builder: (BuildContext context, _) {
         return Column(
           children: <Widget>[
-            _MembersHeader(
+            _MembersHeaderContent(
               filter: _controller.filter,
               searchController: _searchController,
               onAdd: widget.onAdd,
@@ -162,8 +163,8 @@ class _MembersPageState extends State<MembersPage> {
   }
 }
 
-class _MembersHeader extends StatelessWidget {
-  const _MembersHeader({
+class _MembersHeaderContent extends StatelessWidget {
+  const _MembersHeaderContent({
     required this.filter,
     required this.searchController,
     required this.onAdd,
@@ -183,15 +184,9 @@ class _MembersHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final UserRole role = AuthScope.of(context).role;
 
-    return Container(
+    return AppScreenHeader(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[AppColors.primaryDk, AppColors.primaryDk],
-        ),
-      ),
+      gradientColors: const <Color>[AppColors.primaryDk, AppColors.primaryDk],
       child: Column(
         children: <Widget>[
           Padding(

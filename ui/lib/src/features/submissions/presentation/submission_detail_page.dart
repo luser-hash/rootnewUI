@@ -5,6 +5,7 @@ import '../../shared/finance.dart';
 import '../../shared/widgets/app_detail_row.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_pill.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../data/capital_submission_repository.dart';
 import '../domain/capital_submission_request.dart';
 import 'submission_detail_controller.dart';
@@ -50,7 +51,18 @@ class _SubmissionDetailPageState extends State<SubmissionDetailPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            const _DetailHeader(),
+            const AppScreenHeader(
+              title: 'Submission Detail',
+              subtitle: 'Review the full request information and decision result.',
+              padding: EdgeInsets.fromLTRB(20, 14, 20, 24),
+              gradientColors: <Color>[
+                AppColors.primary,
+                AppColors.primaryDk,
+                Color(0xFF003830),
+              ],
+              titleFontSize: 24,
+              subtitleFontSize: 13,
+            ),
             Padding(padding: const EdgeInsets.all(16), child: _buildBody()),
           ],
         );
@@ -89,52 +101,6 @@ class _SubmissionDetailPageState extends State<SubmissionDetailPage> {
     }
 
     return _SubmissionDetailCard(submission: submission);
-  }
-}
-
-class _DetailHeader extends StatelessWidget {
-  const _DetailHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[
-            AppColors.primary,
-            AppColors.primaryDk,
-            Color(0xFF003830),
-          ],
-        ),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'Submission Detail',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              height: 1.15,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Review the full request information and decision result.',
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.45,
-              fontWeight: FontWeight.w600,
-              color: Color(0xCFFFFFFF),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

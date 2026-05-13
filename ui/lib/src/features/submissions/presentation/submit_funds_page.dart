@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_form_fields.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/app_screen_header.dart';
 import '../data/capital_submission_repository.dart';
 import '../domain/capital_submission_request.dart';
 import 'capital_submission_controller.dart';
@@ -51,7 +52,18 @@ class _SubmitFundsPageState extends State<SubmitFundsPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            const _SubmitFundsHeader(),
+            const AppScreenHeader(
+              title: 'Submit Funds',
+              subtitle: 'Create a capital submission request for review.',
+              padding: EdgeInsets.fromLTRB(20, 14, 20, 26),
+              gradientColors: <Color>[
+                AppColors.primary,
+                AppColors.primaryDk,
+                Color(0xFF003830),
+              ],
+              titleFontSize: 24,
+              subtitleFontSize: 13,
+            ),
             Padding(padding: const EdgeInsets.all(16), child: _buildFormCard()),
           ],
         );
@@ -281,51 +293,5 @@ class _SubmitFundsPageState extends State<SubmitFundsPage> {
   String _formatAmount(String value) {
     final double amount = double.parse(value.trim());
     return amount.toStringAsFixed(2);
-  }
-}
-
-class _SubmitFundsHeader extends StatelessWidget {
-  const _SubmitFundsHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 26),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[
-            AppColors.primary,
-            AppColors.primaryDk,
-            Color(0xFF003830),
-          ],
-        ),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'Submit Funds',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              height: 1.15,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Create a capital submission request for review.',
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.45,
-              fontWeight: FontWeight.w600,
-              color: Color(0xCFFFFFFF),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
