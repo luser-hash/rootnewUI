@@ -5,6 +5,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
+import '../../reports/data/staff_report_repository.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_message_card.dart';
@@ -12,7 +13,7 @@ import '../../shared/widgets/app_small_button.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../data/investment_repository.dart';
 import '../domain/investment_close_request.dart';
-import '../../reports/data/staff_report_repository.dart';
+import '../domain/investment_capital_summary.dart';
 import 'investment_controller.dart';
 import 'investment_detail_page.dart';
 import 'p&l_wallet.dart';
@@ -59,6 +60,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
           children: <Widget>[
             _InvestmentsHeader(
               investments: items,
+              capitalSummary: _controller.capitalSummary,
               onCreate: _openCreatePage,
               onWalletTap: () {
                 Navigator.of(context).push(
@@ -295,12 +297,14 @@ class _InvestmentPageState extends State<InvestmentPage> {
 class _InvestmentsHeader extends StatelessWidget {
   const _InvestmentsHeader({
     required this.investments,
+    required this.capitalSummary,
     required this.onCreate,
     required this.onWalletTap,
     required this.canCreate,
   });
 
   final List<Investment> investments;
+  final InvestmentCapitalSummary? capitalSummary;
   final VoidCallback onCreate;
   final VoidCallback onWalletTap;
   final bool canCreate;
@@ -311,18 +315,26 @@ class _InvestmentsHeader extends StatelessWidget {
       0,
       (num sum, Investment item) => sum + (item.pnl ?? 0),
     );
-    final List<({String label, VoidCallback? onTap, String value})> stats =
-        <({String label, VoidCallback? onTap, String value})>[
+    final InvestmentCapitalSummary? summary = capitalSummary;
+    final List<({String label, String value})> stats =
+        <({String label, String value})>[
           (
-            label: 'Open',
-            onTap: null,
-            value: '${investments.where(_isOpenInvestment).length}',
+            label: 'Capital',
+            value: summary == null
+                ? '--'
+                : _formatHeaderMoney(summary.totalCapital),
           ),
-          (label: 'Total', onTap: null, value: '${investments.length}'),
           (
-            label: 'P&L Wallet',
-            onTap: onWalletTap,
-            value: '${pnlTotal >= 0 ? '+' : '-'}${fmtSh(pnlTotal)}',
+            label: 'Open Invested',
+            value: summary == null
+                ? '--'
+                : _formatHeaderMoney(summary.openInvestedAmount),
+          ),
+          (
+            label: 'Available',
+            value: summary == null
+                ? '--'
+                : _formatHeaderMoney(summary.availableInvestmentCapital),
           ),
         ];
 
@@ -363,12 +375,10 @@ class _InvestmentsHeader extends StatelessWidget {
           Row(
             children: stats
                 .map(
-                  (({String label, VoidCallback? onTap, String value}) s) =>
-                      Expanded(
+                  (({String label, String value}) s) => Expanded(
                         child: _HeaderStatTile(
                           label: s.label,
                           value: s.value,
-                          onTap: s.onTap,
                           margin: EdgeInsets.only(
                             right: s.label == stats.last.label ? 0 : 8,
                           ),
@@ -377,7 +387,70 @@ class _InvestmentsHeader extends StatelessWidget {
                 )
                 .toList(),
           ),
+          const SizedBox(height: 10),
+          _PnlWalletButton(
+            value: '${pnlTotal >= 0 ? '+' : '-'}${fmtSh(pnlTotal)}',
+            onTap: onWalletTap,
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _PnlWalletButton extends StatelessWidget {
+  const _PnlWalletButton({required this.value, required this.onTap});
+
+  final String value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final BorderRadius borderRadius = BorderRadius.circular(12);
+
+    return Material(
+      color: Colors.white.withValues(alpha: .12),
+      borderRadius: borderRadius,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: borderRadius,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: <Widget>[
+              const Icon(
+                Icons.account_balance_wallet_outlined,
+                size: 18,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'P&L Wallet',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: Colors.white.withValues(alpha: .7),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -388,13 +461,11 @@ class _HeaderStatTile extends StatelessWidget {
     required this.label,
     required this.value,
     required this.margin,
-    this.onTap,
   });
 
   final String label;
   final String value;
   final EdgeInsetsGeometry margin;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -402,43 +473,78 @@ class _HeaderStatTile extends StatelessWidget {
 
     return Padding(
       padding: margin,
-      child: Material(
-        color: Colors.white.withValues(alpha: .12),
-        borderRadius: borderRadius,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: borderRadius,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: <Widget>[
-                Text(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          SizedBox(
+            height: 30,
+            child: Center(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white.withValues(alpha: .68),
+                ),
+              ),
+            ),
+          ),
+          Material(
+            color: Colors.white.withValues(alpha: .12),
+            borderRadius: borderRadius,
+            child: Container(
+              height: 72,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
                   value,
+                  maxLines: 1,
                   style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
                     color: Colors.white,
                   ),
                 ),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withValues(alpha: .55),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-bool _isOpenInvestment(Investment investment) {
-  return investment.status == InvestmentStatus.open;
+String _formatHeaderMoney(String value, {bool absolute = false}) {
+  final num parsed = num.tryParse(value) ?? 0;
+  final num amount = absolute ? parsed.abs() : parsed;
+  final String sign = amount < 0 ? '-' : '';
+  final String whole = amount.abs().round().toString();
+  return '$sign৳${_groupHeaderMoney(whole)}';
+}
+
+String _groupHeaderMoney(String whole) {
+  if (whole.length <= 3) {
+    return whole;
+  }
+
+  final String lastThree = whole.substring(whole.length - 3);
+  String head = whole.substring(0, whole.length - 3);
+  final List<String> groups = <String>[];
+
+  while (head.length > 2) {
+    groups.insert(0, head.substring(head.length - 2));
+    head = head.substring(0, head.length - 2);
+  }
+  if (head.isNotEmpty) {
+    groups.insert(0, head);
+  }
+
+  return '${groups.join(',')},$lastThree';
 }
 
 class _InvestmentFullCard extends StatelessWidget {

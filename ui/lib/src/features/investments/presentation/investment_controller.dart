@@ -4,6 +4,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../shared/finance.dart';
 import '../data/investment_repository.dart';
 import '../domain/investment_close_request.dart';
+import '../domain/investment_capital_summary.dart';
 import '../domain/investment_detail.dart';
 
 class InvestmentController extends ChangeNotifier {
@@ -19,6 +20,7 @@ class InvestmentController extends ChangeNotifier {
   String? _errorMessage;
   String? _actionErrorMessage;
   List<Investment> _investments = <Investment>[];
+  InvestmentCapitalSummary? _capitalSummary;
 
   bool get isLoading => _isLoading;
   String? get releasingInvestmentId => _releasingInvestmentId;
@@ -32,6 +34,7 @@ class InvestmentController extends ChangeNotifier {
 
   String? get errorMessage => _errorMessage;
   String? get actionErrorMessage => _actionErrorMessage;
+  InvestmentCapitalSummary? get capitalSummary => _capitalSummary;
   List<Investment> get investments => List<Investment>.unmodifiable(
     _investments,
   );
@@ -45,10 +48,12 @@ class InvestmentController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _investments = await _repository.list(
-        status: status,
-        investmentType: investmentType,
-      );
+      final List<Object> results = await Future.wait<Object>(<Future<Object>>[
+        _repository.list(status: status, investmentType: investmentType),
+        _repository.capitalSummary(),
+      ]);
+      _investments = results[0] as List<Investment>;
+      _capitalSummary = results[1] as InvestmentCapitalSummary;
     } on ApiException catch (error) {
       _errorMessage = error.message;
     } catch (_) {
@@ -73,6 +78,7 @@ class InvestmentController extends ChangeNotifier {
         investmentId,
       );
       _replaceInvestment(_investmentFromDetail(released));
+      await _refreshCapitalSummary();
       return true;
     } on ApiException catch (error) {
       _actionErrorMessage = error.message;
@@ -104,6 +110,7 @@ class InvestmentController extends ChangeNotifier {
         request,
       );
       _replaceInvestment(_investmentFromDetail(closed));
+      await _refreshCapitalSummary();
       return true;
     } on ApiException catch (error) {
       _actionErrorMessage = error.message;
@@ -131,6 +138,7 @@ class InvestmentController extends ChangeNotifier {
         investmentId,
       );
       _replaceInvestment(_investmentFromDetail(distributed));
+      await _refreshCapitalSummary();
       return true;
     } on ApiException catch (error) {
       _actionErrorMessage = error.message;
@@ -140,6 +148,16 @@ class InvestmentController extends ChangeNotifier {
       return false;
     } finally {
       _distributingInvestmentId = null;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _refreshCapitalSummary() async {
+    try {
+      _capitalSummary = await _repository.capitalSummary();
+    } catch (_) {
+      return;
+    } finally {
       notifyListeners();
     }
   }

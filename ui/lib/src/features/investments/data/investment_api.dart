@@ -2,6 +2,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../shared/finance.dart';
 import '../domain/investment_close_request.dart';
+import '../domain/investment_capital_summary.dart';
 import '../domain/investment_create_request.dart';
 import '../domain/investment_detail.dart';
 import '../domain/investment_distribution_record.dart';
@@ -35,6 +36,20 @@ class InvestmentApi {
         .whereType<Map<String, dynamic>>()
         .map(_investmentFromJson)
         .toList();
+  }
+
+  Future<InvestmentCapitalSummary> capitalSummary() async {
+    final Map<String, dynamic> response = await _apiClient.get(
+      '/investments/capital-summary/',
+    );
+    final Object? data = response['data'];
+    final Map<String, dynamic> payload = data is Map<String, dynamic>
+        ? data
+        : response;
+    final Object? summary = payload['summary'];
+    return InvestmentCapitalSummary.fromJson(
+      summary is Map<String, dynamic> ? summary : payload,
+    );
   }
 
   Future<InvestmentDetail> detail(String investmentId) async {
