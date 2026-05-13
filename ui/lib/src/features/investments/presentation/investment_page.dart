@@ -14,6 +14,7 @@ import '../data/investment_repository.dart';
 import '../domain/investment_close_request.dart';
 import 'investment_controller.dart';
 import 'investment_detail_page.dart';
+import 'p&l_wallet.dart';
 
 class InvestmentPage extends StatefulWidget {
   const InvestmentPage({super.key, required this.repository});
@@ -53,6 +54,15 @@ class _InvestmentPageState extends State<InvestmentPage> {
             _InvestmentsHeader(
               investments: items,
               onCreate: _openCreatePage,
+              onWalletTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) {
+                      return PnlWalletPage(investments: items);
+                    },
+                  ),
+                );
+              },
               canCreate: role.canViewAllInvestments,
             ),
             Padding(
@@ -278,11 +288,13 @@ class _InvestmentsHeader extends StatelessWidget {
   const _InvestmentsHeader({
     required this.investments,
     required this.onCreate,
+    required this.onWalletTap,
     required this.canCreate,
   });
 
   final List<Investment> investments;
   final VoidCallback onCreate;
+  final VoidCallback onWalletTap;
   final bool canCreate;
 
   @override
@@ -291,12 +303,20 @@ class _InvestmentsHeader extends StatelessWidget {
       0,
       (num sum, Investment item) => sum + (item.pnl ?? 0),
     );
-    final List<({String label, String value})>
-    stats = <({String label, String value})>[
-      (label: 'Open', value: '${investments.where(_isOpenInvestment).length}'),
-      (label: 'Total', value: '${investments.length}'),
-      (label: 'P&L', value: '${pnlTotal >= 0 ? '+' : '-'}${fmtSh(pnlTotal)}'),
-    ];
+    final List<({String label, VoidCallback? onTap, String value})> stats =
+        <({String label, VoidCallback? onTap, String value})>[
+          (
+            label: 'Open',
+            onTap: null,
+            value: '${investments.where(_isOpenInvestment).length}',
+          ),
+          (label: 'Total', onTap: null, value: '${investments.length}'),
+          (
+            label: 'P&L Wallet',
+            onTap: onWalletTap,
+            value: '${pnlTotal >= 0 ? '+' : '-'}${fmtSh(pnlTotal)}',
+          ),
+        ];
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
@@ -335,42 +355,75 @@ class _InvestmentsHeader extends StatelessWidget {
           Row(
             children: stats
                 .map(
-                  (({String label, String value}) s) => Expanded(
-                    child: Container(
-                      margin: EdgeInsets.only(
-                        right: s.label == stats.last.label ? 0 : 8,
-                      ),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: .12),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          Text(
-                            s.value,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
+                  (({String label, VoidCallback? onTap, String value}) s) =>
+                      Expanded(
+                        child: _HeaderStatTile(
+                          label: s.label,
+                          value: s.value,
+                          onTap: s.onTap,
+                          margin: EdgeInsets.only(
+                            right: s.label == stats.last.label ? 0 : 8,
                           ),
-                          Text(
-                            s.label,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white.withValues(alpha: .55),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
                 )
                 .toList(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _HeaderStatTile extends StatelessWidget {
+  const _HeaderStatTile({
+    required this.label,
+    required this.value,
+    required this.margin,
+    this.onTap,
+  });
+
+  final String label;
+  final String value;
+  final EdgeInsetsGeometry margin;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final BorderRadius borderRadius = BorderRadius.circular(12);
+
+    return Padding(
+      padding: margin,
+      child: Material(
+        color: Colors.white.withValues(alpha: .12),
+        borderRadius: borderRadius,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: borderRadius,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              children: <Widget>[
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: .55),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -476,7 +529,7 @@ class _InvestmentFullCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: _MoneyBox(
-                  label: 'P&L',
+                  label: 'P&L Detail',
                   value: pnl == null
                       ? 'Pending'
                       : '${pnl >= 0 ? '+' : '-'}${fmt(pnl)}',
