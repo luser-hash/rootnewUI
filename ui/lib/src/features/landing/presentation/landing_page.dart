@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../activity/data/activity_repository.dart';
+import '../../activity/domain/activity_feed.dart';
 import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
 import '../../investments/data/investment_repository.dart';
@@ -32,6 +36,7 @@ class _StatusBar extends StatelessWidget {
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
+    required this.activityRepository,
     required this.memberRepository,
     required this.memberLedgerRepository,
     required this.capitalSubmissionRepository,
@@ -40,6 +45,7 @@ class HomeScreen extends StatefulWidget {
     required this.onMemberSelect,
   });
 
+  final ActivityRepository activityRepository;
   final MemberManagementRepository memberRepository;
   final MemberLedgerRepository memberLedgerRepository;
   final CapitalSubmissionRepository capitalSubmissionRepository;
@@ -122,13 +128,16 @@ class _HomeScreenState extends State<HomeScreen> {
           repository: widget.investmentRepository,
           onNav: widget.onNav,
         ),
+        _RecentActivitySection(
+          repository: widget.activityRepository,
+          onNav: widget.onNav,
+        ),
         if (role.canViewMembers)
           _MembersCarousel(
             repository: widget.memberRepository,
             onNav: widget.onNav,
             onMemberSelect: widget.onMemberSelect,
           ),
-        _RecentActivitySection(onNav: widget.onNav),
       ],
     );
   }
@@ -1053,10 +1062,102 @@ class _InvestmentPreviewMessage extends StatelessWidget {
   }
 }
 
-class _RecentActivitySection extends StatelessWidget {
-  const _RecentActivitySection({required this.onNav});
+class _RecentActivitySection extends StatefulWidget {
+  const _RecentActivitySection({
+    required this.repository,
+    required this.onNav,
+  });
 
+  final ActivityRepository repository;
   final ValueChanged<String> onNav;
+
+  @override
+  State<_RecentActivitySection> createState() => _RecentActivitySectionState();
+}
+
+class _RecentActivitySectionState extends State<_RecentActivitySection> {
+  static const Duration _pollInterval = Duration(seconds: 30);
+
+  ActivityFeed? _feed;
+  Object? _error;
+  bool _loading = true;
+  int _requestId = 0;
+  Timer? _pollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+    _pollTimer = Timer.periodic(_pollInterval, (_) => _load(silent: true));
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _load({bool silent = false}) async {
+    final int requestId = ++_requestId;
+    if (!silent) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
+
+    try {
+      final ActivityFeed feed = await widget.repository.feed();
+      if (!mounted || requestId != _requestId) {
+        return;
+      }
+      setState(() {
+        _feed = feed;
+        _error = null;
+        _loading = false;
+      });
+    } catch (error) {
+      if (!mounted || requestId != _requestId) {
+        return;
+      }
+      setState(() {
+        _error = error;
+        _loading = false;
+      });
+    }
+  }
+
+  Widget _buildActivityContent() {
+    if (_loading && _feed == null) {
+      return const _RecentActivityMessage(
+        message: 'Loading recent activity...',
+      );
+    }
+
+    if (_error != null && _feed == null) {
+      return const _RecentActivityMessage(
+        message: 'Unable to load recent activity.',
+      );
+    }
+
+    final List<ActivityEvent> events = _feed?.events ?? <ActivityEvent>[];
+    if (events.isEmpty) {
+      return const _RecentActivityMessage(
+        message: 'No recent activity found.',
+      );
+    }
+
+    return AppCardList(
+      children: events.asMap().entries.map(
+        (MapEntry<int, ActivityEvent> entry) {
+          return _ActivityEventRow(
+            event: entry.value,
+            isLast: entry.key == events.length - 1,
+          );
+        },
+      ).toList(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1065,14 +1166,215 @@ class _RecentActivitySection extends StatelessWidget {
     return _Section(
       title: 'Recent Activity',
       actionLabel: 'Ledger →',
-      onAction: () => onNav(
-        role == UserRole.member ? RouteNames.memberLedger : RouteNames.ledger,
+      onAction: () => widget.onNav(
+        role.canViewAllLedger ? RouteNames.ledger : RouteNames.memberLedger,
       ),
       paddingBottom: 24,
-      child: AppCardList(
-        children: txns
-            .map((TransactionItem t) => _TransactionRow(txn: t))
-            .toList(),
+      child: _buildActivityContent(),
+    );
+  }
+}
+
+class _ActivityEventRow extends StatelessWidget {
+  const _ActivityEventRow({
+    required this.event,
+    required this.isLast,
+  });
+
+  final ActivityEvent event;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final _ActivityVisual visual = _activityVisual(event);
+    final String? amount = _formatActivityAmount(event);
+    final String date = _formatActivityDate(event.occurredAt);
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: isLast
+              ? BorderSide.none
+              : const BorderSide(color: AppColors.border),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: visual.background,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(visual.icon, size: 20, color: visual.foreground),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  valueOrDash(event.title),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.text,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  valueOrDash(event.detail),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textMute,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              if (amount != null)
+                Text(
+                  amount,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: visual.foreground,
+                  ),
+                ),
+              if (amount != null) const SizedBox(height: 2),
+              Text(
+                date,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textMute,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActivityVisual {
+  const _ActivityVisual({
+    required this.icon,
+    required this.background,
+    required this.foreground,
+  });
+
+  final IconData icon;
+  final Color background;
+  final Color foreground;
+}
+
+_ActivityVisual _activityVisual(ActivityEvent event) {
+  final String eventType = event.eventType.toUpperCase();
+  final num amount = num.tryParse(event.amount ?? '') ?? 0;
+  if (amount < 0 || eventType.contains('REJECTED')) {
+    return const _ActivityVisual(
+      icon: Icons.north_rounded,
+      background: AppColors.redLt,
+      foreground: AppColors.red,
+    );
+  }
+
+  if (eventType.contains('DISTRIBUTION')) {
+    return const _ActivityVisual(
+      icon: Icons.call_split_rounded,
+      background: AppColors.blueLt,
+      foreground: AppColors.blue,
+    );
+  }
+
+  if (eventType.contains('INVESTMENT')) {
+    return const _ActivityVisual(
+      icon: Icons.account_balance_rounded,
+      background: AppColors.blueLt,
+      foreground: AppColors.blue,
+    );
+  }
+
+  if (eventType.contains('MEMBER')) {
+    return const _ActivityVisual(
+      icon: Icons.person_add_alt_1_rounded,
+      background: AppColors.purpleLt,
+      foreground: AppColors.primary,
+    );
+  }
+
+  return const _ActivityVisual(
+    icon: Icons.south_rounded,
+    background: AppColors.greenLt,
+    foreground: AppColors.green,
+  );
+}
+
+String? _formatActivityAmount(ActivityEvent event) {
+  final num? value = num.tryParse(event.amount ?? '');
+  if (value == null) {
+    return null;
+  }
+  if (value > 0) {
+    return '+${fmt(value)}';
+  }
+  return formatMoneySigned(value);
+}
+
+String _formatActivityDate(DateTime? value) {
+  if (value == null) {
+    return '-';
+  }
+  const List<String> months = <String>[
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  final DateTime local = value.toLocal();
+  return '${local.day.toString().padLeft(2, '0')} ${months[local.month - 1]}';
+}
+
+class _RecentActivityMessage extends StatelessWidget {
+  const _RecentActivityMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 110,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: <BoxShadow>[AppColors.softShadow()],
+      ),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 12, color: AppColors.textMute),
       ),
     );
   }
@@ -1137,124 +1439,3 @@ class _Section extends StatelessWidget {
     );
   }
 }
-
-class _TransactionRow extends StatelessWidget {
-  const _TransactionRow({this.txn, this.submission, this.isLast = false});
-
-  final TransactionItem? txn;
-  final Submission? submission;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    final bool fromTxn = txn != null;
-    final TxnType type =
-        txn?.type ??
-        (submission!.status == SubmissionStatus.approved
-            ? TxnType.incoming
-            : TxnType.outgoing);
-    final Color iconBg = switch (type) {
-      TxnType.incoming => AppColors.greenLt,
-      TxnType.outgoing => AppColors.redLt,
-      TxnType.distribution => AppColors.blueLt,
-    };
-    final Color iconColor = switch (type) {
-      TxnType.incoming => AppColors.green,
-      TxnType.outgoing => AppColors.red,
-      TxnType.distribution => AppColors.blue,
-    };
-    final String icon =
-        txn?.icon ??
-        (submission!.status == SubmissionStatus.approved
-            ? '✓'
-            : submission!.status == SubmissionStatus.rejected
-            ? '✕'
-            : '⏳');
-    final String label =
-        txn?.label ?? '${submission!.type} · ${submission!.channel}';
-    final String sub = txn?.sub ?? '${submission!.date} · ${submission!.id}';
-    final int amount = txn?.amount ?? submission!.amount;
-    final String date = txn?.date ?? '';
-
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: isLast
-              ? BorderSide.none
-              : const BorderSide(color: AppColors.border),
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Text(
-              icon,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: iconColor,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  label,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.text,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  sub,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textMute,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Text(
-                '${fromTxn && amount > 0 ? '+' : ''}${fmt(amount)}',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: iconColor,
-                ),
-              ),
-              const SizedBox(height: 2),
-              fromTxn
-                  ? Text(
-                      date,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textMute,
-                      ),
-                    )
-                  : SubmissionStatusPill(status: submission!.status),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-

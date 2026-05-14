@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../src/features/auth/presentation/auth_controller.dart';
 import '../../src/features/auth/presentation/login_page.dart';
+import '../../src/features/activity/data/activity_repository.dart';
 import '../../src/features/approvals/presentation/approval_page.dart';
 import '../../src/features/auth/domain/auth_session.dart';
 import '../../src/features/investments/data/investment_repository.dart';
@@ -41,6 +42,7 @@ class AppRouter {
 
   static GoRouter router({
     required AuthController authController,
+    required ActivityRepository activityRepository,
     required CapitalSubmissionRepository capitalSubmissionRepository,
     required InvestmentRepository investmentRepository,
     required MemberLedgerRepository memberLedgerRepository,
@@ -82,6 +84,7 @@ class AppRouter {
               builder: (BuildContext context, GoRouterState state) {
                 return _scroll(
                   HomeScreen(
+                    activityRepository: activityRepository,
                     memberRepository: memberManagementRepository,
                     memberLedgerRepository: memberLedgerRepository,
                     capitalSubmissionRepository: capitalSubmissionRepository,
@@ -215,13 +218,14 @@ class AppRouter {
                   path: RouteNames.memberDetailSegment,
                   builder: (BuildContext context, GoRouterState state) {
                     final Object? extra = state.extra;
-                    final MemberDetailRouteArgs args =
+                    final MemberDetailRouteArgs? args =
                         extra is MemberDetailRouteArgs
                         ? extra
-                        : MemberDetailRouteArgs(
-                            member: members.first,
-                            memberColorIdx: 0,
-                          );
+                        : null;
+
+                    if (args == null) {
+                      return _scroll(const SizedBox.shrink());
+                    }
 
                     return _scroll(
                       MemberDetailScreen(

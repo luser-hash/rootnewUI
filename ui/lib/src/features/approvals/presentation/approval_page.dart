@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/state/app_state.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_detail_block.dart';
@@ -53,7 +52,6 @@ class _ApprovalPageState extends State<ApprovalPage> {
     setState(() {
       _successVisible = true;
     });
-    AppState.updateSubmissionStatus(id, SubmissionStatus.approved);
     _successTimer?.cancel();
     _successTimer = Timer(const Duration(seconds: 2), () {
       if (mounted) {
@@ -79,8 +77,6 @@ class _ApprovalPageState extends State<ApprovalPage> {
     if (!mounted || !rejected) {
       return;
     }
-
-    AppState.updateSubmissionStatus(id, SubmissionStatus.rejected);
   }
 
   Future<String?> _requestRejectionReason() async {
@@ -94,13 +90,11 @@ class _ApprovalPageState extends State<ApprovalPage> {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _queueController,
-      builder: (BuildContext context, _) {
-        return SubmissionsBuilder(builder: _buildWithSubmissions);
-      },
+      builder: (BuildContext context, _) => _buildWithSubmissions(),
     );
   }
 
-  Widget _buildWithSubmissions(List<Submission> _) {
+  Widget _buildWithSubmissions() {
     final List<SubmissionQueueItem> pending = _queueController.results;
     final List<SubmissionHistoryItem> reviewed =
         _queueController.historyResults;

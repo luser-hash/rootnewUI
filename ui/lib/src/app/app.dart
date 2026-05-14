@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/network/api_client.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/theme/app_theme.dart';
+import '../features/activity/data/activity_api.dart';
+import '../features/activity/data/activity_repository.dart';
 import '../features/auth/data/auth_api.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/data/auth_storage.dart';
@@ -33,6 +35,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   late final SecureAuthStorage _authStorage;
   late final AuthController _authController;
+  late final ActivityRepository _activityRepository;
   late final CapitalSubmissionRepository _capitalSubmissionRepository;
   late final InvestmentRepository _investmentRepository;
   late final MemberLedgerRepository _memberLedgerRepository;
@@ -70,6 +73,9 @@ class _AppState extends State<App> {
     _authController = AuthController(
       repository: authRepository,
     );
+    _activityRepository = ApiActivityRepository(
+      api: ActivityApi(apiClient),
+    );
     _capitalSubmissionRepository = ApiCapitalSubmissionRepository(
       api: CapitalSubmissionApi(apiClient),
     );
@@ -90,6 +96,7 @@ class _AppState extends State<App> {
     );
     _router = AppRouter.router(
       authController: _authController,
+      activityRepository: _activityRepository,
       capitalSubmissionRepository: _capitalSubmissionRepository,
       investmentRepository: _investmentRepository,
       memberLedgerRepository: _memberLedgerRepository,
