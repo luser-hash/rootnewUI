@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_card_list.dart';
+import '../../shared/widgets/app_data_table.dart';
 import '../../shared/widgets/app_detail_block.dart';
 import '../../shared/widgets/app_screen_header.dart';
 import '../data/member_ledger_repository.dart';
@@ -845,95 +846,75 @@ class _LedgerRow extends StatelessWidget {
     final Color bg = _entryBackground(entry.entryType);
     final Color fg = _entryForeground(entry.entryType);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => _showLedgerDetails(context, entry),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    return AppTableRow(
+      onTap: () => _showLedgerDetails(context, entry),
+      expandCells: false,
+      showTopBorder: false,
+      showBottomBorder: !isLast,
+      background: Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      cells: <Widget>[
+        Container(
+          width: 42,
+          height: 42,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
-            border: Border(
-              bottom: isLast
-                  ? BorderSide.none
-                  : const BorderSide(color: AppColors.border),
-            ),
+            color: bg,
+            borderRadius: BorderRadius.circular(13),
           ),
-          child: Row(
+          child: Icon(_entryIcon(entry.entryType), size: 18, color: fg),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
-                width: 42,
-                height: 42,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(13),
-                ),
-                child: Icon(_entryIcon(entry.entryType), size: 18, color: fg),
+              AppTextCell(
+                entry.memberName.isEmpty
+                    ? entry.entryType.label
+                    : entry.memberName,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      entry.memberName.isEmpty
-                          ? entry.entryType.label
-                          : entry.memberName,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.text,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      entry.memberContact.isEmpty
-                          ? '${entry.referenceType} · ${entry.referenceId}'
-                          : entry.memberContact,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textMute,
-                      ),
-                    ),
-                    Text(
-                      entry.comment.isEmpty
-                          ? '${entry.entryType.label} · ${entry.ledgerId}'
-                          : entry.comment,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: AppColors.textMute,
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 2),
+              AppTextCell(
+                entry.memberContact.isEmpty
+                    ? '${entry.referenceType} · ${entry.referenceId}'
+                    : entry.memberContact,
+                maxLines: 1,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+                color: AppColors.textMute,
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Text(
-                    '${positive ? '+' : '-'}${_formatMoney(entry.amount)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: positive ? AppColors.green : AppColors.red,
-                    ),
-                  ),
-                  Text(
-                    entry.txnDate,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textMute,
-                    ),
-                  ),
-                ],
+              AppTextCell(
+                entry.comment.isEmpty
+                    ? '${entry.entryType.label} · ${entry.ledgerId}'
+                    : entry.comment,
+                maxLines: 1,
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+                color: AppColors.textMute,
               ),
             ],
           ),
         ),
-      ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            AppTextCell(
+              '${positive ? '+' : '-'}${_formatMoney(entry.amount)}',
+              color: positive ? AppColors.green : AppColors.red,
+              fontSize: 14,
+            ),
+            AppTextCell(
+              entry.txnDate,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: AppColors.textMute,
+            ),
+          ],
+        ),
+      ],
     );
   }
 

@@ -206,58 +206,58 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ### New Files
 
-- [ ] Add `lib/src/features/shared/widgets/app_panel.dart`.
-- [ ] Add `lib/src/features/shared/widgets/app_metric_card.dart`.
+- [x] Add `lib/src/features/shared/widgets/app_panel.dart`.
+- [x] Add `lib/src/features/shared/widgets/app_metric_card.dart`.
 
 ### New Widgets
 
-- [ ] Add `AppPanel`.
-- [ ] Add `AppMetricCard`.
-- [ ] Add `AppMoneyMetricCard`.
-- [ ] Add `AppSection`.
+- [x] Add `AppPanel`.
+- [x] Add `AppMetricCard`.
+- [x] Add `AppMoneyMetricCard`.
+- [x] Add `AppSection`.
 
 ### Replacement Targets
 
-- [ ] Replace `_ReportPanel` in `reports/presentation/staff_report.dart`.
-- [ ] Replace `_SummaryCard` in `reports/presentation/member_report.dart`.
-- [ ] Replace `_StatCard` in `members/presentation/member_detail_screen.dart`.
-- [ ] Replace `_MoneyBox` in `investments/presentation/investment_page.dart`.
-- [ ] Replace `_MoneyBox` in `investments/presentation/investment_detail_page.dart`.
-- [ ] Replace `_SmallMetric` and `_KpiCard` in `reports/presentation/staff_report.dart`.
+- [x] Replace `_ReportPanel` in `reports/presentation/staff_report.dart`.
+- [x] Replace `_SummaryCard` in `reports/presentation/member_report.dart`.
+- [x] Replace `_StatCard` in `members/presentation/member_detail_screen.dart`.
+- [x] Replace `_MoneyBox` in `investments/presentation/investment_page.dart`.
+- [x] Replace `_MoneyBox` in `investments/presentation/investment_detail_page.dart`.
+- [x] Replace `_SmallMetric` and `_KpiCard` in `reports/presentation/staff_report.dart`.
 
 ### Acceptance Checks
 
-- [ ] Visual spacing remains consistent.
-- [ ] Cards do not nest unnecessarily.
+- [x] Visual spacing remains consistent.
+- [x] Cards do not nest unnecessarily.
 - [ ] `flutter analyze` passes.
 
 ## Phase 8 - Shared Table Widgets
 
 ### New Files
 
-- [ ] Add `lib/src/features/shared/widgets/app_data_table.dart`.
+- [x] Add `lib/src/features/shared/widgets/app_data_table.dart`.
 
 ### New Widgets
 
-- [ ] Add `AppTableHeader`.
-- [ ] Add `AppTableRow`.
-- [ ] Add `AppHeaderCell`.
-- [ ] Add `AppTextCell`.
-- [ ] Add `AppMoneyCell`.
-- [ ] Add `AppSortableHeaderCell`.
+- [x] Add `AppTableHeader`.
+- [x] Add `AppTableRow`.
+- [x] Add `AppHeaderCell`.
+- [x] Add `AppTextCell`.
+- [x] Add `AppMoneyCell`.
+- [x] Add `AppSortableHeaderCell`.
 
 ### Replacement Targets
 
-- [ ] Replace table widgets in `reports/presentation/staff_report.dart`.
-- [ ] Replace transaction table widgets in `reports/presentation/member_report.dart`.
-- [ ] Replace ledger row/cell pieces in `ledger/presentation/ledger_page.dart`.
-- [ ] Replace member ledger row/cell pieces in `ledger/presentation/member_ledger.dart`.
+- [x] Replace table widgets in `reports/presentation/staff_report.dart`.
+- [x] Replace transaction table widgets in `reports/presentation/member_report.dart`.
+- [x] Replace ledger row/cell pieces in `ledger/presentation/ledger_page.dart`.
+- [x] Replace member ledger row/cell pieces in `ledger/presentation/member_ledger.dart`.
 
 ### Acceptance Checks
 
-- [ ] Horizontal scrolling still works where required.
-- [ ] Sorting headers still trigger the same callbacks.
-- [ ] Money columns remain right-aligned.
+- [x] Horizontal scrolling still works where required.
+- [x] Sorting headers still trigger the same callbacks.
+- [x] Money columns remain right-aligned.
 - [ ] `flutter analyze` passes.
 
 ## Phase 9 - Split P0 Large Files

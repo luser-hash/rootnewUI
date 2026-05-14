@@ -14,7 +14,9 @@ import '../../shared/widgets/app_avatar.dart';
 import '../../shared/widgets/app_card_list.dart';
 import '../../shared/widgets/app_detail_block.dart';
 import '../../shared/widgets/app_detail_row.dart';
+import '../../shared/widgets/app_metric_card.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/app_panel.dart';
 import '../../shared/widgets/app_pill.dart';
 import '../../shared/widgets/app_screen_header.dart';
 import '../../shared/widgets/status_pills.dart';
@@ -123,33 +125,69 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
           child: Row(
             children: <Widget>[
               Expanded(
-                child: _StatCard(
-                  icon: '📋',
+                child: AppMetricCard(
                   value: '${submissions.length}',
                   label: 'Submissions',
+                  color: AppColors.text,
+                  iconText: '📋',
+                  iconBackground: AppColors.surface,
+                  horizontal: true,
+                  uppercaseLabel: false,
+                  valueFirst: true,
+                  boxShadow: <BoxShadow>[
+                    AppColors.softShadow(opacity: 0.15, blur: 8),
+                  ],
+                  labelStyle: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textMute,
+                  ),
+                  valueStyle: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.text,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _StatCard(
-                  icon: '✓',
+                child: AppMetricCard(
                   value: '${submissions.where(_isApprovedHistory).length}',
                   label: 'Approved',
+                  color: AppColors.text,
+                  iconText: '✓',
+                  iconBackground: AppColors.surface,
+                  horizontal: true,
+                  uppercaseLabel: false,
+                  valueFirst: true,
+                  boxShadow: <BoxShadow>[
+                    AppColors.softShadow(opacity: 0.15, blur: 8),
+                  ],
+                  labelStyle: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textMute,
+                  ),
+                  valueStyle: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.text,
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        _Section(
+        AppSection(
           title: 'Submission History',
-          paddingBottom: 24,
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
           child: _SubmissionHistorySection(
             controller: _submissionHistoryController,
           ),
         ),
-        _Section(
+        AppSection(
           title: 'Member Ledger',
-          paddingBottom: 24,
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
           child: _MemberLedgerSection(controller: _ledgerController),
         ),
       ],
@@ -331,9 +369,9 @@ class _AccountDetailsCard extends StatelessWidget {
     final String? error = errorMessage;
     final ManagedUser? profile = user;
 
-    return _Section(
+    return AppSection(
       title: 'Account Details',
-      paddingBottom: 16,
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
       child: AppCardList(
         children: <Widget>[
           if (isLoading)
@@ -413,66 +451,6 @@ class _AccountDetailsCard extends StatelessWidget {
               isLast: true,
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-
-  final String icon;
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.15, blur: 8)],
-      ),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(icon, style: const TextStyle(fontSize: 18)),
-          ),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.text,
-                ),
-              ),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textMute,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -1169,40 +1147,6 @@ class _MemberLedgerRow extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _Section extends StatelessWidget {
-  const _Section({
-    required this.title,
-    required this.child,
-    this.paddingBottom = 0,
-  });
-
-  final String title;
-  final Widget child;
-  final double paddingBottom;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 20, 16, paddingBottom),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: AppColors.text,
-            ),
-          ),
-          const SizedBox(height: 12),
-          child,
-        ],
-      ),
     );
   }
 }

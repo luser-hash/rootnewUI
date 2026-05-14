@@ -5,6 +5,7 @@ import '../../shared/finance.dart';
 import '../../shared/widgets/app_action_button.dart';
 import '../../shared/widgets/app_detail_block.dart';
 import '../../shared/widgets/app_detail_row.dart';
+import '../../shared/widgets/app_metric_card.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../domain/investment_detail.dart';
 
@@ -135,6 +136,9 @@ class _InvestmentDetailContent extends StatelessWidget {
     final num invested = num.tryParse(detail.investedAmount) ?? 0;
     final num? returned = num.tryParse(detail.returnAmount ?? '');
     final num? pnl = num.tryParse(detail.pnlAmount ?? '');
+    final bool hasDistributionRecord =
+        detail.status == InvestmentStatus.distributed ||
+        detail.status == InvestmentStatus.reversed;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -142,16 +146,26 @@ class _InvestmentDetailContent extends StatelessWidget {
         Row(
           children: <Widget>[
             Expanded(
-              child: _MoneyBox(
+              child: AppMetricCard(
                 label: 'Invested',
                 value: fmt(invested),
                 background: AppColors.surface,
-                valueColor: AppColors.text,
+                color: AppColors.text,
+                borderRadius: 12,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                valueStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.text,
+                ),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _MoneyBox(
+              child: AppMetricCard(
                 label: 'P&L',
                 value: pnl == null
                     ? 'Pending'
@@ -161,11 +175,25 @@ class _InvestmentDetailContent extends StatelessWidget {
                     : pnl >= 0
                     ? AppColors.greenLt
                     : AppColors.redLt,
-                valueColor: pnl == null
+                color: pnl == null
                     ? AppColors.textMute
                     : pnl >= 0
                     ? AppColors.green
                     : AppColors.red,
+                borderRadius: 12,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                valueStyle: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: pnl == null
+                      ? AppColors.textMute
+                      : pnl >= 0
+                      ? AppColors.green
+                      : AppColors.red,
+                ),
               ),
             ),
           ],
@@ -344,64 +372,17 @@ class _InvestmentDetailContent extends StatelessWidget {
             valueColor: AppColors.textMid,
             valueFontSize: 13,
           ),
+        ],
+        if (hasDistributionRecord) ...<Widget>[
           const SizedBox(height: 10),
           AppActionButton(
-            label: 'Distributon Record',
+            label: 'Distribution Record',
             background: AppColors.blueLt,
             foreground: AppColors.blue,
             onTap: onDistributionRecord,
           ),
         ],
       ],
-    );
-  }
-}
-
-class _MoneyBox extends StatelessWidget {
-  const _MoneyBox({
-    required this.label,
-    required this.value,
-    required this.background,
-    required this.valueColor,
-  });
-
-  final String label;
-  final String value;
-  final Color background;
-  final Color valueColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            value,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: valueColor,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

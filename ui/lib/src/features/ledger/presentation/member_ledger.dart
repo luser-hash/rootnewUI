@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_card_list.dart';
+import '../../shared/widgets/app_data_table.dart';
 import '../../shared/widgets/app_screen_header.dart';
 import '../data/member_ledger_repository.dart';
 import '../domain/member_ledger_statement.dart';
@@ -412,83 +413,71 @@ class _MemberLedgerRow extends StatelessWidget {
     final Color bg = _entryBackground(entry.entryType);
     final Color fg = _entryForeground(entry.entryType);
 
-    return Container(
+    return AppTableRow(
+      expandCells: false,
+      showTopBorder: false,
+      showBottomBorder: !isLast,
+      background: Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: isLast
-              ? BorderSide.none
-              : const BorderSide(color: AppColors.border),
+      cells: <Widget>[
+        Container(
+          width: 42,
+          height: 42,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(13),
+          ),
+          child: Icon(_entryIcon(entry.entryType), size: 18, color: fg),
         ),
-      ),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 42,
-            height: 42,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(_entryIcon(entry.entryType), size: 18, color: fg),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  entry.entryType.label,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.text,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  entry.comment.isEmpty
-                      ? '${entry.referenceType} · ${entry.referenceId}'
-                      : entry.comment,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textMute,
-                  ),
-                ),
-                if (entry.createdByName.isNotEmpty)
-                  Text(
-                    'By ${entry.createdByName}',
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: AppColors.textMute,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                '${positive ? '+' : ''}${_formatMoney(entry.amount)}',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: positive ? AppColors.green : AppColors.red,
+              AppTextCell(
+                entry.entryType.label,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+              const SizedBox(height: 2),
+              AppTextCell(
+                entry.comment.isEmpty
+                    ? '${entry.referenceType} · ${entry.referenceId}'
+                    : entry.comment,
+                maxLines: 1,
+                fontSize: 11,
+                fontWeight: FontWeight.w400,
+                color: AppColors.textMute,
+              ),
+              if (entry.createdByName.isNotEmpty)
+                AppTextCell(
+                  'By ${entry.createdByName}',
+                  maxLines: 1,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textMute,
                 ),
-              ),
-              Text(
-                entry.txnDate,
-                style: const TextStyle(fontSize: 11, color: AppColors.textMute),
-              ),
             ],
           ),
-        ],
-      ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            AppTextCell(
+              '${positive ? '+' : ''}${_formatMoney(entry.amount)}',
+              color: positive ? AppColors.green : AppColors.red,
+              fontSize: 14,
+            ),
+            AppTextCell(
+              entry.txnDate,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: AppColors.textMute,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

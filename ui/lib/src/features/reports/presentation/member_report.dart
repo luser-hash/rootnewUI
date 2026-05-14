@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
+import '../../shared/widgets/app_data_table.dart';
+import '../../shared/widgets/app_metric_card.dart';
 import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_screen_header.dart';
 import '../data/member_report_repository.dart';
@@ -261,52 +263,15 @@ class _SummaryCards extends StatelessWidget {
               width: stacked
                   ? constraints.maxWidth
                   : (constraints.maxWidth - 20) / 3,
-              child: _SummaryCard(metric: metric),
+              child: AppMoneyMetricCard(
+                label: metric.label,
+                value: metric.value,
+                color: metric.color,
+              ),
             );
           }).toList(),
         );
       },
-    );
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.metric});
-
-  final _SummaryMetric metric;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: _panelDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            metric.label.toUpperCase(),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textMute,
-              letterSpacing: 0.4,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            formatMoneySigned(metric.value),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: metric.color,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -448,29 +413,152 @@ class _TransactionTableHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: const Row(
-        children: <Widget>[
-          SizedBox(width: 86, child: _HeaderText('Date')),
-          Expanded(child: _HeaderText('Entry')),
-          SizedBox(
-            width: 98,
-            child: Text(
-              'Running Balance',
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textMute,
-              ),
-            ),
+    return const AppTableHeader(
+      expandCells: false,
+      cells: <Widget>[
+        SizedBox(width: 86, child: AppHeaderCell('Date')),
+        Expanded(child: AppHeaderCell('Entry')),
+        SizedBox(
+          width: 98,
+          child: AppHeaderCell(
+            'Running Balance',
+            textAlign: TextAlign.end,
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+class _TransactionSummaryCell extends StatelessWidget {
+  const _TransactionSummaryCell({
+    required this.comment,
+    required this.fallbackLabel,
+    required this.meta,
+    required this.amountColor,
+  });
+
+  final String comment;
+  final String fallbackLabel;
+  final String meta;
+  final Color amountColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        AppTextCell(
+          comment.isEmpty ? fallbackLabel : comment,
+          fontSize: 13,
+          color: AppColors.text,
+        ),
+        AppTextCell(
+          meta,
+          maxLines: 1,
+          color: amountColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ],
+    );
+  }
+}
+
+class _TransactionBalanceCell extends StatelessWidget {
+  const _TransactionBalanceCell({required this.value});
+
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppMoneyCell(
+      value,
+      color: AppColors.text,
+      fontSize: 13,
+    );
+  }
+}
+
+class _TransactionDateCell extends StatelessWidget {
+  const _TransactionDateCell({required this.value});
+
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppTextCell(
+      value,
+      maxLines: 1,
+      color: AppColors.textMute,
+      fontSize: 11,
+      fontWeight: FontWeight.w700,
+    );
+  }
+}
+
+class _TransactionExpandIcon extends StatelessWidget {
+  const _TransactionExpandIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Icon(
+      Icons.expand_more_rounded,
+      size: 18,
+      color: AppColors.textMute,
+    );
+  }
+}
+
+class _TransactionTileTitle extends StatelessWidget {
+  const _TransactionTileTitle({required this.entry});
+
+  final MemberReportEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final num amount = num.tryParse(entry.amount) ?? 0;
+    return Row(
+      children: <Widget>[
+        SizedBox(width: 86, child: _TransactionDateCell(value: entry.txnDate)),
+        const _TransactionExpandIcon(),
+        const SizedBox(width: 4),
+        Expanded(
+          child: _TransactionSummaryCell(
+            comment: entry.comment,
+            fallbackLabel: entry.entryType.label,
+            meta: '${entry.entryType.label} ${_signedMoney(amount)}',
+            amountColor: amount >= 0 ? AppColors.green : AppColors.red,
+          ),
+        ),
+        SizedBox(
+          width: 98,
+          child: _TransactionBalanceCell(
+            value: entry.runningBalance,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TransactionReferenceCell extends StatelessWidget {
+  const _TransactionReferenceCell({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final String text = value.trim().isEmpty ? '-' : value;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: AppTextCell(
+        '$label: $text',
+        maxLines: 2,
+        color: AppColors.textMid,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -483,7 +571,6 @@ class _TransactionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final num amount = num.tryParse(entry.amount) ?? 0;
     return Tooltip(
       message: _referenceText(entry),
       child: Theme(
@@ -492,72 +579,7 @@ class _TransactionRow extends StatelessWidget {
           tilePadding: const EdgeInsets.symmetric(horizontal: 14),
           childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
           trailing: const SizedBox.shrink(),
-          title: Row(
-            children: <Widget>[
-              SizedBox(
-                width: 86,
-                child: Text(
-                  entry.txnDate,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textMute,
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.expand_more_rounded,
-                size: 18,
-                color: AppColors.textMute,
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      entry.comment.isEmpty
-                          ? entry.entryType.label
-                          : entry.comment,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.text,
-                      ),
-                    ),
-                    Text(
-                      '${entry.entryType.label} ${_signedMoney(amount)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: amount >= 0 ? AppColors.green : AppColors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 98,
-                child: Text(
-                  formatMoneySigned(num.tryParse(entry.runningBalance) ?? 0),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.end,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.text,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          title: _TransactionTileTitle(entry: entry),
           children: <Widget>[_ReferenceBlock(entry: entry)],
         ),
       ),
@@ -582,10 +604,16 @@ class _ReferenceBlock extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _ReferenceLine(label: 'Ledger ID', value: entry.ledgerId),
-          _ReferenceLine(label: 'Reference', value: _referenceText(entry)),
-          _ReferenceLine(label: 'Created By', value: entry.createdByFullName),
-          _ReferenceLine(
+          _TransactionReferenceCell(label: 'Ledger ID', value: entry.ledgerId),
+          _TransactionReferenceCell(
+            label: 'Reference',
+            value: _referenceText(entry),
+          ),
+          _TransactionReferenceCell(
+            label: 'Created By',
+            value: entry.createdByFullName,
+          ),
+          _TransactionReferenceCell(
             label: 'Created At',
             value: formatDateTimeShort(entry.createdAt),
           ),
@@ -866,48 +894,6 @@ class _ClearFiltersButton extends StatelessWidget {
           width: 46,
           height: 54,
           child: Icon(Icons.close_rounded, color: AppColors.textMute),
-        ),
-      ),
-    );
-  }
-}
-
-class _HeaderText extends StatelessWidget {
-  const _HeaderText(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 10,
-        fontWeight: FontWeight.w900,
-        color: AppColors.textMute,
-      ),
-    );
-  }
-}
-
-class _ReferenceLine extends StatelessWidget {
-  const _ReferenceLine({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final String text = value.trim().isEmpty ? '-' : value;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Text(
-        '$label: $text',
-        style: const TextStyle(
-          fontSize: 12,
-          height: 1.35,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textMid,
         ),
       ),
     );

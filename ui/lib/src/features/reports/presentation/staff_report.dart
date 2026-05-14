@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../shared/finance.dart';
+import '../../shared/widgets/app_data_table.dart';
+import '../../shared/widgets/app_metric_card.dart';
 import '../../shared/widgets/app_message_card.dart';
+import '../../shared/widgets/app_panel.dart';
 import '../../shared/widgets/app_screen_header.dart';
 import '../../shared/widgets/status_pills.dart';
 import '../data/staff_report_repository.dart';
@@ -204,7 +207,12 @@ class _StaffReportPageState extends State<StaffReportPage> {
                   width: compact
                       ? (constraints.maxWidth - 10) / 2
                       : (constraints.maxWidth - 30) / 4,
-                  child: _KpiCard(metric: metric),
+                  child: AppMoneyMetricCard(
+                    label: metric.label,
+                    textValue: metric.value,
+                    color: metric.color,
+                    icon: metric.icon,
+                  ),
                 );
               }).toList(),
             );
@@ -344,7 +352,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
               setState(() => _memberFuture = _loadMemberBalances()),
         ),
         const SizedBox(height: 12),
-        _ReportPanel(
+        AppPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
@@ -425,7 +433,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
           }),
         ),
         const SizedBox(height: 12),
-        _ReportPanel(
+        AppPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
@@ -520,7 +528,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
           }),
         ),
         const SizedBox(height: 12),
-        _ReportPanel(
+        AppPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
@@ -596,7 +604,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
           }),
         ),
         const SizedBox(height: 12),
-        _ReportPanel(
+        AppPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
@@ -606,22 +614,59 @@ class _StaffReportPageState extends State<StaffReportPage> {
                   spacing: 10,
                   runSpacing: 10,
                   children: <Widget>[
-                    _SmallMetric(
-                      label: 'Pending Count',
-                      value: '${report.totalPendingCount}',
-                      color: AppColors.amber,
+                    SizedBox(
+                      width: 160,
+                      child: AppMetricCard(
+                        label: 'Pending Count',
+                        value: '${report.totalPendingCount}',
+                        color: AppColors.amber,
+                        background: AppColors.amber.withValues(alpha: .1),
+                        borderRadius: 14,
+                        padding: const EdgeInsets.all(12),
+                        labelMaxLines: 1,
+                        valueStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.amber,
+                        ),
+                      ),
                     ),
-                    _SmallMetric(
-                      label: 'Pending Amount',
-                      value: formatMoneyTextSigned(report.totalPendingAmount),
-                      color: AppColors.primary,
+                    SizedBox(
+                      width: 160,
+                      child: AppMetricCard(
+                        label: 'Pending Amount',
+                        value: formatMoneyTextSigned(report.totalPendingAmount),
+                        color: AppColors.primary,
+                        background: AppColors.primary.withValues(alpha: .1),
+                        borderRadius: 14,
+                        padding: const EdgeInsets.all(12),
+                        labelMaxLines: 1,
+                        valueStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ),
                     ...report.byChannel.entries.map((entry) {
-                      return _SmallMetric(
-                        label: prettyEnumLabel(entry.key),
-                        value:
-                            '${entry.value.count} - ${formatMoneyTextSigned(entry.value.totalAmount)}',
-                        color: _channelColor(entry.key),
+                      final Color color = _channelColor(entry.key);
+                      return SizedBox(
+                        width: 160,
+                        child: AppMetricCard(
+                          label: prettyEnumLabel(entry.key),
+                          value:
+                              '${entry.value.count} - ${formatMoneyTextSigned(entry.value.totalAmount)}',
+                          color: color,
+                          background: color.withValues(alpha: .1),
+                          borderRadius: 14,
+                          padding: const EdgeInsets.all(12),
+                          labelMaxLines: 1,
+                          valueStyle: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: color,
+                          ),
+                        ),
                       );
                     }),
                   ],
@@ -812,48 +857,6 @@ class _TimestampBar extends StatelessWidget {
   }
 }
 
-class _KpiCard extends StatelessWidget {
-  const _KpiCard({required this.metric});
-
-  final _MoneyMetric metric;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: _panelDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Icon(metric.icon, color: metric.color, size: 20),
-          const SizedBox(height: 10),
-          Text(
-            metric.label.toUpperCase(),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textMute,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            formatMoneyTextSigned(metric.value),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: metric.color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _StatCluster extends StatelessWidget {
   const _StatCluster({
     required this.title,
@@ -871,7 +874,7 @@ class _StatCluster extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _ReportPanel(
+    return AppPanel(
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -1015,53 +1018,53 @@ class _MemberTable extends StatelessWidget {
         width: 760,
         child: Column(
           children: <Widget>[
-            _TableHeader(
+            AppTableHeader(
               cells: <Widget>[
-                _SortableHeader(
-                  'Full Name',
-                  _MemberSort.name,
-                  sort,
-                  ascending,
-                  onSort,
+                AppSortableHeaderCell<_MemberSort>(
+                  text: 'Full Name',
+                  field: _MemberSort.name,
+                  active: sort,
+                  ascending: ascending,
+                  onTap: onSort,
                 ),
-                _SortableHeader(
-                  'Contact',
-                  _MemberSort.contact,
-                  sort,
-                  ascending,
-                  onSort,
+                AppSortableHeaderCell<_MemberSort>(
+                  text: 'Contact',
+                  field: _MemberSort.contact,
+                  active: sort,
+                  ascending: ascending,
+                  onTap: onSort,
                 ),
-                _SortableHeader(
-                  'Join Date',
-                  _MemberSort.joinDate,
-                  sort,
-                  ascending,
-                  onSort,
+                AppSortableHeaderCell<_MemberSort>(
+                  text: 'Join Date',
+                  field: _MemberSort.joinDate,
+                  active: sort,
+                  ascending: ascending,
+                  onTap: onSort,
                 ),
-                _SortableHeader(
-                  'Status',
-                  _MemberSort.status,
-                  sort,
-                  ascending,
-                  onSort,
+                AppSortableHeaderCell<_MemberSort>(
+                  text: 'Status',
+                  field: _MemberSort.status,
+                  active: sort,
+                  ascending: ascending,
+                  onTap: onSort,
                 ),
-                _SortableHeader(
-                  'Balance',
-                  _MemberSort.balance,
-                  sort,
-                  ascending,
-                  onSort,
+                AppSortableHeaderCell<_MemberSort>(
+                  text: 'Balance',
+                  field: _MemberSort.balance,
+                  active: sort,
+                  ascending: ascending,
+                  onTap: onSort,
                   alignEnd: true,
                 ),
               ],
             ),
             ...members.map((member) {
-              return _TableRow(
+              return AppTableRow(
                 onTap: () => context.go(RouteNames.ledger),
                 cells: <Widget>[
-                  _Cell(member.fullName),
-                  _Cell(member.contactNo),
-                  _Cell(member.joinDate),
+                  AppTextCell(member.fullName),
+                  AppTextCell(member.contactNo),
+                  AppTextCell(member.joinDate),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: AppStatusPill(
@@ -1079,7 +1082,7 @@ class _MemberTable extends StatelessWidget {
                       textHeight: null,
                     ),
                   ),
-                  _MoneyCell(member.balance),
+                  AppMoneyCell(member.balance),
                 ],
               );
             }),
@@ -1103,31 +1106,31 @@ class _InvestmentTable extends StatelessWidget {
         width: 1160,
         child: Column(
           children: <Widget>[
-            const _TableHeader(
+            const AppTableHeader(
               cells: <Widget>[
-                _HeaderText('Title'),
-                _HeaderText('Type'),
-                _HeaderText('Invested To'),
-                _HeaderText('Invested'),
-                _HeaderText('Return'),
-                _HeaderText('P&L'),
-                _HeaderText('Status'),
-                _HeaderText('Members'),
-                _HeaderText('Created/Fund'),
-                _HeaderText('Date'),
+                AppHeaderCell('Title'),
+                AppHeaderCell('Type'),
+                AppHeaderCell('Invested To'),
+                AppHeaderCell('Invested'),
+                AppHeaderCell('Return'),
+                AppHeaderCell('P&L'),
+                AppHeaderCell('Status'),
+                AppHeaderCell('Members'),
+                AppHeaderCell('Created/Fund'),
+                AppHeaderCell('Date'),
               ],
             ),
             ...items.map((item) {
               final num pnl = num.tryParse(item.pnlAmount) ?? 0;
-              return _TableRow(
+              return AppTableRow(
                 onTap: () => context.go(RouteNames.investments),
                 cells: <Widget>[
-                  _Cell(item.title),
-                  _Cell(prettyEnumLabel(item.investmentType)),
-                  _Cell(item.investedTo),
-                  _MoneyCell(item.investedAmount),
-                  _MoneyCell(item.returnAmount),
-                  _MoneyCell(
+                  AppTextCell(item.title),
+                  AppTextCell(prettyEnumLabel(item.investmentType)),
+                  AppTextCell(item.investedTo),
+                  AppMoneyCell(item.investedAmount),
+                  AppMoneyCell(item.returnAmount),
+                  AppMoneyCell(
                     item.pnlAmount,
                     color: pnl > 0
                         ? AppColors.green
@@ -1150,11 +1153,11 @@ class _InvestmentTable extends StatelessWidget {
                       textHeight: null,
                     ),
                   ),
-                  _Cell('${item.memberCount}'),
-                  _Cell(
+                  AppTextCell('${item.memberCount}'),
+                  AppTextCell(
                     '${valueOrDash(item.createdBy)}\nFund: ${valueOrDash(item.fundReleasedBy)}',
                   ),
-                  _Cell(
+                  AppTextCell(
                     item.closeDate.trim().isEmpty
                         ? item.createdDate
                         : '${item.createdDate}\nClose: ${item.closeDate}',
@@ -1191,11 +1194,11 @@ class _DistributionList extends StatelessWidget {
               childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
               title: Row(
                 children: <Widget>[
-                  Expanded(flex: 2, child: _Cell(item.investmentTitle)),
-                  Expanded(child: _MoneyCell(item.pnlAmount)),
-                  Expanded(child: _MoneyCell(item.roundedTotal)),
+                  Expanded(flex: 2, child: AppTextCell(item.investmentTitle)),
+                  Expanded(child: AppMoneyCell(item.pnlAmount)),
+                  Expanded(child: AppMoneyCell(item.roundedTotal)),
                   Expanded(
-                    child: _MoneyCell(
+                    child: AppMoneyCell(
                       item.remainderApplied,
                       color: (num.tryParse(item.remainderApplied) ?? 0) == 0
                           ? AppColors.text
@@ -1266,18 +1269,18 @@ class _ApprovalQueueTable extends StatelessWidget {
         width: 1040,
         child: Column(
           children: <Widget>[
-            const _TableHeader(
+            const AppTableHeader(
               cells: <Widget>[
-                _HeaderText('Member'),
-                _HeaderText('Contact'),
-                _HeaderText('Type'),
-                _HeaderText('Amount'),
-                _HeaderText('Txn Date'),
-                _HeaderText('Channel'),
-                _HeaderText('Reference'),
-                _HeaderText('Notes'),
-                _HeaderText('Files'),
-                _HeaderText('Requested'),
+                AppHeaderCell('Member'),
+                AppHeaderCell('Contact'),
+                AppHeaderCell('Type'),
+                AppHeaderCell('Amount'),
+                AppHeaderCell('Txn Date'),
+                AppHeaderCell('Channel'),
+                AppHeaderCell('Reference'),
+                AppHeaderCell('Notes'),
+                AppHeaderCell('Files'),
+                AppHeaderCell('Requested'),
               ],
             ),
             ...items.map((item) {
@@ -1285,13 +1288,13 @@ class _ApprovalQueueTable extends StatelessWidget {
               final bool missingReference =
                   item.paymentChannel.toUpperCase() == 'BKASH' &&
                   item.externalReference.trim().isEmpty;
-              return _TableRow(
+              return AppTableRow(
                 cells: <Widget>[
-                  _Cell(item.memberName),
-                  _Cell(item.memberContact),
-                  _Cell(prettyEnumLabel(item.requestType)),
-                  _MoneyCell(item.amount),
-                  _Cell(item.txnDate),
+                  AppTextCell(item.memberName),
+                  AppTextCell(item.memberContact),
+                  AppTextCell(prettyEnumLabel(item.requestType)),
+                  AppMoneyCell(item.amount),
+                  AppTextCell(item.txnDate),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: AppStatusPill(
@@ -1307,14 +1310,14 @@ class _ApprovalQueueTable extends StatelessWidget {
                       textHeight: null,
                     ),
                   ),
-                  _Cell(
+                  AppTextCell(
                     valueOrDash(item.externalReference),
                     color: missingReference ? AppColors.red : AppColors.text,
                     mono: true,
                   ),
-                  _Cell(valueOrDash(item.notes), maxLines: 1),
-                  _Cell('clip ${item.attachmentCount}'),
-                  _Cell(formatDateTimeShort(item.requestedAt)),
+                  AppTextCell(valueOrDash(item.notes), maxLines: 1),
+                  AppTextCell('clip ${item.attachmentCount}'),
+                  AppTextCell(formatDateTimeShort(item.requestedAt)),
                 ],
               );
             }),
@@ -1422,228 +1425,6 @@ class _DropdownFilterField extends StatelessWidget {
   }
 }
 
-class _TableHeader extends StatelessWidget {
-  const _TableHeader({required this.cells});
-
-  final List<Widget> cells;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: Row(
-        children: cells
-            .map((Widget cell) => Expanded(child: cell))
-            .toList(growable: false),
-      ),
-    );
-  }
-}
-
-class _TableRow extends StatelessWidget {
-  const _TableRow({required this.cells, this.onTap});
-
-  final List<Widget> cells;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.white,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: AppColors.border)),
-          ),
-          child: Row(
-            children: cells
-                .map((Widget cell) => Expanded(child: cell))
-                .toList(growable: false),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _HeaderText extends StatelessWidget {
-  const _HeaderText(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 10,
-        fontWeight: FontWeight.w900,
-        color: AppColors.textMute,
-      ),
-    );
-  }
-}
-
-class _SortableHeader extends StatelessWidget {
-  const _SortableHeader(
-    this.text,
-    this.field,
-    this.active,
-    this.ascending,
-    this.onTap, {
-    this.alignEnd = false,
-  });
-
-  final String text;
-  final _MemberSort field;
-  final _MemberSort active;
-  final bool ascending;
-  final ValueChanged<_MemberSort> onTap;
-  final bool alignEnd;
-
-  @override
-  Widget build(BuildContext context) {
-    final bool selected = field == active;
-    return InkWell(
-      onTap: () => onTap(field),
-      child: Row(
-        mainAxisAlignment: alignEnd
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              color: selected ? AppColors.primary : AppColors.textMute,
-            ),
-          ),
-          if (selected)
-            Icon(
-              ascending
-                  ? Icons.arrow_drop_up_rounded
-                  : Icons.arrow_drop_down_rounded,
-              size: 18,
-              color: AppColors.primary,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Cell extends StatelessWidget {
-  const _Cell(
-    this.value, {
-    this.color = AppColors.text,
-    this.maxLines = 2,
-    this.mono = false,
-  });
-
-  final String value;
-  final Color color;
-  final int maxLines;
-  final bool mono;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      valueOrDash(value),
-      maxLines: maxLines,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(
-        fontSize: 12,
-        height: 1.25,
-        fontWeight: FontWeight.w800,
-        color: color,
-        fontFeatures: mono
-            ? const <FontFeature>[FontFeature.tabularFigures()]
-            : null,
-      ),
-    );
-  }
-}
-
-class _MoneyCell extends StatelessWidget {
-  const _MoneyCell(this.value, {this.color = AppColors.text});
-
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      formatMoneyTextSigned(value),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      textAlign: TextAlign.end,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w900,
-        color: color,
-        fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-      ),
-    );
-  }
-}
-
-class _SmallMetric extends StatelessWidget {
-  const _SmallMetric({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 160,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: .1),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            label.toUpperCase(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textMute,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w900,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _DistributionLineTile extends StatelessWidget {
   const _DistributionLineTile({required this.line});
 
@@ -1660,10 +1441,12 @@ class _DistributionLineTile extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
-          Expanded(child: _Cell(line.fullName)),
-          Expanded(child: _Cell('Ratio ${valueOrDash(line.ratioUsed)}')),
-          Expanded(child: _MoneyCell(line.shareAmount)),
-          Expanded(child: _Cell('Ledger ${valueOrDash(line.ledgerEntryId)}')),
+          Expanded(child: AppTextCell(line.fullName)),
+          Expanded(child: AppTextCell('Ratio ${valueOrDash(line.ratioUsed)}')),
+          Expanded(child: AppMoneyCell(line.shareAmount)),
+          Expanded(
+            child: AppTextCell('Ledger ${valueOrDash(line.ledgerEntryId)}'),
+          ),
         ],
       ),
     );
@@ -1701,17 +1484,6 @@ class _AuditBanner extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _ReportPanel extends StatelessWidget {
-  const _ReportPanel({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(decoration: _panelDecoration(), child: child);
   }
 }
 
@@ -1801,15 +1573,6 @@ InputDecoration _fieldDecoration({
       borderRadius: BorderRadius.circular(14),
       borderSide: const BorderSide(color: AppColors.primary, width: 1.3),
     ),
-  );
-}
-
-BoxDecoration _panelDecoration() {
-  return BoxDecoration(
-    color: AppColors.white,
-    borderRadius: BorderRadius.circular(18),
-    border: Border.all(color: AppColors.border),
-    boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.08, blur: 10)],
   );
 }
 
