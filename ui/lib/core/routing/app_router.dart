@@ -85,6 +85,7 @@ class AppRouter {
                     memberRepository: memberManagementRepository,
                     memberLedgerRepository: memberLedgerRepository,
                     capitalSubmissionRepository: capitalSubmissionRepository,
+                    investmentRepository: investmentRepository,
                     onNav: context.go,
                     onMemberSelect: (Member member, int memberColorIdx) {
                       context.push(

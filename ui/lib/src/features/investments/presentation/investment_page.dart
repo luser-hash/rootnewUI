@@ -57,6 +57,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
       builder: (BuildContext context, _) {
         final List<Investment> items = _controller.investments;
         final UserRole role = AuthScope.of(context).role;
+        final bool canManageInvestments = role.canViewAllInvestments;
 
         return Column(
           children: <Widget>[
@@ -75,11 +76,15 @@ class _InvestmentPageState extends State<InvestmentPage> {
                   ),
                 );
               },
-              canCreate: role.canViewAllInvestments,
+              canCreate: canManageInvestments,
+              showSummary: canManageInvestments,
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              child: _buildBody(items),
+              child: _buildBody(
+                items,
+                canManageInvestments: canManageInvestments,
+              ),
             ),
           ],
         );
@@ -87,7 +92,10 @@ class _InvestmentPageState extends State<InvestmentPage> {
     );
   }
 
-  Widget _buildBody(List<Investment> items) {
+  Widget _buildBody(
+    List<Investment> items, {
+    required bool canManageInvestments,
+  }) {
     if (_controller.isLoading) {
       return const Padding(
         padding: EdgeInsets.only(top: 32),
@@ -136,6 +144,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
                 isClosing: _controller.closingInvestmentId == inv.id,
                 isDistributing: _controller.distributingInvestmentId == inv.id,
                 actionsDisabled: _controller.hasActionInFlight,
+                canManageActions: canManageInvestments,
               ),
             ),
           )
@@ -303,6 +312,7 @@ class _InvestmentsHeaderContent extends StatelessWidget {
     required this.onCreate,
     required this.onWalletTap,
     required this.canCreate,
+    required this.showSummary,
   });
 
   final List<Investment> investments;
@@ -310,6 +320,7 @@ class _InvestmentsHeaderContent extends StatelessWidget {
   final VoidCallback onCreate;
   final VoidCallback onWalletTap;
   final bool canCreate;
+  final bool showSummary;
 
   @override
   Widget build(BuildContext context) {
@@ -368,26 +379,28 @@ class _InvestmentsHeaderContent extends StatelessWidget {
               ],
             ),
           ),
-          Row(
-            children: stats
-                .map(
-                  (({String label, String value}) s) => Expanded(
-                        child: _HeaderStatTile(
-                          label: s.label,
-                          value: s.value,
-                          margin: EdgeInsets.only(
-                            right: s.label == stats.last.label ? 0 : 8,
+          if (showSummary) ...<Widget>[
+            Row(
+              children: stats
+                  .map(
+                    (({String label, String value}) s) => Expanded(
+                          child: _HeaderStatTile(
+                            label: s.label,
+                            value: s.value,
+                            margin: EdgeInsets.only(
+                              right: s.label == stats.last.label ? 0 : 8,
+                            ),
                           ),
                         ),
-                      ),
-                )
-                .toList(),
-          ),
-          const SizedBox(height: 10),
-          _PnlWalletButton(
-            value: '${pnlTotal >= 0 ? '+' : '-'}${fmtSh(pnlTotal)}',
-            onTap: onWalletTap,
-          ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 10),
+            _PnlWalletButton(
+              value: '${pnlTotal >= 0 ? '+' : '-'}${fmtSh(pnlTotal)}',
+              onTap: onWalletTap,
+            ),
+          ],
         ],
       ),
     );
@@ -555,6 +568,7 @@ class _InvestmentFullCard extends StatelessWidget {
     required this.isClosing,
     required this.isDistributing,
     required this.actionsDisabled,
+    required this.canManageActions,
   });
 
   final Investment inv;
@@ -567,14 +581,16 @@ class _InvestmentFullCard extends StatelessWidget {
   final bool isClosing;
   final bool isDistributing;
   final bool actionsDisabled;
+  final bool canManageActions;
 
   @override
   Widget build(BuildContext context) {
     final num? pnl = inv.pnl;
     final bool hasPrimaryAction =
-        inv.status == InvestmentStatus.draft ||
-        inv.status == InvestmentStatus.open ||
-        inv.status == InvestmentStatus.closed;
+        canManageActions &&
+        (inv.status == InvestmentStatus.draft ||
+            inv.status == InvestmentStatus.open ||
+            inv.status == InvestmentStatus.closed);
     final Color border = inv.status == InvestmentStatus.open
         ? AppColors.primary.withValues(alpha: .3)
         : inv.status == InvestmentStatus.draft
@@ -685,7 +701,7 @@ class _InvestmentFullCard extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: <Widget>[
-              if (inv.status == InvestmentStatus.draft)
+              if (canManageActions && inv.status == InvestmentStatus.draft)
                 Expanded(
                   child: AppActionButton(
                     label: isReleasing ? 'Releasing...' : 'Release Funds',
@@ -698,7 +714,7 @@ class _InvestmentFullCard extends StatelessWidget {
                     onTap: actionsDisabled ? null : onReleaseFunds,
                   ),
                 ),
-              if (inv.status == InvestmentStatus.open)
+              if (canManageActions && inv.status == InvestmentStatus.open)
                 Expanded(
                   child: AppActionButton(
                     label: isClosing ? 'Closing...' : 'Close',
@@ -709,7 +725,7 @@ class _InvestmentFullCard extends StatelessWidget {
                     onTap: actionsDisabled ? null : onCloseInvestment,
                   ),
                 ),
-              if (inv.status == InvestmentStatus.closed)
+              if (canManageActions && inv.status == InvestmentStatus.closed)
                 Expanded(
                   child: AppActionButton(
                     label: isDistributing

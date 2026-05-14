@@ -4,6 +4,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../auth/domain/auth_session.dart';
 import '../../auth/presentation/auth_scope.dart';
+import '../../investments/data/investment_repository.dart';
 import '../../ledger/data/member_ledger_repository.dart';
 import '../../members/data/member_management_repository.dart';
 import '../../members/domain/member_management_models.dart';
@@ -34,6 +35,7 @@ class HomeScreen extends StatefulWidget {
     required this.memberRepository,
     required this.memberLedgerRepository,
     required this.capitalSubmissionRepository,
+    required this.investmentRepository,
     required this.onNav,
     required this.onMemberSelect,
   });
@@ -41,6 +43,7 @@ class HomeScreen extends StatefulWidget {
   final MemberManagementRepository memberRepository;
   final MemberLedgerRepository memberLedgerRepository;
   final CapitalSubmissionRepository capitalSubmissionRepository;
+  final InvestmentRepository investmentRepository;
   final ValueChanged<String> onNav;
   final void Function(Member member, int memberColorIdx) onMemberSelect;
 
@@ -115,6 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _buildHero(totalCapital, totalPending, role),
         if (role.canViewApprovals && pendingCount > 0) _buildAlert(pendingCount),
         _buildQuickActions(pendingCount, role),
+        _InvestmentsPreviewSection(
+          repository: widget.investmentRepository,
+          onNav: widget.onNav,
+        ),
         if (role.canViewMembers)
           _MembersCarousel(
             repository: widget.memberRepository,
@@ -849,6 +856,187 @@ class _MemberCarouselMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 110,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 8)],
+      ),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 12, color: AppColors.textMute),
+      ),
+    );
+  }
+}
+
+class _InvestmentsPreviewSection extends StatefulWidget {
+  const _InvestmentsPreviewSection({
+    required this.repository,
+    required this.onNav,
+  });
+
+  final InvestmentRepository repository;
+  final ValueChanged<String> onNav;
+
+  @override
+  State<_InvestmentsPreviewSection> createState() =>
+      _InvestmentsPreviewSectionState();
+}
+
+class _InvestmentsPreviewSectionState
+    extends State<_InvestmentsPreviewSection> {
+  late Future<List<Investment>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = widget.repository.list();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: 'Investments',
+      actionLabel: 'See All →',
+      onAction: () => widget.onNav(RouteNames.investments),
+      child: FutureBuilder<List<Investment>>(
+        future: _future,
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<List<Investment>> snapshot,
+        ) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const SizedBox(
+              height: 150,
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return const _InvestmentPreviewMessage(
+              message: 'Unable to load investments.',
+            );
+          }
+
+          final List<Investment> investments =
+              snapshot.data ?? <Investment>[];
+          if (investments.isEmpty) {
+            return const _InvestmentPreviewMessage(
+              message: 'No investments found.',
+            );
+          }
+
+          return SizedBox(
+            height: 186,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: investments.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
+              itemBuilder: (BuildContext context, int index) {
+                return _InvestmentPreviewCard(investment: investments[index]);
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _InvestmentPreviewCard extends StatelessWidget {
+  const _InvestmentPreviewCard({required this.investment});
+
+  final Investment investment;
+
+  @override
+  Widget build(BuildContext context) {
+    final num? pnl = investment.pnl;
+    final bool positivePnl = (pnl ?? 0) >= 0;
+
+    return Container(
+      width: 236,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.border.withValues(alpha: .65)),
+        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 10)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          InvestmentStatusPill(status: investment.status),
+          const SizedBox(height: 12),
+          Text(
+            investment.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: AppColors.text,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            investment.to.trim().isEmpty ? '-' : investment.to,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textMute,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            fmt(investment.amount),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.w900,
+              color: AppColors.text,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            pnl == null
+                ? 'Pending P&L'
+                : '${positivePnl ? '+' : '-'}${fmt(pnl)} P&L',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: pnl == null
+                  ? AppColors.textMute
+                  : positivePnl
+                  ? AppColors.green
+                  : AppColors.red,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InvestmentPreviewMessage extends StatelessWidget {
+  const _InvestmentPreviewMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 150,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
