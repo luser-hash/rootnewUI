@@ -321,7 +321,7 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 - [x] Create `features/landing/presentation/widgets/quick_action_grid.dart`.
 - [x] Create `features/landing/presentation/widgets/members_carousel.dart`.
 - [x] Create `features/landing/presentation/widgets/recent_activity_section.dart`.
-- [ ] Move quick action building to a policy/helper only after visual extraction is stable.
+- [x] Move quick action building to a policy/helper only after visual extraction is stable.
 
 ### `member_report.dart`
 
