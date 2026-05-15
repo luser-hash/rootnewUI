@@ -68,12 +68,12 @@ class _MemberReportPageState extends State<MemberReportPage> {
                   }
 
                   if (snapshot.hasError || !snapshot.hasData) {
-                    return const AppMessageCard(
+                    return AppMessageCard(
                       icon: Icons.error_outline,
                       message:
                           'Unable to load member report. Please try again.',
                       foreground: AppColors.red,
-                      background: AppColors.redLt,
+                      background: AppThemeColors.statusErrorBg(context),
                       padding: EdgeInsets.all(18),
                       borderRadius: 18,
                     );

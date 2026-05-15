@@ -8,7 +8,7 @@ class _DistributionsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: _panelDecoration(),
+      decoration: _panelDecoration(context),
       child: Column(
         children: <Widget>[
           Padding(
@@ -18,10 +18,10 @@ class _DistributionsPanel extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Distributions (${report.distributionCount})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.text,
+                      color: AppThemeColors.text(context),
                     ),
                   ),
                 ),
@@ -75,19 +75,19 @@ class _DistributionTile extends StatelessWidget {
                       ? item.investmentId
                       : item.investmentTitle,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
                 Text(
                   '${item.distributionStatus} · ${formatDateTimeShort(item.postedAt)}',
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                   ),
                 ),
               ],

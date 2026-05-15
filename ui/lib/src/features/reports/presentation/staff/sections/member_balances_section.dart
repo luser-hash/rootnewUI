@@ -29,12 +29,14 @@ class _MemberFilters extends StatelessWidget {
                     selected: status == value,
                     label: Text(value.label),
                     selectedColor: AppColors.primary,
-                    backgroundColor: AppColors.white,
+                    backgroundColor: AppThemeColors.elevatedSurface(context),
                     labelStyle: TextStyle(
                       fontWeight: FontWeight.w800,
-                      color: status == value ? Colors.white : AppColors.textMid,
+                      color: status == value
+                          ? Colors.white
+                          : AppThemeColors.textMid(context),
                     ),
-                    side: const BorderSide(color: AppColors.border),
+                    side: BorderSide(color: AppThemeColors.border(context)),
                     onSelected: (_) => onStatusChanged(value),
                   ),
                 );
@@ -48,6 +50,7 @@ class _MemberFilters extends StatelessWidget {
             onSubmitted: (_) => onSearch(),
             decoration:
                 _fieldDecoration(
+                  context: context,
                   label: 'Search member',
                   icon: Icons.search_rounded,
                 ).copyWith(
@@ -138,7 +141,7 @@ class _MemberTable extends StatelessWidget {
                       label: valueOrDash(member.status),
                       color: member.status.toUpperCase() == 'ACTIVE'
                           ? AppColors.green
-                          : AppColors.textMute,
+                          : AppThemeColors.textMuted(context),
                       showBorder: true,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 9,

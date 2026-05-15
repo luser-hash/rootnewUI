@@ -14,8 +14,12 @@ class _DistributionList extends StatelessWidget {
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: Container(
             decoration: BoxDecoration(
-              color: reversed ? AppColors.surface : AppColors.white,
-              border: const Border(top: BorderSide(color: AppColors.border)),
+              color: reversed
+                  ? AppThemeColors.surface(context)
+                  : AppThemeColors.card(context),
+              border: Border(
+                top: BorderSide(color: AppThemeColors.border(context)),
+              ),
             ),
             child: ExpansionTile(
               tilePadding: const EdgeInsets.symmetric(horizontal: 14),
@@ -29,7 +33,7 @@ class _DistributionList extends StatelessWidget {
                     child: AppMoneyCell(
                       item.remainderApplied,
                       color: (num.tryParse(item.remainderApplied) ?? 0) == 0
-                          ? AppColors.text
+                          ? AppThemeColors.text(context)
                           : AppColors.amber,
                     ),
                   ),
@@ -56,10 +60,10 @@ class _DistributionList extends StatelessWidget {
                 '${item.memberCount} members',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textMute,
+                  color: AppThemeColors.textMuted(context),
                 ),
               ),
               children: <Widget>[
@@ -106,10 +110,10 @@ class _ChipFilterBar extends StatelessWidget {
         children: <Widget>[
           Text(
             title.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w900,
-              color: AppColors.textMute,
+              color: AppThemeColors.textMuted(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -122,12 +126,12 @@ class _ChipFilterBar extends StatelessWidget {
                 selected: active,
                 label: Text(prettyEnumLabel(value)),
                 selectedColor: AppColors.primary,
-                backgroundColor: AppColors.white,
+                backgroundColor: AppThemeColors.elevatedSurface(context),
                 labelStyle: TextStyle(
                   fontWeight: FontWeight.w800,
-                  color: active ? Colors.white : AppColors.textMid,
+                  color: active ? Colors.white : AppThemeColors.textMid(context),
                 ),
-                side: const BorderSide(color: AppColors.border),
+                side: BorderSide(color: AppThemeColors.border(context)),
                 onSelected: (_) => onChanged(value),
               );
             }).toList(),
@@ -162,7 +166,7 @@ class _DropdownFilterField extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
       child: DropdownButtonFormField<String?>(
         initialValue: value,
-        decoration: _fieldDecoration(label: label, icon: icon),
+        decoration: _fieldDecoration(context: context, label: label, icon: icon),
         items: <DropdownMenuItem<String?>>[
           DropdownMenuItem<String?>(value: null, child: Text(allLabel)),
           ...values.map(
@@ -189,7 +193,7 @@ class _DistributionLineTile extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.only(top: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppThemeColors.surface(context),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

@@ -13,10 +13,10 @@ class _StatementLabel extends StatelessWidget {
       memberName.isEmpty
           ? 'Statement as of ${_formatDate(date)}'
           : 'Statement as of ${_formatDate(date)} for $memberName',
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w800,
-        color: AppColors.textMute,
+        color: AppThemeColors.textMuted(context),
       ),
     );
   }

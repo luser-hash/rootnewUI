@@ -12,7 +12,7 @@ class _PendingRequestsPanel extends StatelessWidget {
     }
 
     return Container(
-      decoration: _panelDecoration(),
+      decoration: _panelDecoration(context),
       child: Column(
         children: <Widget>[
           Padding(
@@ -23,10 +23,10 @@ class _PendingRequestsPanel extends StatelessWidget {
                   child: Text(
                     'Pending Requests '
                     '${formatMoneySigned(num.tryParse(statement.pendingTotal) ?? 0)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.text,
+                      color: AppThemeColors.text(context),
                     ),
                   ),
                 ),
@@ -59,10 +59,10 @@ class _PendingRequestTile extends StatelessWidget {
             child: Text(
               '${request.requestType} via ${request.paymentChannel}',
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: AppColors.text,
+                color: AppThemeColors.text(context),
               ),
             ),
           ),

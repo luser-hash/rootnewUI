@@ -66,6 +66,7 @@ const List<String> _investmentTypeValues = <String>[
 const List<String> _distributionStatusValues = <String>['POSTED', 'REVERSED'];
 
 InputDecoration _fieldDecoration({
+  required BuildContext context,
   required String label,
   required IconData icon,
 }) {
@@ -73,18 +74,21 @@ InputDecoration _fieldDecoration({
     labelText: label,
     prefixIcon: Icon(icon, size: 18),
     filled: true,
-    fillColor: AppColors.white,
+    fillColor: AppThemeColors.elevatedSurface(context),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: AppThemeColors.border(context)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: AppThemeColors.border(context)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.primary, width: 1.3),
+      borderSide: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 1.3,
+      ),
     ),
   );
 }
@@ -95,20 +99,20 @@ void _toggle(Set<String> selected, String value) {
   }
 }
 
-Color _investmentStatusColor(String status) {
+Color _investmentStatusColor(BuildContext context, String status) {
   return switch (status.toUpperCase()) {
     'OPEN' => AppColors.blue,
     'CLOSED' => AppColors.amber,
     'DISTRIBUTED' => AppColors.green,
     'REVERSED' => AppColors.red,
-    _ => AppColors.textMute,
+    _ => AppThemeColors.textMuted(context),
   };
 }
 
-Color _channelColor(String channel) {
+Color _channelColor(BuildContext context, String channel) {
   return switch (channel.toUpperCase()) {
     'BKASH' => const Color(0xFFD82B7D),
     'BANK' || 'BANK_TRANSFER' => AppColors.blue,
-    _ => AppColors.textMute,
+    _ => AppThemeColors.textMuted(context),
   };
 }

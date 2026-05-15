@@ -155,7 +155,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
             icon: Icons.error_outline,
             message: error,
             foreground: AppColors.red,
-            background: AppColors.redLt,
+            background: AppThemeColors.statusErrorBg(context),
             padding: const EdgeInsets.all(18),
             borderRadius: 18,
           );
@@ -252,7 +252,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
                       _TinyStat(
                         'Inactive',
                         report.members.inactive,
-                        AppColors.textMute,
+                        AppThemeColors.textMuted(context),
                       ),
                     ],
                     action: 'View members',
@@ -271,7 +271,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
                       _TinyStat(
                         'Draft',
                         report.investments.draft,
-                        AppColors.textMute,
+                        AppThemeColors.textMuted(context),
                       ),
                       _TinyStat(
                         'Open',
@@ -389,10 +389,10 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 child: Text(
                   'Showing ${report.memberCount} $statusText members - '
                   'Total Capital: ${formatMoneyTextSigned(report.totalCapital)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.textMid,
+                    color: AppThemeColors.textMid(context),
                   ),
                 ),
               ),
@@ -476,10 +476,10 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
                 child: Text(
                   'Showing ${investments.length} investments',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.textMid,
+                    color: AppThemeColors.textMid(context),
                   ),
                 ),
               ),
@@ -553,6 +553,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 child: DropdownButtonFormField<String?>(
                   initialValue: _distributionInvestment,
                   decoration: _fieldDecoration(
+                    context: context,
                     label: 'Investment',
                     icon: Icons.search_rounded,
                   ),
@@ -578,10 +579,10 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 child: Text(
                   'Showing ${distributions.length} distributions - '
                   '$posted Posted, $reversed Reversed',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.textMid,
+                    color: AppThemeColors.textMid(context),
                   ),
                 ),
               ),
@@ -658,7 +659,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
                       ),
                     ),
                     ...report.byChannel.entries.map((entry) {
-                      final Color color = _channelColor(entry.key);
+                      final Color color = _channelColor(context, entry.key);
                       return SizedBox(
                         width: 160,
                         child: AppMetricCard(

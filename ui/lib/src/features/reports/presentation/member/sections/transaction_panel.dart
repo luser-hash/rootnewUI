@@ -26,7 +26,7 @@ class _TransactionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: _panelDecoration(),
+      decoration: _panelDecoration(context),
       child: Column(
         children: <Widget>[
           Padding(
@@ -36,10 +36,10 @@ class _TransactionPanel extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Transactions (${statement.entryCount})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.text,
+                      color: AppThemeColors.text(context),
                     ),
                   ),
                 ),
@@ -68,6 +68,7 @@ class _TransactionPanel extends StatelessWidget {
                 DropdownButtonFormField<MemberReportEntryType?>(
                   initialValue: entryType,
                   decoration: _fieldDecoration(
+                    context: context,
                     label: 'Entry Type',
                     icon: Icons.tune_rounded,
                   ),
@@ -172,7 +173,7 @@ class _TransactionSummaryCell extends StatelessWidget {
         AppTextCell(
           comment.isEmpty ? fallbackLabel : comment,
           fontSize: 13,
-          color: AppColors.text,
+          color: AppThemeColors.text(context),
         ),
         AppTextCell(
           meta,
@@ -193,7 +194,11 @@ class _TransactionBalanceCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppMoneyCell(value, color: AppColors.text, fontSize: 13);
+    return AppMoneyCell(
+      value,
+      color: AppThemeColors.text(context),
+      fontSize: 13,
+    );
   }
 }
 
@@ -207,7 +212,7 @@ class _TransactionDateCell extends StatelessWidget {
     return AppTextCell(
       value,
       maxLines: 1,
-      color: AppColors.textMute,
+      color: AppThemeColors.textMuted(context),
       fontSize: 11,
       fontWeight: FontWeight.w700,
     );
@@ -219,10 +224,10 @@ class _TransactionExpandIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(
+    return Icon(
       Icons.expand_more_rounded,
       size: 18,
-      color: AppColors.textMute,
+      color: AppThemeColors.textMuted(context),
     );
   }
 }
@@ -271,7 +276,7 @@ class _TransactionReferenceCell extends StatelessWidget {
       child: AppTextCell(
         '$label: $text',
         maxLines: 2,
-        color: AppColors.textMid,
+        color: AppThemeColors.textMid(context),
         fontSize: 12,
         fontWeight: FontWeight.w700,
       ),
@@ -313,7 +318,7 @@ class _ReferenceBlock extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppThemeColors.surface(context),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

@@ -28,7 +28,10 @@ class _ApprovalQueueTable extends StatelessWidget {
               ],
             ),
             ...items.map((item) {
-              final Color channelColor = _channelColor(item.paymentChannel);
+              final Color channelColor = _channelColor(
+                context,
+                item.paymentChannel,
+              );
               final bool missingReference =
                   item.paymentChannel.toUpperCase() == 'BKASH' &&
                   item.externalReference.trim().isEmpty;
@@ -56,7 +59,9 @@ class _ApprovalQueueTable extends StatelessWidget {
                   ),
                   AppTextCell(
                     valueOrDash(item.externalReference),
-                    color: missingReference ? AppColors.red : AppColors.text,
+                    color: missingReference
+                        ? AppColors.red
+                        : AppThemeColors.text(context),
                     mono: true,
                   ),
                   AppTextCell(valueOrDash(item.notes), maxLines: 1),

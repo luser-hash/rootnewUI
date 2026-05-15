@@ -20,13 +20,13 @@ class _SectionTabs extends StatelessWidget {
               label: Text(section.label),
               avatar: Icon(section.icon, size: 16),
               selectedColor: AppColors.primary,
-              backgroundColor: AppColors.white,
+              backgroundColor: AppThemeColors.elevatedSurface(context),
               labelStyle: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
-                color: selected ? Colors.white : AppColors.textMid,
+                color: selected ? Colors.white : AppThemeColors.textMid(context),
               ),
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppThemeColors.border(context)),
               onSelected: (_) => onChanged(section),
             ),
           );

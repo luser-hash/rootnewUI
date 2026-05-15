@@ -13,10 +13,10 @@ class _TimestampBar extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w800,
-              color: AppColors.textMute,
+              color: AppThemeColors.textMuted(context),
             ),
           ),
         ),

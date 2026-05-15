@@ -28,19 +28,19 @@ class _StatCluster extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w900,
-                      color: AppColors.text,
+                      color: AppThemeColors.text(context),
                     ),
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                   ),
                 ),
               ],
@@ -86,9 +86,11 @@ class _AuditBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.amberLt,
+        color: AppThemeColors.statusWarningBg(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.amber.withValues(alpha: .18)),
+        border: Border.all(
+          color: AppThemeColors.statusWarningFg(context).withValues(alpha: .2),
+        ),
       ),
       child: Row(
         children: <Widget>[
@@ -97,10 +99,10 @@ class _AuditBanner extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textMid,
+                color: AppThemeColors.textMid(context),
               ),
             ),
           ),

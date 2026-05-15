@@ -43,13 +43,13 @@ class _InvestmentTable extends StatelessWidget {
                         ? AppColors.green
                         : pnl < 0
                         ? AppColors.red
-                        : AppColors.text,
+                        : AppThemeColors.text(context),
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: AppStatusPill(
                       label: prettyEnumLabel(item.status),
-                      color: _investmentStatusColor(item.status),
+                      color: _investmentStatusColor(context, item.status),
                       showBorder: true,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 9,

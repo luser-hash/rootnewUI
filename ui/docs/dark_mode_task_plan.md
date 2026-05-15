@@ -157,21 +157,21 @@ Acceptance checks:
 
 Reports and tables need extra contrast checks.
 
-- [ ] Staff report summary section.
-- [ ] Staff report member balances section.
-- [ ] Staff report investment register.
-- [ ] Staff report distribution logs.
-- [ ] Staff report approval queue.
-- [ ] Member report summary cards.
-- [ ] Member report transaction panel.
-- [ ] Member report pending requests panel.
-- [ ] Member report distributions panel.
+- [x] Staff report summary section.
+- [x] Staff report member balances section.
+- [x] Staff report investment register.
+- [x] Staff report distribution logs.
+- [x] Staff report approval queue.
+- [x] Member report summary cards.
+- [x] Member report transaction panel.
+- [x] Member report pending requests panel.
+- [x] Member report distributions panel.
 
 Acceptance checks:
 
-- [ ] Table headers are readable.
-- [ ] Money columns remain visually scannable.
-- [ ] Status pills are readable on dark report surfaces.
+- [x] Table headers are readable.
+- [x] Money columns remain visually scannable.
+- [x] Status pills are readable on dark report surfaces.
 
 ### Phase 6 - Theme Persistence
 

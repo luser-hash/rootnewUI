@@ -14,7 +14,7 @@ class _DateFilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.white,
+      color: AppThemeColors.elevatedSurface(context),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -24,14 +24,14 @@ class _DateFilterButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppThemeColors.border(context)),
           ),
           child: Row(
             children: <Widget>[
-              const Icon(
+              Icon(
                 Icons.calendar_today_outlined,
                 size: 18,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -41,19 +41,19 @@ class _DateFilterButton extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textMute,
+                        color: AppThemeColors.textMuted(context),
                       ),
                     ),
                     Text(
                       value == null ? 'Any date' : _formatDate(value!),
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.text,
+                        color: AppThemeColors.text(context),
                       ),
                     ),
                   ],
@@ -75,15 +75,18 @@ class _ClearFiltersButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.white,
+      color: AppThemeColors.elevatedSurface(context),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: const SizedBox(
+        child: SizedBox(
           width: 46,
           height: 54,
-          child: Icon(Icons.close_rounded, color: AppColors.textMute),
+          child: Icon(
+            Icons.close_rounded,
+            color: AppThemeColors.textMuted(context),
+          ),
         ),
       ),
     );
@@ -101,6 +104,7 @@ class _MemberReportData {
 }
 
 InputDecoration _fieldDecoration({
+  required BuildContext context,
   required String label,
   required IconData icon,
 }) {
@@ -108,28 +112,37 @@ InputDecoration _fieldDecoration({
     labelText: label,
     prefixIcon: Icon(icon, size: 18),
     filled: true,
-    fillColor: AppColors.white,
+    fillColor: AppThemeColors.elevatedSurface(context),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: AppThemeColors.border(context)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: AppThemeColors.border(context)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.primary, width: 1.3),
+      borderSide: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 1.3,
+      ),
     ),
   );
 }
 
-BoxDecoration _panelDecoration() {
+BoxDecoration _panelDecoration(BuildContext context) {
   return BoxDecoration(
-    color: AppColors.white,
+    color: AppThemeColors.card(context),
     borderRadius: BorderRadius.circular(18),
-    border: Border.all(color: AppColors.border),
-    boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.08, blur: 10)],
+    border: Border.all(color: AppThemeColors.border(context)),
+    boxShadow: <BoxShadow>[
+      BoxShadow(
+        color: AppThemeColors.shadow(context).withValues(alpha: .08),
+        blurRadius: 10,
+        offset: const Offset(0, 2),
+      ),
+    ],
   );
 }
 
