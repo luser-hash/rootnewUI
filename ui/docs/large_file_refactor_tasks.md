@@ -264,86 +264,86 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ### `staff_report.dart`
 
-- [ ] Create `features/reports/presentation/staff/staff_report_page.dart`.
-- [ ] Create `features/reports/presentation/staff/staff_report_controller.dart` only if state extraction is needed.
-- [ ] Create `features/reports/presentation/staff/sections/association_summary_section.dart`.
-- [ ] Create `features/reports/presentation/staff/sections/member_balances_section.dart`.
-- [ ] Create `features/reports/presentation/staff/sections/investment_register_section.dart`.
-- [ ] Create `features/reports/presentation/staff/sections/distribution_logs_section.dart`.
-- [ ] Create `features/reports/presentation/staff/sections/approval_queue_section.dart`.
-- [ ] Create `features/reports/presentation/staff/widgets/report_section_tabs.dart`.
-- [ ] Create `features/reports/presentation/staff/widgets/report_timestamp_bar.dart`.
-- [ ] Keep a temporary `staff_report.dart` export or adapter if route imports need compatibility.
+- [x] Create `features/reports/presentation/staff/staff_report_page.dart`.
+- [x] Create `features/reports/presentation/staff/staff_report_controller.dart` only if state extraction is needed.
+- [x] Create `features/reports/presentation/staff/sections/association_summary_section.dart`.
+- [x] Create `features/reports/presentation/staff/sections/member_balances_section.dart`.
+- [x] Create `features/reports/presentation/staff/sections/investment_register_section.dart`.
+- [x] Create `features/reports/presentation/staff/sections/distribution_logs_section.dart`.
+- [x] Create `features/reports/presentation/staff/sections/approval_queue_section.dart`.
+- [x] Create `features/reports/presentation/staff/widgets/report_section_tabs.dart`.
+- [x] Create `features/reports/presentation/staff/widgets/report_timestamp_bar.dart`.
+- [x] Keep a temporary `staff_report.dart` export or adapter if route imports need compatibility.
 
 ### `member_detail_screen.dart`
 
-- [ ] Create `features/members/presentation/detail/member_detail_screen.dart`.
-- [ ] Create `features/members/presentation/detail/member_detail_header.dart`.
-- [ ] Create `features/members/presentation/detail/account_details_card.dart`.
-- [ ] Create `features/members/presentation/detail/member_stats_grid.dart`.
-- [ ] Create `features/members/presentation/detail/submission_history_section.dart`.
-- [ ] Create `features/members/presentation/detail/member_ledger_section.dart`.
-- [ ] Keep existing controllers unchanged during the first split.
+- [x] Create `features/members/presentation/detail/member_detail_screen.dart`.
+- [x] Create `features/members/presentation/detail/member_detail_header.dart`.
+- [x] Create `features/members/presentation/detail/account_details_card.dart`.
+- [x] Create `features/members/presentation/detail/member_stats_grid.dart`.
+- [x] Create `features/members/presentation/detail/submission_history_section.dart`.
+- [x] Create `features/members/presentation/detail/member_ledger_section.dart`.
+- [x] Keep existing controllers unchanged during the first split.
 
 ### `ledger_page.dart`
 
-- [ ] Create `features/ledger/presentation/admin/admin_ledger_page.dart`.
-- [ ] Create `features/ledger/presentation/admin/admin_ledger_filters.dart`.
-- [ ] Create `features/ledger/presentation/admin/admin_ledger_post_sheet.dart`.
-- [ ] Create `features/ledger/presentation/admin/admin_ledger_row.dart`.
-- [ ] Create `features/ledger/presentation/admin/admin_ledger_header.dart`.
-- [ ] Do not replace demo/admin ledger data behavior during this split.
+- [x] Create `features/ledger/presentation/admin/admin_ledger_page.dart`.
+- [x] Create `features/ledger/presentation/admin/admin_ledger_filters.dart`.
+- [x] Create `features/ledger/presentation/admin/admin_ledger_post_sheet.dart`.
+- [x] Create `features/ledger/presentation/admin/admin_ledger_row.dart`.
+- [x] Create `features/ledger/presentation/admin/admin_ledger_header.dart`.
+- [x] Do not replace demo/admin ledger data behavior during this split.
 
 ### `approval_page.dart`
 
-- [ ] Create `features/approvals/presentation/widgets/approval_header.dart`.
-- [ ] Create `features/approvals/presentation/widgets/payment_channel_filter.dart`.
-- [ ] Create `features/approvals/presentation/widgets/pending_submission_list.dart`.
-- [ ] Create `features/approvals/presentation/widgets/submission_review_card.dart`.
-- [ ] Create `features/approvals/presentation/widgets/reviewed_submission_list.dart`.
-- [ ] Create `features/approvals/presentation/widgets/rejection_reason_dialog.dart`.
-- [ ] Create `features/approvals/presentation/widgets/approval_success_overlay.dart`.
-- [ ] Keep `ApprovalPage` state and controller unchanged during first split.
+- [x] Create `features/approvals/presentation/widgets/approval_header.dart`.
+- [x] Create `features/approvals/presentation/widgets/payment_channel_filter.dart`.
+- [x] Create `features/approvals/presentation/widgets/pending_submission_list.dart`.
+- [x] Create `features/approvals/presentation/widgets/submission_review_card.dart`.
+- [x] Create `features/approvals/presentation/widgets/reviewed_submission_list.dart`.
+- [x] Create `features/approvals/presentation/widgets/rejection_reason_dialog.dart`.
+- [x] Create `features/approvals/presentation/widgets/approval_success_overlay.dart`.
+- [x] Keep `ApprovalPage` state and controller unchanged during first split.
 
 ### Acceptance Checks
 
-- [ ] Existing import paths are updated or compatibility exports exist.
-- [ ] No route paths change.
-- [ ] No controller behavior changes.
+- [x] Existing import paths are updated or compatibility exports exist.
+- [x] No route paths change.
+- [x] No controller behavior changes.
 - [ ] `flutter analyze` passes.
 
 ## Phase 10 - Split P1 Large Files
 
 ### `landing_page.dart`
 
-- [ ] Create `features/landing/presentation/widgets/home_status_bar.dart`.
-- [ ] Create `features/landing/presentation/widgets/home_hero.dart`.
-- [ ] Create `features/landing/presentation/widgets/quick_action_grid.dart`.
-- [ ] Create `features/landing/presentation/widgets/members_carousel.dart`.
-- [ ] Create `features/landing/presentation/widgets/recent_activity_section.dart`.
+- [x] Create `features/landing/presentation/widgets/home_status_bar.dart`.
+- [x] Create `features/landing/presentation/widgets/home_hero.dart`.
+- [x] Create `features/landing/presentation/widgets/quick_action_grid.dart`.
+- [x] Create `features/landing/presentation/widgets/members_carousel.dart`.
+- [x] Create `features/landing/presentation/widgets/recent_activity_section.dart`.
 - [ ] Move quick action building to a policy/helper only after visual extraction is stable.
 
 ### `member_report.dart`
 
-- [ ] Create `features/reports/presentation/member/member_report_page.dart`.
-- [ ] Create `features/reports/presentation/member/sections/member_summary_section.dart`.
-- [ ] Create `features/reports/presentation/member/sections/transaction_panel.dart`.
-- [ ] Create `features/reports/presentation/member/sections/pending_requests_panel.dart`.
-- [ ] Create `features/reports/presentation/member/sections/distributions_panel.dart`.
-- [ ] Keep old `member_report.dart` as adapter/export if needed.
+- [x] Create `features/reports/presentation/member/member_report_page.dart`.
+- [x] Create `features/reports/presentation/member/sections/member_summary_section.dart`.
+- [x] Create `features/reports/presentation/member/sections/transaction_panel.dart`.
+- [x] Create `features/reports/presentation/member/sections/pending_requests_panel.dart`.
+- [x] Create `features/reports/presentation/member/sections/distributions_panel.dart`.
+- [x] Keep old `member_report.dart` as adapter/export if needed.
 
 ### `investment_page.dart`
 
-- [ ] Create `features/investments/presentation/list/investment_page.dart`.
-- [ ] Create `features/investments/presentation/list/investments_header.dart`.
-- [ ] Create `features/investments/presentation/list/investment_full_card.dart`.
-- [ ] Create `features/investments/presentation/list/close_investment_sheet.dart`.
-- [ ] Keep investment controller behavior unchanged.
+- [x] Create `features/investments/presentation/list/investment_page.dart`.
+- [x] Create `features/investments/presentation/list/investments_header.dart`.
+- [x] Create `features/investments/presentation/list/investment_full_card.dart`.
+- [x] Create `features/investments/presentation/list/close_investment_sheet.dart`.
+- [x] Keep investment controller behavior unchanged.
 
 ### Acceptance Checks
 
-- [ ] Home, member report, and investment routes still resolve.
-- [ ] Existing callbacks still fire.
+- [x] Home, member report, and investment routes still resolve.
+- [x] Existing callbacks still fire.
 - [ ] `flutter analyze` passes.
 
 ## Phase 11 - Tests

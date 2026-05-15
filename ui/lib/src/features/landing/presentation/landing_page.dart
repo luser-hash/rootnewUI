@@ -22,16 +22,11 @@ import '../../submissions/data/capital_submission_repository.dart';
 import 'landing_approval_summary_controller.dart';
 import 'landing_hero_summary_controller.dart';
 
-class _StatusBar extends StatelessWidget {
-  const _StatusBar({required this.dark});
-
-  final bool dark;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(height: dark ? 0 : 0);
-  }
-}
+part 'widgets/home_status_bar.dart';
+part 'widgets/home_hero.dart';
+part 'widgets/quick_action_grid.dart';
+part 'widgets/members_carousel.dart';
+part 'widgets/recent_activity_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -122,7 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _buildHero(totalCapital, totalPending, role),
-        if (role.canViewApprovals && pendingCount > 0) _buildAlert(pendingCount),
+        if (role.canViewApprovals && pendingCount > 0)
+          _buildAlert(pendingCount),
         _buildQuickActions(pendingCount, role),
         _InvestmentsPreviewSection(
           repository: widget.investmentRepository,
@@ -333,9 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 Text(
-                                  _balanceHidden
-                                      ? '••••'
-                                      : fmtSh(totalPending),
+                                  _balanceHidden ? '••••' : fmtSh(totalPending),
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
@@ -667,220 +661,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _HeroIconButton extends StatelessWidget {
-  const _HeroIconButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: Colors.white.withValues(alpha: .15),
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
-          child: SizedBox(
-            width: 42,
-            height: 42,
-            child: Icon(icon, size: 20, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickAction {
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.color,
-    this.screen,
-    this.badge = 0,
-  });
-
-  final String icon;
-  final String label;
-  final Color color;
-  final String? screen;
-  final int badge;
-}
-
-class _MembersCarousel extends StatefulWidget {
-  const _MembersCarousel({
-    required this.repository,
-    required this.onNav,
-    required this.onMemberSelect,
-  });
-
-  final MemberManagementRepository repository;
-  final ValueChanged<String> onNav;
-  final void Function(Member member, int memberColorIdx) onMemberSelect;
-
-  @override
-  State<_MembersCarousel> createState() => _MembersCarouselState();
-}
-
-class _MembersCarouselState extends State<_MembersCarousel> {
-  late final MemberListController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = MemberListController(repository: widget.repository);
-    _controller.load();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _Section(
-      title: 'Members',
-      actionLabel: 'See All →',
-      onAction: () => widget.onNav(RouteNames.members),
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (BuildContext context, _) {
-          return _buildBody();
-        },
-      ),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_controller.isLoading) {
-      return const SizedBox(
-        height: 110,
-        child: Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
-    }
-
-    final String? error = _controller.errorMessage;
-    if (error != null) {
-      return _MemberCarouselMessage(message: error);
-    }
-
-    final List<ManagedUser> users = _controller.users;
-    if (users.isEmpty) {
-      return const _MemberCarouselMessage(message: 'No members found.');
-    }
-
-    return SizedBox(
-      height: 110,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: users.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemBuilder: (BuildContext context, int index) {
-          final ManagedUser user = users[index];
-          final Member member = user.toMember();
-          return InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () => widget.onMemberSelect(member, index),
-            child: Container(
-              width: 72,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 14,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: <BoxShadow>[
-                  AppColors.softShadow(opacity: 0.15, blur: 8),
-                ],
-              ),
-              child: Column(
-                children: <Widget>[
-                  AppAvatar(
-                    initials: member.initials,
-                    color: avatarColor(index),
-                    size: 44,
-                    radius: 14,
-                    active: member.status == MemberStatus.active,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _firstName(member.name),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      height: 1.3,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textMid,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    user.role.label,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textMute,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  String _firstName(String value) {
-    final String trimmed = value.trim();
-    if (trimmed.isEmpty) {
-      return 'Member';
-    }
-    return trimmed.split(RegExp(r'\s+')).first;
-  }
-}
-
-class _MemberCarouselMessage extends StatelessWidget {
-  const _MemberCarouselMessage({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 110,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 8)],
-      ),
-      child: Text(
-        message,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 12, color: AppColors.textMute),
-      ),
-    );
-  }
-}
-
 class _InvestmentsPreviewSection extends StatefulWidget {
   const _InvestmentsPreviewSection({
     required this.repository,
@@ -913,46 +693,46 @@ class _InvestmentsPreviewSectionState
       onAction: () => widget.onNav(RouteNames.investments),
       child: FutureBuilder<List<Investment>>(
         future: _future,
-        builder: (
-          BuildContext context,
-          AsyncSnapshot<List<Investment>> snapshot,
-        ) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const SizedBox(
-              height: 150,
-              child: Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              ),
-            );
-          }
+        builder:
+            (BuildContext context, AsyncSnapshot<List<Investment>> snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const SizedBox(
+                  height: 150,
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                );
+              }
 
-          if (snapshot.hasError) {
-            return const _InvestmentPreviewMessage(
-              message: 'Unable to load investments.',
-            );
-          }
+              if (snapshot.hasError) {
+                return const _InvestmentPreviewMessage(
+                  message: 'Unable to load investments.',
+                );
+              }
 
-          final List<Investment> investments =
-              snapshot.data ?? <Investment>[];
-          if (investments.isEmpty) {
-            return const _InvestmentPreviewMessage(
-              message: 'No investments found.',
-            );
-          }
+              final List<Investment> investments =
+                  snapshot.data ?? <Investment>[];
+              if (investments.isEmpty) {
+                return const _InvestmentPreviewMessage(
+                  message: 'No investments found.',
+                );
+              }
 
-          return SizedBox(
-            height: 186,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemCount: investments.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 12),
-              itemBuilder: (BuildContext context, int index) {
-                return _InvestmentPreviewCard(investment: investments[index]);
-              },
-            ),
-          );
-        },
+              return SizedBox(
+                height: 186,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: investments.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 12),
+                  itemBuilder: (BuildContext context, int index) {
+                    return _InvestmentPreviewCard(
+                      investment: investments[index],
+                    );
+                  },
+                ),
+              );
+            },
       ),
     );
   }
@@ -1052,324 +832,6 @@ class _InvestmentPreviewMessage extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 8)],
-      ),
-      child: Text(
-        message,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 12, color: AppColors.textMute),
-      ),
-    );
-  }
-}
-
-class _RecentActivitySection extends StatefulWidget {
-  const _RecentActivitySection({
-    required this.repository,
-    required this.onNav,
-  });
-
-  final ActivityRepository repository;
-  final ValueChanged<String> onNav;
-
-  @override
-  State<_RecentActivitySection> createState() => _RecentActivitySectionState();
-}
-
-class _RecentActivitySectionState extends State<_RecentActivitySection> {
-  static const Duration _pollInterval = Duration(seconds: 30);
-
-  ActivityFeed? _feed;
-  Object? _error;
-  bool _loading = true;
-  int _requestId = 0;
-  Timer? _pollTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-    _pollTimer = Timer.periodic(_pollInterval, (_) => _load(silent: true));
-  }
-
-  @override
-  void dispose() {
-    _pollTimer?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _load({bool silent = false}) async {
-    final int requestId = ++_requestId;
-    if (!silent) {
-      setState(() {
-        _loading = true;
-        _error = null;
-      });
-    }
-
-    try {
-      final ActivityFeed feed = await widget.repository.feed();
-      if (!mounted || requestId != _requestId) {
-        return;
-      }
-      setState(() {
-        _feed = feed;
-        _error = null;
-        _loading = false;
-      });
-    } catch (error) {
-      if (!mounted || requestId != _requestId) {
-        return;
-      }
-      setState(() {
-        _error = error;
-        _loading = false;
-      });
-    }
-  }
-
-  Widget _buildActivityContent() {
-    if (_loading && _feed == null) {
-      return const _RecentActivityMessage(
-        message: 'Loading recent activity...',
-      );
-    }
-
-    if (_error != null && _feed == null) {
-      return const _RecentActivityMessage(
-        message: 'Unable to load recent activity.',
-      );
-    }
-
-    final List<ActivityEvent> events = _feed?.events ?? <ActivityEvent>[];
-    if (events.isEmpty) {
-      return const _RecentActivityMessage(
-        message: 'No recent activity found.',
-      );
-    }
-
-    return AppCardList(
-      children: events.asMap().entries.map(
-        (MapEntry<int, ActivityEvent> entry) {
-          return _ActivityEventRow(
-            event: entry.value,
-            isLast: entry.key == events.length - 1,
-          );
-        },
-      ).toList(),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final UserRole role = AuthScope.of(context).role;
-
-    return _Section(
-      title: 'Recent Activity',
-      actionLabel: 'Ledger →',
-      onAction: () => widget.onNav(
-        role.canViewAllLedger ? RouteNames.ledger : RouteNames.memberLedger,
-      ),
-      paddingBottom: 24,
-      child: _buildActivityContent(),
-    );
-  }
-}
-
-class _ActivityEventRow extends StatelessWidget {
-  const _ActivityEventRow({
-    required this.event,
-    required this.isLast,
-  });
-
-  final ActivityEvent event;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    final _ActivityVisual visual = _activityVisual(event);
-    final String? amount = _formatActivityAmount(event);
-    final String date = _formatActivityDate(event.occurredAt);
-
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: isLast
-              ? BorderSide.none
-              : const BorderSide(color: AppColors.border),
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: visual.background,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(visual.icon, size: 20, color: visual.foreground),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  valueOrDash(event.title),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.text,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  valueOrDash(event.detail),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textMute,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              if (amount != null)
-                Text(
-                  amount,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: visual.foreground,
-                  ),
-                ),
-              if (amount != null) const SizedBox(height: 2),
-              Text(
-                date,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textMute,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActivityVisual {
-  const _ActivityVisual({
-    required this.icon,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final Color background;
-  final Color foreground;
-}
-
-_ActivityVisual _activityVisual(ActivityEvent event) {
-  final String eventType = event.eventType.toUpperCase();
-  final num amount = num.tryParse(event.amount ?? '') ?? 0;
-  if (amount < 0 || eventType.contains('REJECTED')) {
-    return const _ActivityVisual(
-      icon: Icons.north_rounded,
-      background: AppColors.redLt,
-      foreground: AppColors.red,
-    );
-  }
-
-  if (eventType.contains('DISTRIBUTION')) {
-    return const _ActivityVisual(
-      icon: Icons.call_split_rounded,
-      background: AppColors.blueLt,
-      foreground: AppColors.blue,
-    );
-  }
-
-  if (eventType.contains('INVESTMENT')) {
-    return const _ActivityVisual(
-      icon: Icons.account_balance_rounded,
-      background: AppColors.blueLt,
-      foreground: AppColors.blue,
-    );
-  }
-
-  if (eventType.contains('MEMBER')) {
-    return const _ActivityVisual(
-      icon: Icons.person_add_alt_1_rounded,
-      background: AppColors.purpleLt,
-      foreground: AppColors.primary,
-    );
-  }
-
-  return const _ActivityVisual(
-    icon: Icons.south_rounded,
-    background: AppColors.greenLt,
-    foreground: AppColors.green,
-  );
-}
-
-String? _formatActivityAmount(ActivityEvent event) {
-  final num? value = num.tryParse(event.amount ?? '');
-  if (value == null) {
-    return null;
-  }
-  if (value > 0) {
-    return '+${fmt(value)}';
-  }
-  return formatMoneySigned(value);
-}
-
-String _formatActivityDate(DateTime? value) {
-  if (value == null) {
-    return '-';
-  }
-  const List<String> months = <String>[
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  final DateTime local = value.toLocal();
-  return '${local.day.toString().padLeft(2, '0')} ${months[local.month - 1]}';
-}
-
-class _RecentActivityMessage extends StatelessWidget {
-  const _RecentActivityMessage({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 110,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow()],
       ),
       child: Text(
         message,
