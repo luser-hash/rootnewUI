@@ -350,20 +350,20 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ### Unit Tests
 
-- [ ] Add tests for signed money formatting.
-- [ ] Add tests for unsigned money formatting.
-- [ ] Add tests for compact money formatting.
-- [ ] Add tests for `valueOrDash`.
-- [ ] Add tests for `prettyEnumLabel`.
-- [ ] Add tests for date formatting null behavior.
+- [x] Add tests for signed money formatting.
+- [x] Add tests for unsigned money formatting.
+- [x] Add tests for compact money formatting.
+- [x] Add tests for `valueOrDash`.
+- [x] Add tests for `prettyEnumLabel`.
+- [x] Add tests for date formatting null behavior.
 
 ### Widget Tests
 
-- [ ] Add smoke test for `AppMessageCard`.
-- [ ] Add smoke test for `AppDetailRow`.
-- [ ] Add smoke test for `AppStatusPill`.
-- [ ] Add smoke test for shared form fields.
-- [ ] Add smoke test for shared table widgets.
+- [x] Add smoke test for `AppMessageCard`.
+- [x] Add smoke test for `AppDetailRow`.
+- [x] Add smoke test for `AppStatusPill`.
+- [x] Add smoke test for shared form fields.
+- [x] Add smoke test for shared table widgets.
 
 ### Manual Verification
 
