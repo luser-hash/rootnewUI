@@ -92,13 +92,14 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color background = AppThemeColors.card(context);
+    final Color border = AppThemeColors.border(context);
+    final Color inactiveText = AppThemeColors.textMuted(context);
     final bool dark = Theme.of(context).brightness == Brightness.dark;
-    final Color background = dark ? const Color(0xFF10201D) : AppColors.white;
-    final Color border = dark ? const Color(0xFF29413D) : AppColors.border;
-    final Color inactiveText = dark
-        ? const Color(0xFFAFC4C0)
-        : AppColors.textMute;
-    final Color shadow = dark ? Colors.black : AppColors.primary;
+    final Color shadow = AppThemeColors.shadow(
+      context,
+    ).withValues(alpha: dark ? .28 : .08);
+    final Color activeColor = Theme.of(context).colorScheme.primary;
 
     return Container(
       height: 76,
@@ -107,11 +108,7 @@ class _BottomNav extends StatelessWidget {
         color: background,
         border: Border(top: BorderSide(color: border)),
         boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: shadow.withValues(alpha: dark ? .28 : .08),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
+          BoxShadow(color: shadow, blurRadius: 20, offset: const Offset(0, -4)),
         ],
       ),
       child: Row(
@@ -143,9 +140,7 @@ class _BottomNav extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
-                        color: active
-                            ? (dark ? AppColors.primaryLt : AppColors.primary)
-                            : inactiveText,
+                        color: active ? activeColor : inactiveText,
                         letterSpacing: 0.2,
                         height: 1.1,
                       ),
@@ -156,7 +151,7 @@ class _BottomNav extends StatelessWidget {
                       width: active ? 4 : 0,
                       height: active ? 4 : 0,
                       decoration: BoxDecoration(
-                        color: dark ? AppColors.primaryLt : AppColors.primary,
+                        color: activeColor,
                         shape: BoxShape.circle,
                       ),
                     ),

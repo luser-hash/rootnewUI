@@ -8,15 +8,15 @@ class AppTableHeader extends StatelessWidget {
     super.key,
     required this.cells,
     this.padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-    this.background = AppColors.surface,
-    this.borderColor = AppColors.border,
+    this.background,
+    this.borderColor,
     this.expandCells = true,
   });
 
   final List<Widget> cells;
   final EdgeInsetsGeometry padding;
-  final Color background;
-  final Color borderColor;
+  final Color? background;
+  final Color? borderColor;
   final bool expandCells;
 
   @override
@@ -24,8 +24,10 @@ class AppTableHeader extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: background,
-        border: Border(top: BorderSide(color: borderColor)),
+        color: background ?? AppThemeColors.surface(context),
+        border: Border(
+          top: BorderSide(color: borderColor ?? AppThemeColors.border(context)),
+        ),
       ),
       child: Row(
         children: expandCells
@@ -42,8 +44,8 @@ class AppTableRow extends StatelessWidget {
     required this.cells,
     this.onTap,
     this.padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-    this.background = AppColors.white,
-    this.borderColor = AppColors.border,
+    this.background,
+    this.borderColor,
     this.showTopBorder = true,
     this.showBottomBorder = false,
     this.expandCells = true,
@@ -52,16 +54,18 @@ class AppTableRow extends StatelessWidget {
   final List<Widget> cells;
   final VoidCallback? onTap;
   final EdgeInsetsGeometry padding;
-  final Color background;
-  final Color borderColor;
+  final Color? background;
+  final Color? borderColor;
   final bool showTopBorder;
   final bool showBottomBorder;
   final bool expandCells;
 
   @override
   Widget build(BuildContext context) {
+    final Color resolvedBorder = borderColor ?? AppThemeColors.border(context);
+
     return Material(
-      color: background,
+      color: background ?? AppThemeColors.card(context),
       child: InkWell(
         onTap: onTap,
         child: Container(
@@ -69,10 +73,10 @@ class AppTableRow extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               top: showTopBorder
-                  ? BorderSide(color: borderColor)
+                  ? BorderSide(color: resolvedBorder)
                   : BorderSide.none,
               bottom: showBottomBorder
-                  ? BorderSide(color: borderColor)
+                  ? BorderSide(color: resolvedBorder)
                   : BorderSide.none,
             ),
           ),
@@ -98,10 +102,10 @@ class AppHeaderCell extends StatelessWidget {
     return Text(
       text,
       textAlign: textAlign,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w900,
-        color: AppColors.textMute,
+        color: AppThemeColors.textMuted(context),
       ),
     );
   }
@@ -111,7 +115,7 @@ class AppTextCell extends StatelessWidget {
   const AppTextCell(
     this.value, {
     super.key,
-    this.color = AppColors.text,
+    this.color,
     this.maxLines = 2,
     this.mono = false,
     this.textAlign,
@@ -120,7 +124,7 @@ class AppTextCell extends StatelessWidget {
   });
 
   final String value;
-  final Color color;
+  final Color? color;
   final int maxLines;
   final bool mono;
   final TextAlign? textAlign;
@@ -138,7 +142,7 @@ class AppTextCell extends StatelessWidget {
         fontSize: fontSize,
         height: 1.25,
         fontWeight: fontWeight,
-        color: color,
+        color: color ?? AppThemeColors.text(context),
         fontFeatures: mono
             ? const <FontFeature>[FontFeature.tabularFigures()]
             : null,
@@ -151,7 +155,7 @@ class AppMoneyCell extends StatelessWidget {
   const AppMoneyCell(
     this.value, {
     super.key,
-    this.color = AppColors.text,
+    this.color,
     this.textAlign = TextAlign.end,
     this.signed = true,
     this.fontSize = 12,
@@ -159,7 +163,7 @@ class AppMoneyCell extends StatelessWidget {
   });
 
   final String value;
-  final Color color;
+  final Color? color;
   final TextAlign textAlign;
   final bool signed;
   final double fontSize;
@@ -177,7 +181,7 @@ class AppMoneyCell extends StatelessWidget {
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: fontWeight,
-        color: color,
+        color: color ?? AppThemeColors.text(context),
         fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
       ),
     );
@@ -205,6 +209,7 @@ class AppSortableHeaderCell<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool selected = field == active;
+    final Color activeColor = Theme.of(context).colorScheme.primary;
     return InkWell(
       onTap: () => onTap(field),
       child: Row(
@@ -217,7 +222,7 @@ class AppSortableHeaderCell<T> extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w900,
-              color: selected ? AppColors.primary : AppColors.textMute,
+              color: selected ? activeColor : AppThemeColors.textMuted(context),
             ),
           ),
           if (selected)
@@ -226,7 +231,7 @@ class AppSortableHeaderCell<T> extends StatelessWidget {
                   ? Icons.arrow_drop_up_rounded
                   : Icons.arrow_drop_down_rounded,
               size: 18,
-              color: AppColors.primary,
+              color: activeColor,
             ),
         ],
       ),

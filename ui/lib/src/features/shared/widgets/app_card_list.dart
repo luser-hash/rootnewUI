@@ -14,9 +14,15 @@ class AppCardList extends StatelessWidget {
       margin: margin,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow()],
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .15),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(children: children),
     );

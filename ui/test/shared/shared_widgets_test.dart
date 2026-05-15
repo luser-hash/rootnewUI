@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ui/core/theme/app_theme.dart';
 import 'package:ui/src/features/shared/widgets/app_data_table.dart';
 import 'package:ui/src/features/shared/widgets/app_detail_row.dart';
 import 'package:ui/src/features/shared/widgets/app_form_fields.dart';
 import 'package:ui/src/features/shared/widgets/app_message_card.dart';
+import 'package:ui/src/features/shared/widgets/app_panel.dart';
 import 'package:ui/src/features/shared/widgets/status_pills.dart';
 
 void main() {
@@ -55,6 +57,49 @@ void main() {
     );
 
     expect(find.text('APPROVED'), findsOneWidget);
+  });
+
+  testWidgets('shared widgets use semantic dark colors', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.darkTheme,
+        home: const Scaffold(
+          body: Column(
+            children: <Widget>[
+              AppPanel(key: Key('panel'), child: Text('Panel')),
+              AppMessageCard(
+                title: 'Saved',
+                message: 'Done',
+                tone: AppMessageTone.success,
+              ),
+              AppStatusPill(label: 'APPROVED'),
+              AppTableHeader(cells: <Widget>[AppHeaderCell('Name')]),
+              AppTableRow(cells: <Widget>[AppTextCell('Capital')]),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final Container panel = tester.widget<Container>(
+      find.descendant(
+        of: find.byKey(const Key('panel')),
+        matching: find.byType(Container),
+      ),
+    );
+    final BoxDecoration panelDecoration = panel.decoration! as BoxDecoration;
+    expect(panelDecoration.color, AppThemeTokens.darkCard);
+
+    final Container statusPill = tester.widget<Container>(
+      find
+          .ancestor(of: find.text('APPROVED'), matching: find.byType(Container))
+          .first,
+    );
+    final BoxDecoration statusDecoration =
+        statusPill.decoration! as BoxDecoration;
+    expect(statusDecoration.color, AppThemeTokens.dark.statusSuccessBg);
   });
 
   testWidgets('shared form fields render and accept input', (

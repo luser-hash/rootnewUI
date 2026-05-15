@@ -44,8 +44,8 @@ class AppMessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color resolvedForeground = foreground ?? _foregroundFor(tone);
-    final Color resolvedBackground = background ?? _backgroundFor(tone);
+    final Color resolvedForeground = foreground ?? _foregroundFor(context);
+    final Color resolvedBackground = background ?? _backgroundFor(context);
     final double resolvedIconSize = iconSize ?? (compact ? 18 : 22);
 
     return Container(
@@ -92,7 +92,7 @@ class AppMessageCard extends StatelessWidget {
                     fontSize: compact ? 11 : 13,
                     height: 1.35,
                     fontWeight: FontWeight.w700,
-                    color: textColor ?? AppColors.textMid,
+                    color: textColor ?? AppThemeColors.textMid(context),
                   ),
                 ),
               ],
@@ -103,23 +103,23 @@ class AppMessageCard extends StatelessWidget {
     );
   }
 
-  Color _backgroundFor(AppMessageTone tone) {
+  Color _backgroundFor(BuildContext context) {
     return switch (tone) {
-      AppMessageTone.info => AppColors.blueLt,
-      AppMessageTone.success => AppColors.greenLt,
-      AppMessageTone.warning => AppColors.amberLt,
-      AppMessageTone.error => AppColors.redLt,
-      AppMessageTone.neutral => AppColors.surface,
+      AppMessageTone.info => AppThemeColors.statusInfoBg(context),
+      AppMessageTone.success => AppThemeColors.statusSuccessBg(context),
+      AppMessageTone.warning => AppThemeColors.statusWarningBg(context),
+      AppMessageTone.error => AppThemeColors.statusErrorBg(context),
+      AppMessageTone.neutral => AppThemeColors.statusNeutralBg(context),
     };
   }
 
-  Color _foregroundFor(AppMessageTone tone) {
+  Color _foregroundFor(BuildContext context) {
     return switch (tone) {
-      AppMessageTone.info => AppColors.blue,
-      AppMessageTone.success => AppColors.green,
-      AppMessageTone.warning => AppColors.amber,
-      AppMessageTone.error => AppColors.red,
-      AppMessageTone.neutral => AppColors.textMute,
+      AppMessageTone.info => AppThemeColors.statusInfoFg(context),
+      AppMessageTone.success => AppThemeColors.statusSuccessFg(context),
+      AppMessageTone.warning => AppThemeColors.statusWarningFg(context),
+      AppMessageTone.error => AppThemeColors.statusErrorFg(context),
+      AppMessageTone.neutral => AppThemeColors.statusNeutralFg(context),
     };
   }
 

@@ -10,10 +10,10 @@ class AppDetailRow extends StatelessWidget {
     required this.value,
     this.icon,
     this.isLast = false,
-    this.valueColor = AppColors.text,
+    this.valueColor,
     this.labelWidth,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    this.iconBackground = AppColors.greenLt,
+    this.iconBackground,
     this.iconColor = AppColors.primary,
     this.showDivider = true,
     this.valueTextAlign = TextAlign.start,
@@ -26,10 +26,10 @@ class AppDetailRow extends StatelessWidget {
   final String value;
   final IconData? icon;
   final bool isLast;
-  final Color valueColor;
+  final Color? valueColor;
   final double? labelWidth;
   final EdgeInsetsGeometry padding;
-  final Color iconBackground;
+  final Color? iconBackground;
   final Color iconColor;
   final bool showDivider;
   final TextAlign valueTextAlign;
@@ -44,21 +44,21 @@ class AppDetailRow extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: showDivider && !isLast
-              ? const BorderSide(color: AppColors.border)
+              ? BorderSide(color: AppThemeColors.divider(context))
               : BorderSide.none,
         ),
       ),
-      child: icon == null ? _buildPlainRow() : _buildIconRow(),
+      child: icon == null ? _buildPlainRow(context) : _buildIconRow(context),
     );
   }
 
-  Widget _buildPlainRow() {
+  Widget _buildPlainRow(BuildContext context) {
     final Widget labelWidget = Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w700,
-        color: AppColors.textMute,
+        color: AppThemeColors.textMuted(context),
       ),
     );
 
@@ -80,7 +80,7 @@ class AppDetailRow extends StatelessWidget {
               fontSize: labelExpanded ? 13 : 12,
               height: 1.35,
               fontWeight: valueWeight,
-              color: valueColor,
+              color: valueColor ?? AppThemeColors.text(context),
             ),
           ),
         ),
@@ -88,7 +88,7 @@ class AppDetailRow extends StatelessWidget {
     );
   }
 
-  Widget _buildIconRow() {
+  Widget _buildIconRow(BuildContext context) {
     return Row(
       children: <Widget>[
         Container(
@@ -96,7 +96,7 @@ class AppDetailRow extends StatelessWidget {
           height: 40,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: iconBackground,
+            color: iconBackground ?? AppThemeColors.statusSuccessBg(context),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, size: 20, color: iconColor),
@@ -108,10 +108,10 @@ class AppDetailRow extends StatelessWidget {
             children: <Widget>[
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textMute,
+                  color: AppThemeColors.textMuted(context),
                 ),
               ),
               const SizedBox(height: 3),
@@ -122,7 +122,7 @@ class AppDetailRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: valueWeight,
-                  color: valueColor,
+                  color: valueColor ?? AppThemeColors.text(context),
                 ),
               ),
             ],

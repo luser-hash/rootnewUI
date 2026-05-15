@@ -48,9 +48,14 @@ class AppAvatar extends StatelessWidget {
               width: size >= 46 ? 13 : 12,
               height: size >= 46 ? 13 : 12,
               decoration: BoxDecoration(
-                color: active! ? AppColors.green : AppColors.textMute,
+                color: active!
+                    ? AppThemeColors.statusSuccessFg(context)
+                    : AppThemeColors.textMuted(context),
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.white, width: 2),
+                border: Border.all(
+                  color: AppThemeColors.card(context),
+                  width: 2,
+                ),
               ),
             ),
           ),

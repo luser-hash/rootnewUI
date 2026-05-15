@@ -11,10 +11,10 @@ class AppSectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w800,
-        color: AppColors.text,
+        color: AppThemeColors.text(context),
       ),
     );
   }
@@ -76,12 +76,13 @@ class AppTextFormField extends StatelessWidget {
       enabled: enabled,
       textInputAction: textInputAction,
       onFieldSubmitted: onFieldSubmitted,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w700,
-        color: AppColors.text,
+        color: AppThemeColors.text(context),
       ),
       decoration: appFormFieldDecoration(
+        context: context,
         label: label,
         hint: hint,
         prefixIcon: icon,
@@ -139,7 +140,7 @@ class AppPasswordField extends StatelessWidget {
           obscureText
               ? Icons.visibility_outlined
               : Icons.visibility_off_outlined,
-          color: AppColors.textMute,
+          color: AppThemeColors.textMuted(context),
         ),
         tooltip: obscureText ? 'Show password' : 'Hide password',
       ),
@@ -180,6 +181,7 @@ class AppDropdownField<T> extends StatelessWidget {
     return DropdownButtonFormField<T>(
       initialValue: value,
       decoration: appFormFieldDecoration(
+        context: context,
         label: label,
         hint: hint,
         prefixIcon: icon,
@@ -233,6 +235,7 @@ class AppDateField extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         child: InputDecorator(
           decoration: appFormFieldDecoration(
+            context: context,
             label: label,
             hint: hint ?? label,
             prefixIcon: icon,
@@ -240,13 +243,13 @@ class AppDateField extends StatelessWidget {
             focusedBorderWidth: focusedBorderWidth,
             borderSideNone: borderSideNone,
           ),
-          child: Text(_formatDate(value), style: _fieldTextStyle),
+          child: Text(_formatDate(value), style: _fieldTextStyle(context)),
         ),
       );
     }
 
     return Material(
-      color: AppColors.surface,
+      color: AppThemeColors.surface(context),
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
@@ -255,21 +258,21 @@ class AppDateField extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppThemeColors.border(context)),
           ),
           child: Row(
             children: <Widget>[
-              Icon(icon, color: AppColors.textMute),
+              Icon(icon, color: AppThemeColors.textMuted(context)),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   '$label: ${_formatDate(value)}',
-                  style: _fieldTextStyle,
+                  style: _fieldTextStyle(context),
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
               ),
             ],
           ),
@@ -296,15 +299,17 @@ class AppReadOnlyField extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppThemeColors.surface(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppThemeColors.border(context)),
       ),
       child: Row(
         children: <Widget>[
-          Icon(icon, color: AppColors.textMute),
+          Icon(icon, color: AppThemeColors.textMuted(context)),
           const SizedBox(width: 12),
-          Expanded(child: Text('$label: $value', style: _fieldTextStyle)),
+          Expanded(
+            child: Text('$label: $value', style: _fieldTextStyle(context)),
+          ),
         ],
       ),
     );
@@ -312,6 +317,7 @@ class AppReadOnlyField extends StatelessWidget {
 }
 
 InputDecoration appFormFieldDecoration({
+  BuildContext? context,
   required String label,
   String? hint,
   required IconData prefixIcon,
@@ -323,32 +329,34 @@ InputDecoration appFormFieldDecoration({
   bool borderSideNone = true,
   double focusedBorderWidth = 1.4,
 }) {
+  final AppThemeTokens tokens = context == null
+      ? AppThemeTokens.light
+      : AppThemeColors.of(context);
+
   return InputDecoration(
     labelText: label,
     hintText: hint,
-    prefixIcon: Icon(
-      prefixIcon,
-      size: prefixIconSize,
-      color: AppColors.textMute,
-    ),
+    prefixIcon: Icon(prefixIcon, size: prefixIconSize, color: tokens.textMuted),
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: AppColors.surface,
+    fillColor: tokens.surface,
     contentPadding: contentPadding,
-    labelStyle: labelStyle,
-    hintStyle: hintStyle,
+    labelStyle: labelStyle ?? TextStyle(color: tokens.textMid),
+    hintStyle: hintStyle ?? TextStyle(color: tokens.textMuted),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
       borderSide: borderSideNone ? BorderSide.none : const BorderSide(),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: tokens.border),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
       borderSide: BorderSide(
-        color: AppColors.primary,
+        color: context == null
+            ? AppColors.primary
+            : Theme.of(context).colorScheme.primary,
         width: focusedBorderWidth,
       ),
     ),
@@ -369,8 +377,10 @@ String _formatDate(DateTime value) {
   return '${value.year}-$month-$day';
 }
 
-const TextStyle _fieldTextStyle = TextStyle(
-  fontSize: 14,
-  fontWeight: FontWeight.w700,
-  color: AppColors.text,
-);
+TextStyle _fieldTextStyle(BuildContext context) {
+  return TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w700,
+    color: AppThemeColors.text(context),
+  );
+}

@@ -9,12 +9,12 @@ class AppDetailBlock extends StatelessWidget {
     required this.label,
     required this.value,
     this.icon,
-    this.background = AppColors.surface,
+    this.background,
     this.borderColor,
     this.padding = const EdgeInsets.all(12),
     this.borderRadius = 12,
     this.selectable = false,
-    this.valueColor = AppColors.text,
+    this.valueColor,
     this.valueMaxLines,
     this.valueOverflow = TextOverflow.ellipsis,
     this.fullWidth = false,
@@ -28,12 +28,12 @@ class AppDetailBlock extends StatelessWidget {
   final String label;
   final String value;
   final IconData? icon;
-  final Color background;
+  final Color? background;
   final Color? borderColor;
   final EdgeInsetsGeometry padding;
   final double borderRadius;
   final bool selectable;
-  final Color valueColor;
+  final Color? valueColor;
   final int? valueMaxLines;
   final TextOverflow valueOverflow;
   final bool fullWidth;
@@ -46,12 +46,14 @@ class AppDetailBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String displayValue = valueOrDash(value);
+    final Color resolvedValueColor = valueColor ?? AppThemeColors.text(context);
+    final Color mutedText = AppThemeColors.textMuted(context);
 
     return Container(
       width: fullWidth ? double.infinity : null,
       padding: padding,
       decoration: BoxDecoration(
-        color: background,
+        color: background ?? AppThemeColors.surface(context),
         borderRadius: BorderRadius.circular(borderRadius),
         border: borderColor == null ? null : Border.all(color: borderColor!),
       ),
@@ -65,7 +67,7 @@ class AppDetailBlock extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               if (icon != null) ...<Widget>[
-                Icon(icon, size: 14, color: AppColors.textMute),
+                Icon(icon, size: 14, color: mutedText),
                 const SizedBox(width: 6),
               ],
               Flexible(
@@ -76,7 +78,7 @@ class AppDetailBlock extends StatelessWidget {
                   style: TextStyle(
                     fontSize: labelFontSize,
                     fontWeight: labelWeight,
-                    color: AppColors.textMute,
+                    color: mutedText,
                     letterSpacing: 0.4,
                   ),
                 ),
@@ -91,7 +93,7 @@ class AppDetailBlock extends StatelessWidget {
                     fontSize: valueFontSize,
                     height: 1.35,
                     fontWeight: valueWeight,
-                    color: valueColor,
+                    color: resolvedValueColor,
                   ),
                 )
               : Text(
@@ -102,7 +104,7 @@ class AppDetailBlock extends StatelessWidget {
                     fontSize: valueFontSize,
                     height: 1.35,
                     fontWeight: valueWeight,
-                    color: valueColor,
+                    color: resolvedValueColor,
                   ),
                 ),
         ],

@@ -8,8 +8,8 @@ class AppPanel extends StatelessWidget {
     required this.child,
     this.padding,
     this.margin,
-    this.background = AppColors.white,
-    this.borderColor = AppColors.border,
+    this.background,
+    this.borderColor,
     this.borderRadius = 18,
     this.shadowOpacity = 0.08,
     this.shadowBlur = 10,
@@ -19,8 +19,8 @@ class AppPanel extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
-  final Color background;
-  final Color borderColor;
+  final Color? background;
+  final Color? borderColor;
   final double borderRadius;
   final double shadowOpacity;
   final double shadowBlur;
@@ -28,15 +28,25 @@ class AppPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color shadow = AppThemeColors.shadow(
+      context,
+    ).withValues(alpha: shadowOpacity);
+
     return Container(
       margin: margin,
       clipBehavior: clipBehavior,
       decoration: BoxDecoration(
-        color: background,
+        color: background ?? AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: borderColor),
+        border: Border.all(
+          color: borderColor ?? AppThemeColors.border(context),
+        ),
         boxShadow: <BoxShadow>[
-          AppColors.softShadow(opacity: shadowOpacity, blur: shadowBlur),
+          BoxShadow(
+            color: shadow,
+            blurRadius: shadowBlur,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: padding == null ? child : Padding(padding: padding!, child: child),
@@ -71,10 +81,10 @@ class AppSection extends StatelessWidget {
             title,
             style:
                 titleStyle ??
-                const TextStyle(
+                TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.text,
+                  color: AppThemeColors.text(context),
                 ),
           ),
           SizedBox(height: spacing),

@@ -8,8 +8,8 @@ class AppMetricCard extends StatelessWidget {
     super.key,
     required this.label,
     required this.value,
-    this.color = AppColors.text,
-    this.background = AppColors.white,
+    this.color,
+    this.background,
     this.borderColor,
     this.borderRadius = 16,
     this.boxShadow,
@@ -31,8 +31,8 @@ class AppMetricCard extends StatelessWidget {
 
   final String label;
   final String value;
-  final Color color;
-  final Color background;
+  final Color? color;
+  final Color? background;
   final Color? borderColor;
   final double borderRadius;
   final List<BoxShadow>? boxShadow;
@@ -54,16 +54,18 @@ class AppMetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final BorderRadius radius = BorderRadius.circular(borderRadius);
+    final Color resolvedColor = color ?? AppThemeColors.text(context);
+    final Color resolvedBackground = background ?? AppThemeColors.card(context);
     final Widget labelText = Text(
       uppercaseLabel ? label.toUpperCase() : label,
       maxLines: labelMaxLines,
       overflow: TextOverflow.ellipsis,
       style:
           labelStyle ??
-          const TextStyle(
+          TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w800,
-            color: AppColors.textMute,
+            color: AppThemeColors.textMuted(context),
             letterSpacing: 0.4,
           ),
     );
@@ -76,7 +78,7 @@ class AppMetricCard extends StatelessWidget {
           TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: color,
+            color: resolvedColor,
             fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
           ),
     );
@@ -91,7 +93,7 @@ class AppMetricCard extends StatelessWidget {
         : _MetricIcon(
             icon: icon,
             iconText: iconText,
-            color: color,
+            color: resolvedColor,
             background: iconBackground,
             size: iconSize,
           );
@@ -118,25 +120,43 @@ class AppMetricCard extends StatelessWidget {
     );
 
     if (onTap == null) {
-      return Container(decoration: _decoration(radius), child: content);
+      return Container(
+        decoration: _decoration(
+          radius,
+          background: resolvedBackground,
+          border: borderColor,
+        ),
+        child: content,
+      );
     }
 
     return Material(
-      color: background,
+      color: resolvedBackground,
       borderRadius: radius,
       child: InkWell(
         onTap: onTap,
         borderRadius: radius,
-        child: Container(decoration: _decoration(radius), child: content),
+        child: Container(
+          decoration: _decoration(
+            radius,
+            background: resolvedBackground,
+            border: borderColor,
+          ),
+          child: content,
+        ),
       ),
     );
   }
 
-  BoxDecoration _decoration(BorderRadius radius) {
+  BoxDecoration _decoration(
+    BorderRadius radius, {
+    required Color background,
+    required Color? border,
+  }) {
     return BoxDecoration(
       color: onTap == null ? background : Colors.transparent,
       borderRadius: radius,
-      border: borderColor == null ? null : Border.all(color: borderColor!),
+      border: border == null ? null : Border.all(color: border),
       boxShadow: boxShadow,
     );
   }
@@ -148,9 +168,9 @@ class AppMoneyMetricCard extends StatelessWidget {
     required this.label,
     this.value,
     this.textValue,
-    this.color = AppColors.text,
-    this.background = AppColors.white,
-    this.borderColor = AppColors.border,
+    this.color,
+    this.background,
+    this.borderColor,
     this.icon,
     this.padding = const EdgeInsets.all(14),
     this.signed = true,
@@ -161,8 +181,8 @@ class AppMoneyMetricCard extends StatelessWidget {
   final String label;
   final num? value;
   final String? textValue;
-  final Color color;
-  final Color background;
+  final Color? color;
+  final Color? background;
   final Color? borderColor;
   final IconData? icon;
   final EdgeInsetsGeometry padding;
@@ -183,12 +203,16 @@ class AppMoneyMetricCard extends StatelessWidget {
     return AppMetricCard(
       label: label,
       value: displayValue,
-      color: color,
-      background: background,
-      borderColor: borderColor,
-      boxShadow: borderColor == null
-          ? null
-          : <BoxShadow>[AppColors.softShadow(opacity: 0.08, blur: 10)],
+      color: color ?? AppThemeColors.text(context),
+      background: background ?? AppThemeColors.card(context),
+      borderColor: borderColor ?? AppThemeColors.border(context),
+      boxShadow: <BoxShadow>[
+        BoxShadow(
+          color: AppThemeColors.shadow(context).withValues(alpha: .08),
+          blurRadius: 10,
+          offset: const Offset(0, 2),
+        ),
+      ],
       icon: icon,
       padding: padding,
       onTap: onTap,

@@ -32,7 +32,7 @@ class AppStatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ({Color background, Color foreground}) statusColors =
-        appStatusPillColors(label);
+        appStatusPillColorsForContext(context, label);
     final Color resolvedForeground =
         foreground ?? color ?? statusColors.foreground;
     final Color resolvedBackground =
@@ -74,9 +74,8 @@ class SubmissionStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ({Color background, Color foreground}) colors = appStatusPillColors(
-      status.label,
-    );
+    final ({Color background, Color foreground}) colors =
+        appStatusPillColorsForContext(context, status.label);
     return AppStatusPill(
       label: status.label,
       background: colors.background,
@@ -94,9 +93,8 @@ class InvestmentStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ({Color background, Color foreground}) colors = appStatusPillColors(
-      status.label,
-    );
+    final ({Color background, Color foreground}) colors =
+        appStatusPillColorsForContext(context, status.label);
     return AppStatusPill(
       label: status.label,
       background: colors.background,
@@ -113,15 +111,31 @@ class MemberStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ({Color background, Color foreground}) colors = appStatusPillColors(
-      status.label,
-    );
+    final ({Color background, Color foreground}) colors =
+        appStatusPillColorsForContext(context, status.label);
     return AppStatusPill(
       label: status.label,
       background: colors.background,
       foreground: colors.foreground,
     );
   }
+}
+
+({Color background, Color foreground}) appStatusPillColorsForContext(
+  BuildContext context,
+  String status,
+) {
+  return switch (status.trim().toUpperCase()) {
+    'PENDING' || 'DRAFT' => AppThemeColors.statusWarning(context),
+    'APPROVED' ||
+    'ACTIVE' ||
+    'OPEN' ||
+    'POSTED' => AppThemeColors.statusSuccess(context),
+    'REJECTED' || 'REVERSED' => AppThemeColors.statusError(context),
+    'DISTRIBUTED' => AppThemeColors.statusInfo(context),
+    'CLOSED' || 'INACTIVE' => AppThemeColors.statusNeutral(context),
+    _ => AppThemeColors.statusNeutral(context),
+  };
 }
 
 ({Color background, Color foreground}) appStatusPillColors(String status) {
