@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/theme_mode_controller.dart';
 import '../../activity/data/activity_repository.dart';
 import '../../activity/domain/activity_feed.dart';
 import '../../auth/domain/auth_session.dart';
@@ -143,6 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final String displayName = _displayName(user);
     final String initials = _initials(displayName);
     final bool showCapitalSummary = role != UserRole.member;
+    final AppThemeController themeController = AppThemeScope.of(context);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
@@ -217,6 +219,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Row(
                       children: <Widget>[
+                        _HeroIconButton(
+                          icon: themeController.isDark
+                              ? Icons.light_mode_rounded
+                              : Icons.dark_mode_rounded,
+                          tooltip: themeController.isDark
+                              ? 'Switch to light mode'
+                              : 'Switch to dark mode',
+                          onTap: themeController.toggleThemeMode,
+                        ),
+                        const SizedBox(width: 8),
                         _HeroIconButton(
                           icon: _signingOut
                               ? Icons.hourglass_empty_rounded

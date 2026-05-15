@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/network/api_client.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/theme_mode_controller.dart';
 import '../features/activity/data/activity_api.dart';
 import '../features/activity/data/activity_repository.dart';
 import '../features/auth/data/auth_api.dart';
@@ -42,12 +43,14 @@ class _AppState extends State<App> {
   late final MemberManagementRepository _memberManagementRepository;
   late final MemberReportRepository _memberReportRepository;
   late final StaffReportRepository _staffReportRepository;
+  late final AppThemeController _themeController;
   late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
 
+    _themeController = AppThemeController();
     _authStorage = SecureAuthStorage();
     late final ApiAuthRepository authRepository;
     final ApiClient apiClient = ApiClient(
@@ -105,13 +108,23 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return AuthScope(
-      controller: _authController,
-      child: MaterialApp.router(
-        title: 'Association Finance',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        routerConfig: _router,
+    return AppThemeScope(
+      controller: _themeController,
+      child: AuthScope(
+        controller: _authController,
+        child: AnimatedBuilder(
+          animation: _themeController,
+          builder: (BuildContext context, _) {
+            return MaterialApp.router(
+              title: 'Association Finance',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: _themeController.themeMode,
+              routerConfig: _router,
+            );
+          },
+        ),
       ),
     );
   }

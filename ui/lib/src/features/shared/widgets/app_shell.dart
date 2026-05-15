@@ -36,7 +36,7 @@ class AppShell extends StatelessWidget {
     final UserRole role = AuthScope.of(context).role;
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -92,15 +92,23 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool dark = Theme.of(context).brightness == Brightness.dark;
+    final Color background = dark ? const Color(0xFF10201D) : AppColors.white;
+    final Color border = dark ? const Color(0xFF29413D) : AppColors.border;
+    final Color inactiveText = dark
+        ? const Color(0xFFAFC4C0)
+        : AppColors.textMute;
+    final Color shadow = dark ? Colors.black : AppColors.primary;
+
     return Container(
       height: 76,
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        border: const Border(top: BorderSide(color: AppColors.border)),
+        color: background,
+        border: Border(top: BorderSide(color: border)),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: .08),
+            color: shadow.withValues(alpha: dark ? .28 : .08),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -135,7 +143,9 @@ class _BottomNav extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
-                        color: active ? AppColors.primary : AppColors.textMute,
+                        color: active
+                            ? (dark ? AppColors.primaryLt : AppColors.primary)
+                            : inactiveText,
                         letterSpacing: 0.2,
                         height: 1.1,
                       ),
@@ -145,8 +155,8 @@ class _BottomNav extends StatelessWidget {
                       duration: const Duration(milliseconds: 180),
                       width: active ? 4 : 0,
                       height: active ? 4 : 0,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
+                      decoration: BoxDecoration(
+                        color: dark ? AppColors.primaryLt : AppColors.primary,
                         shape: BoxShape.circle,
                       ),
                     ),
