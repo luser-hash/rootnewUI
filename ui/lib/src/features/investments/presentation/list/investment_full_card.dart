@@ -39,15 +39,21 @@ class _InvestmentFullCard extends StatelessWidget {
         ? AppColors.primary.withValues(alpha: .3)
         : inv.status == InvestmentStatus.draft
         ? AppColors.amber.withValues(alpha: .3)
-        : AppColors.border;
+        : AppThemeColors.border(context);
 
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: border, width: 1.5),
-        boxShadow: <BoxShadow>[AppColors.softShadow()],
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .15),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,19 +69,19 @@ class _InvestmentFullCard extends StatelessWidget {
                     Text(
                       inv.title,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.text,
+                        color: AppThemeColors.text(context),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       inv.to,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textMute,
+                        color: AppThemeColors.textMuted(context),
                       ),
                     ),
                   ],
@@ -92,17 +98,17 @@ class _InvestmentFullCard extends StatelessWidget {
                 child: AppMetricCard(
                   label: 'Invested',
                   value: fmt(inv.amount),
-                  background: AppColors.surface,
-                  color: AppColors.text,
+                  background: AppThemeColors.surface(context),
+                  color: AppThemeColors.text(context),
                   borderRadius: 12,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 10,
                   ),
-                  valueStyle: const TextStyle(
+                  valueStyle: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
               ),
@@ -114,15 +120,15 @@ class _InvestmentFullCard extends StatelessWidget {
                       ? 'Pending'
                       : '${pnl >= 0 ? '+' : '-'}${fmt(pnl)}',
                   background: pnl == null
-                      ? AppColors.surface
+                      ? AppThemeColors.surface(context)
                       : pnl >= 0
-                      ? AppColors.greenLt
-                      : AppColors.redLt,
+                      ? AppThemeColors.statusSuccessBg(context)
+                      : AppThemeColors.statusErrorBg(context),
                   color: pnl == null
-                      ? AppColors.textMute
+                      ? AppThemeColors.textMuted(context)
                       : pnl >= 0
-                      ? AppColors.green
-                      : AppColors.red,
+                      ? AppThemeColors.statusSuccessFg(context)
+                      : AppThemeColors.statusErrorFg(context),
                   borderRadius: 12,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -132,10 +138,10 @@ class _InvestmentFullCard extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: pnl == null
-                        ? AppColors.textMute
+                        ? AppThemeColors.textMuted(context)
                         : pnl >= 0
-                        ? AppColors.green
-                        : AppColors.red,
+                        ? AppThemeColors.statusSuccessFg(context)
+                        : AppThemeColors.statusErrorFg(context),
                   ),
                   onTap: onPnlTap,
                 ),
@@ -150,11 +156,11 @@ class _InvestmentFullCard extends StatelessWidget {
                   child: AppActionButton(
                     label: isReleasing ? 'Releasing...' : 'Release Funds',
                     background: actionsDisabled && !isReleasing
-                        ? AppColors.surface
-                        : AppColors.amberLt,
+                        ? AppThemeColors.surface(context)
+                        : AppThemeColors.statusWarningBg(context),
                     foreground: actionsDisabled && !isReleasing
-                        ? AppColors.textMute
-                        : AppColors.amber,
+                        ? AppThemeColors.textMuted(context)
+                        : AppThemeColors.statusWarningFg(context),
                     onTap: actionsDisabled ? null : onReleaseFunds,
                   ),
                 ),
@@ -162,10 +168,10 @@ class _InvestmentFullCard extends StatelessWidget {
                 Expanded(
                   child: AppActionButton(
                     label: isClosing ? 'Closing...' : 'Close',
-                    background: AppColors.surface,
+                    background: AppThemeColors.surface(context),
                     foreground: actionsDisabled && !isClosing
-                        ? AppColors.textMute
-                        : AppColors.text,
+                        ? AppThemeColors.textMuted(context)
+                        : AppThemeColors.text(context),
                     onTap: actionsDisabled ? null : onCloseInvestment,
                   ),
                 ),
@@ -176,10 +182,10 @@ class _InvestmentFullCard extends StatelessWidget {
                         ? 'Distributing...'
                         : 'Distribute P&L',
                     background: actionsDisabled && !isDistributing
-                        ? AppColors.surface
+                        ? AppThemeColors.surface(context)
                         : AppColors.primary,
                     foreground: actionsDisabled && !isDistributing
-                        ? AppColors.textMute
+                        ? AppThemeColors.textMuted(context)
                         : Colors.white,
                     onTap: actionsDisabled ? null : onDistribute,
                   ),
@@ -187,8 +193,8 @@ class _InvestmentFullCard extends StatelessWidget {
               if (hasPrimaryAction) const SizedBox(width: 8),
               AppSmallButton(
                 label: 'Details',
-                background: AppColors.surface,
-                foreground: AppColors.textMid,
+                background: AppThemeColors.surface(context),
+                foreground: AppThemeColors.textMid(context),
                 onTap: onDetails,
               ),
             ],

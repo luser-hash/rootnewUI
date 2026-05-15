@@ -33,19 +33,19 @@ class _AccountDetailsCard extends StatelessWidget {
               message: error,
               tone: AppMessageTone.neutral,
               background: Colors.transparent,
-              textColor: AppColors.textMute,
+              textColor: AppThemeColors.textMuted(context),
               padding: const EdgeInsets.all(20),
               showBorder: false,
               showIcon: false,
               textAlign: TextAlign.center,
             )
           else if (profile == null)
-            const AppMessageCard(
+            AppMessageCard(
               message: 'No account details found.',
               tone: AppMessageTone.neutral,
               background: Colors.transparent,
-              textColor: AppColors.textMute,
-              padding: EdgeInsets.all(20),
+              textColor: AppThemeColors.textMuted(context),
+              padding: const EdgeInsets.all(20),
               showBorder: false,
               showIcon: false,
               textAlign: TextAlign.center,

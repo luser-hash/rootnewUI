@@ -132,9 +132,15 @@ class _EditMemberPageState extends State<EditMemberPage> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 12)],
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .10),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Form(
         key: _formKey,
@@ -145,9 +151,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
               AppMessageCard(
                 icon: Icons.error_outline,
                 message: _errorMessage!,
-                background: AppColors.redLt,
-                foreground: AppColors.red,
-                textColor: AppColors.red,
+                tone: AppMessageTone.error,
                 padding: const EdgeInsets.all(12),
                 borderRadius: 14,
                 showBorder: false,
@@ -248,12 +252,12 @@ class _EditMemberPageState extends State<EditMemberPage> {
             ),
             if (isSelf) ...<Widget>[
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 'Your own account cannot be deactivated.',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textMute,
+                  color: AppThemeColors.textMuted(context),
                 ),
               ),
             ],
@@ -442,10 +446,14 @@ class _DangerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color foreground = enabled ? AppColors.red : AppColors.textMute;
+    final Color foreground = enabled
+        ? AppThemeColors.statusErrorFg(context)
+        : AppThemeColors.textMuted(context);
 
     return Material(
-      color: enabled ? AppColors.redLt : AppColors.surface,
+      color: enabled
+          ? AppThemeColors.statusErrorBg(context)
+          : AppThemeColors.surface(context),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: enabled ? onTap : null,
@@ -456,8 +464,8 @@ class _DangerButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: enabled
-                  ? AppColors.red.withValues(alpha: .22)
-                  : AppColors.border,
+                  ? AppThemeColors.statusErrorFg(context).withValues(alpha: .22)
+                  : AppThemeColors.border(context),
             ),
           ),
           child: Center(

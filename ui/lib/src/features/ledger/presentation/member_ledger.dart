@@ -79,8 +79,7 @@ class _MemberLedgerPageState extends State<MemberLedgerPage> {
       return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
-        background: AppColors.redLt,
-        foreground: AppColors.red,
+        tone: AppMessageTone.error,
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(18),
         borderRadius: 18,
@@ -93,8 +92,7 @@ class _MemberLedgerPageState extends State<MemberLedgerPage> {
       return const AppMessageCard(
         icon: Icons.menu_book_outlined,
         message: 'No ledger entries found for your account.',
-        background: AppColors.surface,
-        foreground: AppColors.textMute,
+        tone: AppMessageTone.neutral,
         margin: EdgeInsets.symmetric(horizontal: 16),
         padding: EdgeInsets.all(18),
         borderRadius: 18,
@@ -229,6 +227,7 @@ class _MemberLedgerFilters extends StatelessWidget {
           DropdownButtonFormField<MemberLedgerEntryType?>(
             initialValue: filter.entryType,
             decoration: _fieldDecoration(
+              context: context,
               label: 'Entry Type',
               icon: Icons.tune_rounded,
             ),
@@ -300,17 +299,17 @@ class _MemberLedgerFilters extends StatelessWidget {
               if (onClear != null) ...<Widget>[
                 const SizedBox(width: 8),
                 Material(
-                  color: AppColors.white,
+                  color: AppThemeColors.card(context),
                   borderRadius: BorderRadius.circular(12),
                   child: InkWell(
                     onTap: onClear,
                     borderRadius: BorderRadius.circular(12),
-                    child: const SizedBox(
+                    child: SizedBox(
                       width: 46,
                       height: 54,
                       child: Icon(
                         Icons.close_rounded,
-                        color: AppColors.textMute,
+                        color: AppThemeColors.textMuted(context),
                       ),
                     ),
                   ),
@@ -355,7 +354,7 @@ class _DateFilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.white,
+      color: AppThemeColors.card(context),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -365,14 +364,14 @@ class _DateFilterButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppThemeColors.border(context)),
           ),
           child: Row(
             children: <Widget>[
-              const Icon(
+              Icon(
                 Icons.calendar_today_outlined,
                 size: 18,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -382,19 +381,19 @@ class _DateFilterButton extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textMute,
+                        color: AppThemeColors.textMuted(context),
                       ),
                     ),
                     Text(
                       value == null ? 'Any date' : _formatDate(value!),
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.text,
+                        color: AppThemeColors.text(context),
                       ),
                     ),
                   ],
@@ -418,8 +417,8 @@ class _MemberLedgerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final double amount = double.tryParse(entry.amount) ?? 0;
     final bool positive = amount >= 0;
-    final Color bg = _entryBackground(entry.entryType);
-    final Color fg = _entryForeground(entry.entryType);
+    final Color bg = _entryBackground(context, entry.entryType);
+    final Color fg = _entryForeground(context, entry.entryType);
 
     return AppTableRow(
       expandCells: false,
@@ -456,7 +455,7 @@ class _MemberLedgerRow extends StatelessWidget {
                 maxLines: 1,
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
               ),
               if (entry.createdByName.isNotEmpty)
                 AppTextCell(
@@ -464,7 +463,7 @@ class _MemberLedgerRow extends StatelessWidget {
                   maxLines: 1,
                   fontSize: 10,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.textMute,
+                  color: AppThemeColors.textMuted(context),
                 ),
             ],
           ),
@@ -474,14 +473,16 @@ class _MemberLedgerRow extends StatelessWidget {
           children: <Widget>[
             AppTextCell(
               '${positive ? '+' : ''}${formatMoneyTextSigned(entry.amount)}',
-              color: positive ? AppColors.green : AppColors.red,
+              color: positive
+                  ? AppThemeColors.statusSuccessFg(context)
+                  : AppThemeColors.statusErrorFg(context),
               fontSize: 14,
             ),
             AppTextCell(
               entry.txnDate,
               fontSize: 11,
               fontWeight: FontWeight.w400,
-              color: AppColors.textMute,
+              color: AppThemeColors.textMuted(context),
             ),
           ],
         ),
@@ -491,23 +492,24 @@ class _MemberLedgerRow extends StatelessWidget {
 }
 
 InputDecoration _fieldDecoration({
+  required BuildContext context,
   required String label,
   required IconData icon,
 }) {
   return InputDecoration(
     labelText: label,
-    prefixIcon: Icon(icon, size: 20, color: AppColors.textMute),
+    prefixIcon: Icon(icon, size: 20, color: AppThemeColors.textMuted(context)),
     filled: true,
-    fillColor: AppColors.white,
+    fillColor: AppThemeColors.card(context),
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-    labelStyle: const TextStyle(
+    labelStyle: TextStyle(
       fontSize: 13,
       fontWeight: FontWeight.w700,
-      color: AppColors.textMute,
+      color: AppThemeColors.textMuted(context),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: AppThemeColors.border(context)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -516,23 +518,27 @@ InputDecoration _fieldDecoration({
   );
 }
 
-Color _entryBackground(MemberLedgerEntryType type) {
+Color _entryBackground(BuildContext context, MemberLedgerEntryType type) {
   return switch (type) {
-    MemberLedgerEntryType.submission => AppColors.greenLt,
-    MemberLedgerEntryType.withdraw => AppColors.redLt,
-    MemberLedgerEntryType.adjustment => AppColors.amberLt,
-    MemberLedgerEntryType.distribution => AppColors.blueLt,
-    MemberLedgerEntryType.distributionReversal => AppColors.redLt,
+    MemberLedgerEntryType.submission => AppThemeColors.statusSuccessBg(context),
+    MemberLedgerEntryType.withdraw => AppThemeColors.statusErrorBg(context),
+    MemberLedgerEntryType.adjustment => AppThemeColors.statusWarningBg(context),
+    MemberLedgerEntryType.distribution => AppThemeColors.statusInfoBg(context),
+    MemberLedgerEntryType.distributionReversal => AppThemeColors.statusErrorBg(
+      context,
+    ),
   };
 }
 
-Color _entryForeground(MemberLedgerEntryType type) {
+Color _entryForeground(BuildContext context, MemberLedgerEntryType type) {
   return switch (type) {
-    MemberLedgerEntryType.submission => AppColors.green,
-    MemberLedgerEntryType.withdraw => AppColors.red,
-    MemberLedgerEntryType.adjustment => AppColors.amber,
-    MemberLedgerEntryType.distribution => AppColors.blue,
-    MemberLedgerEntryType.distributionReversal => AppColors.red,
+    MemberLedgerEntryType.submission => AppThemeColors.statusSuccessFg(context),
+    MemberLedgerEntryType.withdraw => AppThemeColors.statusErrorFg(context),
+    MemberLedgerEntryType.adjustment => AppThemeColors.statusWarningFg(context),
+    MemberLedgerEntryType.distribution => AppThemeColors.statusInfoFg(context),
+    MemberLedgerEntryType.distributionReversal => AppThemeColors.statusErrorFg(
+      context,
+    ),
   };
 }
 

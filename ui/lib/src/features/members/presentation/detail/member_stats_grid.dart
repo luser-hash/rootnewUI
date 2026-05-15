@@ -19,19 +19,25 @@ String _submissionMeta(SubmissionHistoryItem submission) {
   return '${submission.paymentChannel.label} · ${valueOrDash(submission.txnDate)}';
 }
 
-Color _submissionStatusBackground(CapitalSubmissionStatus status) {
+Color _submissionStatusBackground(
+  BuildContext context,
+  CapitalSubmissionStatus status,
+) {
   return switch (status) {
-    CapitalSubmissionStatus.pending => AppColors.amberLt,
-    CapitalSubmissionStatus.approved => AppColors.greenLt,
-    CapitalSubmissionStatus.rejected => AppColors.redLt,
+    CapitalSubmissionStatus.pending => AppThemeColors.statusWarningBg(context),
+    CapitalSubmissionStatus.approved => AppThemeColors.statusSuccessBg(context),
+    CapitalSubmissionStatus.rejected => AppThemeColors.statusErrorBg(context),
   };
 }
 
-Color _submissionStatusForeground(CapitalSubmissionStatus status) {
+Color _submissionStatusForeground(
+  BuildContext context,
+  CapitalSubmissionStatus status,
+) {
   return switch (status) {
-    CapitalSubmissionStatus.pending => AppColors.amber,
-    CapitalSubmissionStatus.approved => AppColors.green,
-    CapitalSubmissionStatus.rejected => AppColors.red,
+    CapitalSubmissionStatus.pending => AppThemeColors.statusWarningFg(context),
+    CapitalSubmissionStatus.approved => AppThemeColors.statusSuccessFg(context),
+    CapitalSubmissionStatus.rejected => AppThemeColors.statusErrorFg(context),
   };
 }
 
@@ -43,23 +49,27 @@ IconData _submissionStatusIcon(CapitalSubmissionStatus status) {
   };
 }
 
-Color _ledgerEntryBackground(MemberLedgerEntryType type) {
+Color _ledgerEntryBackground(BuildContext context, MemberLedgerEntryType type) {
   return switch (type) {
-    MemberLedgerEntryType.submission => AppColors.greenLt,
-    MemberLedgerEntryType.withdraw => AppColors.redLt,
-    MemberLedgerEntryType.adjustment => AppColors.amberLt,
-    MemberLedgerEntryType.distribution => AppColors.blueLt,
-    MemberLedgerEntryType.distributionReversal => AppColors.redLt,
+    MemberLedgerEntryType.submission => AppThemeColors.statusSuccessBg(context),
+    MemberLedgerEntryType.withdraw => AppThemeColors.statusErrorBg(context),
+    MemberLedgerEntryType.adjustment => AppThemeColors.statusWarningBg(context),
+    MemberLedgerEntryType.distribution => AppThemeColors.statusInfoBg(context),
+    MemberLedgerEntryType.distributionReversal => AppThemeColors.statusErrorBg(
+      context,
+    ),
   };
 }
 
-Color _ledgerEntryForeground(MemberLedgerEntryType type) {
+Color _ledgerEntryForeground(BuildContext context, MemberLedgerEntryType type) {
   return switch (type) {
-    MemberLedgerEntryType.submission => AppColors.green,
-    MemberLedgerEntryType.withdraw => AppColors.red,
-    MemberLedgerEntryType.adjustment => AppColors.amber,
-    MemberLedgerEntryType.distribution => AppColors.blue,
-    MemberLedgerEntryType.distributionReversal => AppColors.red,
+    MemberLedgerEntryType.submission => AppThemeColors.statusSuccessFg(context),
+    MemberLedgerEntryType.withdraw => AppThemeColors.statusErrorFg(context),
+    MemberLedgerEntryType.adjustment => AppThemeColors.statusWarningFg(context),
+    MemberLedgerEntryType.distribution => AppThemeColors.statusInfoFg(context),
+    MemberLedgerEntryType.distributionReversal => AppThemeColors.statusErrorFg(
+      context,
+    ),
   };
 }
 

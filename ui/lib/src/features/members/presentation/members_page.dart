@@ -89,9 +89,7 @@ class _MembersPageState extends State<MembersPage> {
       return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
-        background: AppColors.redLt,
-        foreground: AppColors.red,
-        textColor: AppColors.red,
+        tone: AppMessageTone.error,
         margin: const EdgeInsets.symmetric(horizontal: 16),
         borderRadius: 18,
         showBorder: false,
@@ -103,9 +101,7 @@ class _MembersPageState extends State<MembersPage> {
       return const AppMessageCard(
         icon: Icons.group_outlined,
         message: 'No members found for this filter.',
-        background: AppColors.surface,
-        foreground: AppColors.textMute,
-        textColor: AppColors.textMute,
+        tone: AppMessageTone.neutral,
         margin: EdgeInsets.symmetric(horizontal: 16),
         borderRadius: 18,
         showBorder: false,
@@ -115,9 +111,15 @@ class _MembersPageState extends State<MembersPage> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow()],
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .15),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: users.asMap().entries.map((MapEntry<int, ManagedUser> entry) {
@@ -386,7 +388,7 @@ class _MemberRow extends StatelessWidget {
           border: Border(
             bottom: isLast
                 ? BorderSide.none
-                : const BorderSide(color: AppColors.border),
+                : BorderSide(color: AppThemeColors.border(context)),
           ),
         ),
         child: Row(
@@ -407,10 +409,10 @@ class _MemberRow extends StatelessWidget {
                     user.fullName.isEmpty ? 'Unnamed Member' : user.fullName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.text,
+                      color: AppThemeColors.text(context),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -418,10 +420,10 @@ class _MemberRow extends StatelessWidget {
                     _subtitle(user),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textMute,
+                      color: AppThemeColors.textMuted(context),
                     ),
                   ),
                 ],
@@ -433,8 +435,8 @@ class _MemberRow extends StatelessWidget {
               children: <Widget>[
                 AppPill(
                   label: user.role.label,
-                  background: AppColors.blueLt,
-                  foreground: AppColors.blue,
+                  background: AppThemeColors.statusInfoBg(context),
+                  foreground: AppThemeColors.statusInfoFg(context),
                 ),
                 const SizedBox(height: 6),
                 MemberStatusPill(status: user.status.memberStatus),

@@ -123,17 +123,17 @@ class _LedgerFiltersState extends State<_LedgerFilters> {
               if (widget.onClear != null) ...<Widget>[
                 const SizedBox(width: 8),
                 Material(
-                  color: AppColors.white,
+                  color: AppThemeColors.card(context),
                   borderRadius: BorderRadius.circular(12),
                   child: InkWell(
                     onTap: widget.onClear,
                     borderRadius: BorderRadius.circular(12),
-                    child: const SizedBox(
+                    child: SizedBox(
                       width: 46,
                       height: 54,
                       child: Icon(
                         Icons.close_rounded,
-                        color: AppColors.textMute,
+                        color: AppThemeColors.textMuted(context),
                       ),
                     ),
                   ),
@@ -195,7 +195,10 @@ class _UserIdApplyButton extends StatelessWidget {
     return IconButton(
       onPressed: onTap,
       tooltip: 'Apply member filter',
-      icon: const Icon(Icons.search_rounded, color: AppColors.textMute),
+      icon: Icon(
+        Icons.search_rounded,
+        color: AppThemeColors.textMuted(context),
+      ),
     );
   }
 }
@@ -214,7 +217,7 @@ class _DateFilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.white,
+      color: AppThemeColors.card(context),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -224,14 +227,14 @@ class _DateFilterButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppThemeColors.border(context)),
           ),
           child: Row(
             children: <Widget>[
-              const Icon(
+              Icon(
                 Icons.calendar_today_outlined,
                 size: 18,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -241,19 +244,19 @@ class _DateFilterButton extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textMute,
+                        color: AppThemeColors.textMuted(context),
                       ),
                     ),
                     Text(
                       value == null ? 'Any date' : _formatDate(value!),
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.text,
+                        color: AppThemeColors.text(context),
                       ),
                     ),
                   ],

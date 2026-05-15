@@ -45,12 +45,12 @@ class _CloseInvestmentSheetState extends State<_CloseInvestmentSheet> {
                     height: 42,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: AppThemeColors.surface(context),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.lock_outline_rounded,
-                      color: AppColors.text,
+                      color: AppThemeColors.text(context),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -58,22 +58,22 @@ class _CloseInvestmentSheetState extends State<_CloseInvestmentSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        const Text(
+                        Text(
                           'Close Investment',
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.text,
+                            color: AppThemeColors.text(context),
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           widget.investment.title,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textMute,
+                            color: AppThemeColors.textMuted(context),
                           ),
                         ),
                       ],
@@ -95,16 +95,31 @@ class _CloseInvestmentSheetState extends State<_CloseInvestmentSheet> {
                 decoration: InputDecoration(
                   labelText: 'Return Amount',
                   hintText: _amountHint(widget.investment.amount),
-                  prefixIcon: const Icon(Icons.payments_outlined),
+                  prefixIcon: Icon(
+                    Icons.payments_outlined,
+                    color: AppThemeColors.textMuted(context),
+                  ),
+                  filled: true,
+                  fillColor: AppThemeColors.surface(context),
+                  labelStyle: TextStyle(color: AppThemeColors.textMid(context)),
+                  hintStyle: TextStyle(
+                    color: AppThemeColors.textMuted(context),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppThemeColors.border(context),
+                    ),
                   ),
                 ),
                 validator: _amount,
               ),
               const SizedBox(height: 14),
               Material(
-                color: AppColors.surface,
+                color: AppThemeColors.surface(context),
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
                   onTap: _pickCloseDate,
@@ -116,31 +131,31 @@ class _CloseInvestmentSheetState extends State<_CloseInvestmentSheet> {
                     ),
                     child: Row(
                       children: <Widget>[
-                        const Icon(
+                        Icon(
                           Icons.calendar_today_outlined,
                           size: 20,
-                          color: AppColors.textMute,
+                          color: AppThemeColors.textMuted(context),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              const Text(
+                              Text(
                                 'Close Date',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textMute,
+                                  color: AppThemeColors.textMuted(context),
                                 ),
                               ),
                               const SizedBox(height: 3),
                               Text(
                                 _formatDate(_closeDate),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
-                                  color: AppColors.text,
+                                  color: AppThemeColors.text(context),
                                 ),
                               ),
                             ],
@@ -159,9 +174,24 @@ class _CloseInvestmentSheetState extends State<_CloseInvestmentSheet> {
                 decoration: InputDecoration(
                   labelText: 'Closure Comment',
                   hintText: 'Optional note',
-                  prefixIcon: const Icon(Icons.notes_outlined),
+                  prefixIcon: Icon(
+                    Icons.notes_outlined,
+                    color: AppThemeColors.textMuted(context),
+                  ),
+                  filled: true,
+                  fillColor: AppThemeColors.surface(context),
+                  labelStyle: TextStyle(color: AppThemeColors.textMid(context)),
+                  hintStyle: TextStyle(
+                    color: AppThemeColors.textMuted(context),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppThemeColors.border(context),
+                    ),
                   ),
                 ),
               ),

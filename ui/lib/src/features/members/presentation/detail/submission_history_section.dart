@@ -28,7 +28,7 @@ class _SubmissionHistorySection extends StatelessWidget {
             message: error,
             tone: AppMessageTone.neutral,
             background: Colors.transparent,
-            textColor: AppColors.textMute,
+            textColor: AppThemeColors.textMuted(context),
             padding: const EdgeInsets.all(20),
             showBorder: false,
             showIcon: false,
@@ -40,14 +40,14 @@ class _SubmissionHistorySection extends StatelessWidget {
 
     final List<SubmissionHistoryItem> submissions = controller.results;
     if (submissions.isEmpty) {
-      return const AppCardList(
+      return AppCardList(
         children: <Widget>[
           AppMessageCard(
             message: 'No submissions yet.',
             tone: AppMessageTone.neutral,
             background: Colors.transparent,
-            textColor: AppColors.textMute,
-            padding: EdgeInsets.all(20),
+            textColor: AppThemeColors.textMuted(context),
+            padding: const EdgeInsets.all(20),
             showBorder: false,
             showIcon: false,
             textAlign: TextAlign.center,
@@ -80,7 +80,10 @@ class _SubmissionHistoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color foreground = _submissionStatusForeground(submission.status);
+    final Color foreground = _submissionStatusForeground(
+      context,
+      submission.status,
+    );
 
     return Material(
       color: Colors.transparent,
@@ -91,7 +94,7 @@ class _SubmissionHistoryRow extends StatelessWidget {
             border: Border(
               bottom: isLast
                   ? BorderSide.none
-                  : const BorderSide(color: AppColors.border),
+                  : BorderSide(color: AppThemeColors.border(context)),
             ),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -102,7 +105,10 @@ class _SubmissionHistoryRow extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: _submissionStatusBackground(submission.status),
+                  color: _submissionStatusBackground(
+                    context,
+                    submission.status,
+                  ),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
@@ -119,19 +125,19 @@ class _SubmissionHistoryRow extends StatelessWidget {
                     Text(
                       '${submission.requestType.label} · ${submission.paymentChannel.label}',
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.text,
+                        color: AppThemeColors.text(context),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${valueOrDash(submission.txnDate)} · ${submission.requestId}',
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: AppColors.textMute,
+                        color: AppThemeColors.textMuted(context),
                       ),
                     ),
                   ],
@@ -151,8 +157,14 @@ class _SubmissionHistoryRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   AppStatusPill(
                     label: submission.status.label,
-                    background: _submissionStatusBackground(submission.status),
-                    foreground: _submissionStatusForeground(submission.status),
+                    background: _submissionStatusBackground(
+                      context,
+                      submission.status,
+                    ),
+                    foreground: _submissionStatusForeground(
+                      context,
+                      submission.status,
+                    ),
                   ),
                 ],
               ),
@@ -167,7 +179,7 @@ class _SubmissionHistoryRow extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.white,
+      backgroundColor: AppThemeColors.card(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
@@ -186,13 +198,19 @@ class _SubmissionHistoryRow extends StatelessWidget {
                       height: 42,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: _submissionStatusBackground(submission.status),
+                        color: _submissionStatusBackground(
+                          context,
+                          submission.status,
+                        ),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
                         _submissionStatusIcon(submission.status),
                         size: 18,
-                        color: _submissionStatusForeground(submission.status),
+                        color: _submissionStatusForeground(
+                          context,
+                          submission.status,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -202,19 +220,19 @@ class _SubmissionHistoryRow extends StatelessWidget {
                         children: <Widget>[
                           Text(
                             submission.requestType.label,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.text,
+                              color: AppThemeColors.text(context),
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             _submissionMeta(submission),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textMute,
+                              color: AppThemeColors.textMuted(context),
                             ),
                           ),
                         ],
@@ -223,9 +241,11 @@ class _SubmissionHistoryRow extends StatelessWidget {
                     AppStatusPill(
                       label: submission.status.label,
                       background: _submissionStatusBackground(
+                        context,
                         submission.status,
                       ),
                       foreground: _submissionStatusForeground(
+                        context,
                         submission.status,
                       ),
                     ),
@@ -234,10 +254,10 @@ class _SubmissionHistoryRow extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   formatMoneyTextUnsigned(submission.amount),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
                 const SizedBox(height: 14),

@@ -18,14 +18,14 @@ class _ReviewedSubmissionList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
             child: Text(
               'Reviewed',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
                 letterSpacing: 0.72,
               ),
             ),
@@ -41,16 +41,24 @@ class _ReviewedSubmissionList extends StatelessWidget {
             _QueueMessageCard(
               icon: Icons.error_outline,
               message: errorMessage!,
-              background: AppColors.redLt,
-              foreground: AppColors.red,
+              background: AppThemeColors.statusErrorBg(context),
+              foreground: AppThemeColors.statusErrorFg(context),
             )
           else
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: AppThemeColors.card(context),
                 borderRadius: BorderRadius.circular(18),
-                boxShadow: <BoxShadow>[AppColors.softShadow()],
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color: AppThemeColors.shadow(
+                      context,
+                    ).withValues(alpha: .15),
+                    blurRadius: 12,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Column(
                 children: reviewed.asMap().entries.map((
@@ -71,7 +79,9 @@ class _ReviewedSubmissionList extends StatelessWidget {
                           border: Border(
                             bottom: entry.key == reviewed.length - 1
                                 ? BorderSide.none
-                                : const BorderSide(color: AppColors.border),
+                                : BorderSide(
+                                    color: AppThemeColors.border(context),
+                                  ),
                           ),
                         ),
                         child: Row(
@@ -82,8 +92,8 @@ class _ReviewedSubmissionList extends StatelessWidget {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: s.isApproved
-                                    ? AppColors.greenLt
-                                    : AppColors.redLt,
+                                    ? AppThemeColors.statusSuccessBg(context)
+                                    : AppThemeColors.statusErrorBg(context),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -98,17 +108,17 @@ class _ReviewedSubmissionList extends StatelessWidget {
                                 children: <Widget>[
                                   Text(
                                     s.memberName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.text,
+                                      color: AppThemeColors.text(context),
                                     ),
                                   ),
                                   Text(
                                     '${s.requestType.label} · ${s.txnDate}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 11,
-                                      color: AppColors.textMute,
+                                      color: AppThemeColors.textMuted(context),
                                     ),
                                   ),
                                 ],
@@ -119,10 +129,10 @@ class _ReviewedSubmissionList extends StatelessWidget {
                               children: <Widget>[
                                 Text(
                                   fmt(amount),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.text,
+                                    color: AppThemeColors.text(context),
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -151,7 +161,7 @@ class _ReviewedSubmissionList extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.white,
+      backgroundColor: AppThemeColors.card(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
@@ -172,8 +182,8 @@ class _ReviewedSubmissionList extends StatelessWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: submission.isApproved
-                            ? AppColors.greenLt
-                            : AppColors.redLt,
+                            ? AppThemeColors.statusSuccessBg(context)
+                            : AppThemeColors.statusErrorBg(context),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Text(
@@ -188,10 +198,10 @@ class _ReviewedSubmissionList extends StatelessWidget {
                         children: <Widget>[
                           Text(
                             submission.memberName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.text,
+                              color: AppThemeColors.text(context),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -199,10 +209,10 @@ class _ReviewedSubmissionList extends StatelessWidget {
                             submission.memberContact.isEmpty
                                 ? submission.requestId
                                 : submission.memberContact,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textMute,
+                              color: AppThemeColors.textMuted(context),
                             ),
                           ),
                         ],
@@ -216,10 +226,10 @@ class _ReviewedSubmissionList extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   fmt(amount),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
                 const SizedBox(height: 14),

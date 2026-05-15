@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>সচেতন — পরিমিত ব্যবহার</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root{
+            --bg:#060D08;--bg2:#0B1810;--card:rgba(24,78,48,0.13);--card-hover:rgba(24,78,48,0.2);
+            --card-border:rgba(46,204,113,0.14);--primary:#2ECC71;--primary-dim:rgba(46,204,113,0.13);
+            --accent:#F0B429;--accent-dim:rgba(240,180,41,0.13);--danger:#E85D3A;--danger-dim:rgba(232,93,58,0.13);
+            --text:#E4EDE7;--text-muted:#5E8E72;--surface:rgba(18,54,34,0.3);
+            --time:#00BFA5;--time-dim:rgba(0,191,165,0.13);--teal:#0D9488;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        body{font-family:'Noto Sans Bengali',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;justify-content:center;overflow:hidden}
+        .bg-orb{position:fixed;border-radius:50%;filter:blur(110px);pointer-events:none;z-index:0}
+        .orb1{width:320px;height:320px;background:rgba(46,204,113,0.07);top:-100px;left:-80px;animation:oF1 28s ease-in-out infinite}
+        .orb2{width:260px;height:260px;background:rgba(0,191,165,0.05);bottom:40px;right:-90px;animation:oF2 32s ease-in-out infinite}
+        .orb3{width:180px;height:180px;background:rgba(240,180,41,0.04);top:45%;left:55%;animation:oF3 24s ease-in-out infinite}
+        @keyframes oF1{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,70px)}}
+        @keyframes oF2{0%,100%{transform:translate(0,0)}50%{transform:translate(-60px,-50px)}}
+        @keyframes oF3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.4)}}
+
+        .shell{position:relative;z-index:1;width:100%;max-width:430px;height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
+        .hdr{padding:14px 20px 6px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+        .logo{font-size:21px;font-weight:900;color:var(--primary);letter-spacing:-.5px}
+        .logo span{color:var(--text-muted);font-weight:400;font-size:12px;margin-left:5px;opacity:.7}
+
+        .pages{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 20px 108px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+        .pages::-webkit-scrollbar{width:0}
+        .pg{display:none;animation:pgIn .32s ease-out}.pg.on{display:block}
+        @keyframes pgIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+        .cd{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:16px;margin-bottom:12px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:border-color .25s,background .25s}
+        .cd:hover{border-color:rgba(46,204,113,0.25);background:var(--card-hover)}
+        .cd-t{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+        .cd-t i{font-size:11px}
+
+        .sg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+        .sb{background:var(--surface);border:1px solid rgba(46,204,113,0.08);border-radius:14px;padding:14px 8px;text-align:center;transition:transform .2s,border-color .2s}
+        .sb:active{transform:scale(.96)}.sb:hover{border-color:rgba(46,204,113,0.25)}
+        .sv{font-size:24px;font-weight:900;line-height:1.1}.sv.ac{color:var(--accent)}.sv.dg{color:var(--danger)}.sv.tm{color:var(--time)}
+        .sl{font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3}
+
+        /* স্কোর */
+        .sc-w{display:flex;flex-direction:column;align-items:center;padding:6px 0 2px}
+        .sc-c{position:relative;width:140px;height:140px}
+        .sc-c svg{width:100%;height:100%}
+        .sc-c .tk{fill:none;stroke:var(--primary-dim);stroke-width:7}
+        .sc-c .pr{fill:none;stroke:var(--primary);stroke-width:7;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1)}
+        .sc-c .pr.wr{stroke:var(--accent)}.sc-c .pr.bd{stroke:var(--danger)}
+        .sc-n{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .sc-n .n{font-size:38px;font-weight:900;line-height:1}
+        .sc-n .l{font-size:11px;color:var(--text-muted);margin-top:1px}
+        .sc-d{font-size:12.5px;color:var(--text-muted);text-align:center;margin-top:8px;max-width:250px;line-height:1.5}
+        @keyframes bth{0%,100%{filter:drop-shadow(0 0 6px rgba(46,204,113,0.15))}50%{filter:drop-shadow(0 0 18px rgba(46,204,113,0.35))}}
+        .bth{animation:bth 3s ease-in-out infinite}
+
+        /* কনটেক্সট উইজেট */
+        .ctx{border-radius:14px;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s}
+        .ctx:active{transform:scale(.97)}
+        .ctx-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+        .ctx-info{flex:1}.ctx-title{font-size:13px;font-weight:700}.ctx-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+        .ctx-arrow{color:var(--text-muted);font-size:12px}
+
+        /* চিপস */
+        .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scroll-snap-type:x mandatory}
+        .chips::-webkit-scrollbar{display:none}
+        .chip{flex-shrink:0;scroll-snap-align:start;display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid rgba(46,204,113,0.08);border-radius:40px;padding:7px 12px 7px 8px;font-size:11.5px;font-weight:500;cursor:pointer;transition:all .2s}
+        .chip .ci{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0;transition:box-shadow .3s}
+        .chip.dn{border-color:var(--primary);background:var(--primary-dim)}
+        .chip.dn .ci{box-shadow:0 0 10px rgba(46,204,113,0.4)}
+
+        /* চার্ট */
+        .ch-c{width:100%;height:170px;position:relative}
+        .ch-c canvas{width:100%!important;height:100%!important;display:block}
+
+        /* ট্যাপ */
+        .tz{position:relative;border-radius:18px;overflow:hidden;background:radial-gradient(circle at center,rgba(46,204,113,0.07) 0%,transparent 70%);border:1px dashed rgba(46,204,113,0.2);height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:border-color .2s}
+        .tz:active{border-color:var(--primary)}
+        .tz .tn{font-size:42px;font-weight:900;color:var(--primary);line-height:1;transition:transform .12s}
+        .tz .tn.bp{transform:scale(1.12)}
+        .tz .tl{font-size:10.5px;color:var(--text-muted);margin-top:3px}
+        .trp{position:absolute;width:36px;height:36px;border-radius:50%;background:rgba(46,204,113,0.2);transform:scale(0);animation:rpO .55s ease-out forwards;pointer-events:none}
+        @keyframes rpO{to{transform:scale(4);opacity:0}}
+
+        /* অ্যাপ বার */
+        .abi{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid rgba(46,204,113,0.05)}
+        .abi:last-child{border-bottom:none}
+        .aico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;flex-shrink:0}
+        .ainf{flex:1;min-width:0}.anm{font-size:12.5px;font-weight:600}.atm{font-size:10.5px;color:var(--text-muted)}
+        .abtr{height:3.5px;background:var(--surface);border-radius:4px;margin-top:3px;overflow:hidden}
+        .abfl{height:100%;border-radius:4px;transition:width 1s ease-out}
+
+        /* অভ্যাস */
+        .hci{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(46,204,113,0.05);cursor:pointer;transition:opacity .15s}
+        .hci:last-child{border-bottom:none}.hci:active{opacity:.7}
+        .hico{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;flex-shrink:0;transition:box-shadow .3s}
+        .hinf{flex:1}.hnm{font-size:13.5px;font-weight:600;transition:all .2s}
+        .hnm.str{text-decoration:line-through;opacity:.5}
+        .hst{font-size:10.5px;color:var(--text-muted);margin-top:2px}.hst i{color:var(--accent);margin-right:2px}
+        /* ৭-দিন ডট */
+        .hdots{display:flex;gap:4px;margin-top:4px}
+        .hdot{width:8px;height:8px;border-radius:50%;background:var(--surface);border:1px solid rgba(46,204,113,0.15);transition:all .3s}
+        .hdot.done{background:var(--primary);border-color:var(--primary)}
+        .hdot.today{border-color:var(--accent);box-shadow:0 0 6px rgba(240,180,41,0.3)}
+        .hcb{width:34px;height:34px;border-radius:50%;border:2px solid rgba(46,204,113,0.25);background:transparent;color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:all .3s cubic-bezier(.175,.885,.32,1.275);flex-shrink:0;position:relative;overflow:hidden}
+        .hcb.ck{border-color:var(--primary);background:var(--primary);color:var(--bg);box-shadow:0 0 14px rgba(46,204,113,0.3)}
+
+        /* কমপ্লিশন বার্স্ট */
+        .burst{position:absolute;inset:0;pointer-events:none}
+        .burst-p{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--primary);top:50%;left:50%;opacity:0}
+        @keyframes burstOut{0%{transform:translate(-50%,-50%) scale(0);opacity:1}100%{transform:translate(var(--bx),var(--by)) scale(1);opacity:0}}
+
+        /* টাস্ক */
+        .tsi{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid rgba(46,204,113,0.05)}
+        .tsi:last-child{border-bottom:none}
+        .tck{width:22px;height:22px;border-radius:7px;border:2px solid rgba(46,204,113,0.25);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all .25s;flex-shrink:0;position:relative;overflow:hidden}
+        .tck.ck{background:var(--time);border-color:var(--time);color:var(--bg)}
+        .tinf{flex:1;min-width:0}.tnm{font-size:13.5px;font-weight:500;transition:all .2s}
+        .tnm.str{text-decoration:line-through;opacity:.45}
+        .tmeta{display:flex;gap:8px;margin-top:2px;align-items:center}
+        .pb{display:inline-flex;align-items:center;gap:2px;padding:1px 7px;border-radius:5px;font-size:9.5px;font-weight:700}
+        .pb.hi{background:var(--danger-dim);color:var(--danger)}.pb.mi{background:var(--accent-dim);color:var(--accent)}.pb.lo{background:var(--primary-dim);color:var(--primary)}
+
+        /* টাইমার */
+        .tmr-w{display:flex;flex-direction:column;align-items:center;padding:6px 0}
+        .tmr-c{position:relative;width:190px;height:190px}
+        .tmr-c svg{width:100%;height:100%}
+        .tmr-c .tt{fill:none;stroke:var(--time-dim);stroke-width:5.5}
+        .tmr-c .tp{fill:none;stroke:var(--time);stroke-width:5.5;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset .4s linear}
+        .tmr-c .tp.ps{stroke:var(--accent)}.tmr-c .tp.dn{stroke:var(--primary)}
+        .tmr-i{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .tmr-i .tv{font-size:38px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+        .tmr-i .tl{font-size:11px;color:var(--text-muted);margin-top:1px;max-width:120px;text-align:center;line-height:1.3}
+        .tmr-bs{display:flex;gap:10px;margin-top:14px}
+        .tmr-b{width:46px;height:46px;border-radius:50%;border:2px solid rgba(0,191,165,0.25);background:transparent;color:var(--time);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+        .tmr-b:active{transform:scale(.9)}
+        .tmr-b.pr{background:var(--time);color:var(--bg);border-color:var(--time);width:56px;height:56px;font-size:18px}
+        .tmr-b.pr:active{opacity:.85}
+        .tmr-pres{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+        .tpre{padding:7px 13px;border-radius:9px;border:1px solid rgba(0,191,165,0.18);background:var(--time-dim);color:var(--time);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
+        .tpre.ac{background:var(--time);color:var(--bg);border-color:var(--time)}
+        .tpre:active{transform:scale(.94)}
+        /* টাস্ক পিকার */
+        .tpick{width:100%;margin-top:14px;text-align:left}
+        .tpick-t{font-size:11px;color:var(--text-muted);margin-bottom:6px}
+        .tpick-list{display:flex;flex-direction:column;gap:4px;max-height:120px;overflow-y:auto}
+        .tpick-list::-webkit-scrollbar{width:0}
+        .tpick-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:var(--surface);border:1.5px solid transparent;cursor:pointer;font-size:12px;transition:all .2s}
+        .tpick-item.sel{border-color:var(--time);background:var(--time-dim)}
+        .tpick-item .tpb{flex-shrink:0}
+
+        /* টাইম ব্লক */
+        .tbl{display:flex;align-items:stretch;gap:10px;padding:5px 0;position:relative}
+        .tbl .tbt{width:44px;font-size:10.5px;color:var(--text-muted);text-align:right;padding-top:3px;flex-shrink:0;font-variant-numeric:tabular-nums}
+        .tbl .tbln{width:2px;background:rgba(46,204,113,0.08);flex-shrink:0;position:relative}
+        .tbl .tbd{width:10px;height:10px;border-radius:50%;position:absolute;left:-4px;top:5px;border:2px solid var(--bg2)}
+        .tbl .tbc{flex:1;padding-bottom:8px}
+        .tbl .tbn{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px}
+        .tbl .tbdur{font-size:10.5px;color:var(--text-muted);margin-top:1px}
+        .tbl.cur .tbln{background:var(--time)}
+        .tbl.pst .tbn{opacity:.4}
+        /* ফোন-মুক্ত ব্যাজ */
+        .pfz{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:5px;font-size:9px;font-weight:700;background:var(--primary-dim);color:var(--primary)}
+        .pfz.breached{background:var(--danger-dim);color:var(--danger)}
+        /* চুরি মার্কার */
+        .stolen{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:5px;font-size:9px;font-weight:700;background:var(--danger-dim);color:var(--danger)}
+
+        /* অডিট বার */
+        .ta-bar{display:flex;height:22px;border-radius:11px;overflow:hidden;margin-bottom:6px}
+        .ta-seg{height:100%;transition:width 1s ease;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:rgba(0,0,0,0.65);min-width:0;overflow:hidden;white-space:nowrap}
+        .ta-leg{display:flex;flex-wrap:wrap;gap:7px;margin-top:3px}
+        .ta-li{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--text-muted)}
+        .ta-ld{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+
+        /* ইনসাইট */
+        .ins{background:var(--surface);border-radius:14px;padding:14px;margin-bottom:10px;border-left:3px solid var(--primary)}
+        .ins.wr{border-left-color:var(--accent)}.ins.bd{border-left-color:var(--danger)}.ins.tm{border-left-color:var(--time)}
+        .ins-t{font-size:13.5px;font-weight:700;margin-bottom:5px}.ins-d{font-size:12px;color:var(--text-muted);line-height:1.65}
+        .ins-s{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:5px 10px;border-radius:7px;font-size:12px;font-weight:700}
+        .ins-s.gd{background:var(--primary-dim);color:var(--primary)}.ins-s.wr{background:var(--accent-dim);color:var(--accent)}
+        .ins-s.bd{background:var(--danger-dim);color:var(--danger)}.ins-s.tm{background:var(--time-dim);color:var(--time)}
+
+        .sgc{display:flex;gap:10px;padding:12px;background:var(--surface);border-radius:12px;margin-bottom:8px;align-items:flex-start}
+        .sgn{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+        .sgt{font-size:12.5px;line-height:1.6}
+
+        .wk-sum{display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface);border-radius:14px;margin-bottom:12px}
+        .wk-r{width:56px;height:56px;flex-shrink:0}.wk-r svg{width:100%;height:100%}
+        .wk-r .tk{fill:none;stroke:var(--primary-dim);stroke-width:5.5}
+        .wk-r .fl{fill:none;stroke:var(--primary);stroke-width:5.5;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 1s ease}
+        .wk-i .wn{font-size:26px;font-weight:900}.wk-i .wl{font-size:11px;color:var(--text-muted)}
+
+        .nfr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:12.5px}
+        .nfr .nl{color:var(--text-muted)}
+        .rci{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid rgba(46,204,113,0.05);font-size:12.5px}
+        .rci:last-child{border-bottom:none}
+        .rcic{width:30px;height:30px;border-radius:8px;background:var(--primary-dim);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+
+        .sh{font-size:15px;font-weight:700;margin:16px 0 8px}
+
+        /* নেভ */
+        .bnav{position:absolute;bottom:0;left:0;right:0;display:flex;background:rgba(6,13,8,0.93);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid rgba(46,204,113,0.08);padding:5px 0 max(5px,env(safe-area-inset-bottom));z-index:50}
+        .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;cursor:pointer;color:var(--text-muted);transition:color .2s;position:relative}
+        .ni.on{color:var(--primary)}
+        .ni.on::before{content:'';position:absolute;top:-6px;width:22px;height:2.5px;border-radius:3px;background:var(--primary)}
+        .ni i{font-size:16px;transition:transform .2s}.ni.on i{transform:scale(1.08)}
+        .ni span{font-size:9px;font-weight:600}
+
+        /* টোস্ট */
+        .tc{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+        .tt{background:rgba(24,78,48,0.95);border:1px solid var(--primary);color:var(--text);padding:9px 16px;border-radius:11px;font-size:12.5px;font-weight:500;backdrop-filter:blur(12px);display:flex;align-items:center;gap:7px;transform:translateY(-18px);opacity:0;transition:all .3s cubic-bezier(.175,.885,.32,1.275);pointer-events:auto;white-space:nowrap}
+        .tt.sh{transform:translateY(0);opacity:1}.tt i{color:var(--primary)}.tt.ttm{border-color:var(--time)}.tt.ttm i{color:var(--time)}
+
+        /* মোডাল */
+        .mo{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.55);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+        .mo.op{opacity:1;pointer-events:auto}
+        .ms{width:100%;max-width:430px;background:var(--bg2);border-radius:22px 22px 0 0;padding:10px 20px 28px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:78dvh;overflow-y:auto}
+        .mo.op .ms{transform:translateY(0)}
+        .mh{width:38px;height:3.5px;background:var(--text-muted);border-radius:4px;margin:0 auto 14px;opacity:.35}
+        .mt{font-size:17px;font-weight:800;margin-bottom:16px}
+        .mi{width:100%;padding:11px 14px;border-radius:11px;border:1px solid var(--card-border);background:var(--surface);color:var(--text);font-family:inherit;font-size:13.5px;outline:none;transition:border-color .2s;margin-bottom:12px}
+        .mi:focus{border-color:var(--primary)}.mi::placeholder{color:var(--text-muted)}
+        .ig{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-bottom:12px}
+        .io{width:100%;aspect-ratio:1;border-radius:11px;border:1.5px solid rgba(46,204,113,0.1);background:var(--surface);color:var(--text-muted);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+        .io.sl{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}
+        .cg{display:flex;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+        .co{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s}
+        .co.sl{border-color:#fff;transform:scale(1.12)}
+        .pg{display:flex;gap:9px;margin-bottom:18px}
+        .po{flex:1;padding:9px;border-radius:11px;border:1.5px solid rgba(46,204,113,0.1);background:var(--surface);color:var(--text-muted);font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s}
+        .po.sl.ph{border-color:var(--danger);background:var(--danger-dim);color:var(--danger)}
+        .po.sl.pm{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+        .po.sl.pl{border-color:var(--primary);background:var(--primary-dim);color:var(--primary)}
+        .bp{width:100%;padding:13px;border-radius:13px;border:none;background:var(--primary);color:var(--bg);font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .15s}
+        .bp:active{transform:scale(.97);opacity:.9}
+        .bt{width:100%;padding:13px;border-radius:13px;border:none;background:var(--time);color:var(--bg);font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .15s}
+        .bt:active{transform:scale(.97);opacity:.9}
+        .bs{width:100%;padding:11px;border-radius:13px;border:1px solid var(--card-border);background:transparent;color:var(--text-muted);font-family:inherit;font-size:13px;cursor:pointer;margin-top:5px}
+
+        /* স্প্ল্যাশ */
+        .sp{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s,visibility .5s}
+        .sp.hd{opacity:0;visibility:hidden}
+        .sp-l{font-size:34px;font-weight:900;color:var(--primary);animation:spP 1.2s ease-in-out infinite}
+        .sp-s{font-size:12px;color:var(--text-muted);margin-top:7px}
+        .sp-b{width:110px;height:3px;background:var(--surface);border-radius:3px;margin-top:22px;overflow:hidden}
+        .sp-bf{height:100%;background:var(--primary);border-radius:3px;animation:spL 1.5s ease-out forwards}
+        @keyframes spP{0%,100%{opacity:1}50%{opacity:.55}}
+        @keyframes spL{from{width:0}to{width:100%}}
+        @keyframes tPulse{0%,100%{filter:drop-shadow(0 0 5px rgba(0,191,165,0.15))}50%{filter:drop-shadow(0 0 16px rgba(0,191,165,0.45))}}
+        .tGlow{animation:tPulse 2s ease-in-out infinite}
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    </style>
+</head>
+<body>
+<div class="sp" id="splash"><div class="sp-l">সচেতন</div><div class="sp-s">পরিমিত ব্যবহার</div><div class="sp-b"><div class="sp-bf"></div></div></div>
+<div class="bg-orb orb1"></div><div class="bg-orb orb2"></div><div class="bg-orb orb3"></div>
+<div class="tc" id="toasts"></div>
+
+<div class="shell">
+    <header class="hdr"><div class="logo">সচেতন<span>v3.0</span></div>
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--surface);border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center"><i class="fas fa-user" style="font-size:12px;color:var(--text-muted)"></i></div>
+    </header>
+
+    <div class="pages" id="pages">
+        <!-- হোম -->
+        <section class="pg on" id="pgHome">
+            <div style="margin-bottom:2px"><div style="font-size:12.5px;color:var(--text-muted)" id="gTime"></div><div style="font-size:19px;font-weight:800;margin-top:1px" id="gText"></div><div style="font-size:11.5px;color:var(--text-muted);margin-top:1px" id="gDate"></div></div>
+
+            <div class="cd" style="text-align:center">
+                <div class="cd-t" style="justify-content:center"><i class="fas fa-heart-pulse"></i> ডিজিটাল স্বাস্থ্য স্কোর</div>
+                <div class="sc-w"><div class="sc-c bth"><svg viewBox="0 0 120 120"><circle class="tk" cx="60" cy="60" r="52"/><circle class="pr" id="scPr" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="326.73"/></svg><div class="sc-n"><div class="n" id="scN">০</div><div class="l">মোট ১০০</div></div></div><div class="sc-d" id="scD">লোড হচ্ছে...</div></div>
+            </div>
+
+            <!-- কনটেক্সচুয়াল উইজেট -->
+            <div id="ctxWidgets"></div>
+
+            <div class="sg">
+                <div class="sb"><div class="sv" id="sST">০</div><div class="sl"><i class="fas fa-mobile-screen" style="margin-right:2px"></i>স্ক্রিন টাইম (মি.)</div></div>
+                <div class="sb"><div class="sv tm" id="sTK">০/০</div><div class="sl"><i class="fas fa-list-check" style="margin-right:2px"></i>কাজ সম্পন্ন</div></div>
+                <div class="sb"><div class="sv ac" id="sHB">০/৮</div><div class="sl"><i class="fas fa-fire" style="margin-right:2px"></i>অভ্যাস সম্পন্ন</div></div>
+            </div>
+
+            <div class="sh">আজকের অভ্যাস</div>
+            <div class="chips" id="chips"></div>
+
+            <div class="cd" style="border-left:3px solid var(--time);padding:14px">
+                <div style="font-size:12.5px;font-weight:700;color:var(--time);margin-bottom:4px"><i class="fas fa-clock" style="margin-right:4px"></i>সময় পরিস্থিতি</div>
+                <div style="font-size:12.5px;color:var(--text-muted);line-height:1.6" id="timeTip"></div>
+            </div>
+        </section>
+
+        <!-- সময় -->
+        <section class="pg" id="pgTime">
+            <div class="sh" style="margin-top:2px">সময় ব্যবস্থাপনা</div>
+            <div class="cd"><div class="cd-t"><i class="fas fa-chart-pie"></i> আজকের সময় কোথায় গেলো</div><div class="ta-bar" id="auditBar"></div><div class="ta-leg" id="auditLeg"></div></div>
+
+            <div class="cd" style="text-align:center">
+                <div class="cd-t" style="justify-content:center"><i class="fas fa-crosshairs"></i> ফোকাস টাইমার</div>
+                <div class="tmr-w">
+                    <div class="tmr-c" id="tmrC"><svg viewBox="0 0 200 200"><circle class="tt" cx="100" cy="100" r="88"/><circle class="tp" id="tmrPr" cx="100" cy="100" r="88" stroke-dasharray="552.92" stroke-dashoffset="0"/></svg><div class="tmr-i"><div class="tv" id="tmrD">২৫:০০</div><div class="tl" id="tmrL">প্রস্তুত</div></div></div>
+                    <div class="tmr-bs"><button class="tmr-b" onclick="tmrReset()" aria-label="রিসেট"><i class="fas fa-rotate-left"></i></button><button class="tmr-b pr" id="tmrBtn" onclick="tmrToggle()" aria-label="শুরু"><i class="fas fa-play"></i></button><button class="tmr-b" onclick="tmrSkip()" aria-label="স্কিপ"><i class="fas fa-forward"></i></button></div>
+                    <div class="tmr-pres" id="tmrPres"></div>
+                    <div class="tpick" id="taskPick" style="display:none"><div class="tpick-t">কোন কাজে ফোকাস করবেন?</div><div class="tpick-list" id="taskPickList"></div></div>
+                </div>
+            </div>
+
+            <div class="sh">আজকের কাজ</div>
+            <div class="cd" style="padding:2px 16px"><div id="taskList"></div></div>
+            <button class="bt" onclick="openAddTask()" style="margin-top:4px"><i class="fas fa-plus" style="margin-right:5px"></i>নতুন কাজ যোগ করুন</button>
+
+            <div class="sh" style="margin-top:16px">দিনের পরিকল্পনা</div>
+            <div class="cd" style="padding:12px 16px" id="timeBlocks"></div>
+        </section>
+
+        <!-- ফোন -->
+        <section class="pg" id="pgPhone">
+            <div class="sh" style="margin-top:2px">ফোন ব্যবহার</div>
+            <div class="cd"><div class="cd-t"><i class="fas fa-clock"></i> আজকের স্ক্রিন টাইম</div><div style="display:flex;align-items:baseline;gap:5px"><span style="font-size:34px;font-weight:900" id="pST">০</span><span style="font-size:13px;color:var(--text-muted)">মিনিট</span><span style="font-size:12px;color:var(--danger);margin-left:auto"><i class="fas fa-arrow-up" style="margin-right:2px"></i>১২% বেশি</span></div><div class="ch-c" style="margin-top:12px"><canvas id="hChart"></canvas></div><div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:5px">ঘণ্টা অনুযায়ী ব্যবহার (মিনিট)</div></div>
+            <div class="cd"><div class="cd-t"><i class="fas fa-hand-pointer"></i> ট্যাপ সচেতনতা</div><div class="tz" id="tapZ"><div class="tn" id="tapN">০</div><div class="tl">এখানে ট্যাপ করুন</div></div><div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10.5px;color:var(--text-muted)"><span>গড়: <strong style="color:var(--text)">১,১৮০</strong></span><span id="tapVs"></span></div></div>
+            <div class="cd"><div class="cd-t"><i class="fas fa-th-large"></i> অ্যাপ ভিত্তিক ব্যবহার</div><div id="appBars"></div></div>
+            <div class="cd"><div class="cd-t"><i class="fas fa-bell"></i> নোটিফিকেশন</div><div id="notifBrk"></div></div>
+        </section>
+
+        <!-- অভ্যাস -->
+        <section class="pg" id="pgHabits">
+            <div class="sh" style="margin-top:2px">অভ্যাস ট্র্যাকার</div>
+            <div class="wk-sum"><div class="wk-r"><svg viewBox="0 0 60 60"><circle class="tk" cx="30" cy="30" r="25"/><circle class="fl" id="wkR" cx="30" cy="30" r="25" stroke-dasharray="157.08" stroke-dashoffset="157.08"/></svg></div><div class="wk-i"><div class="wn" id="wkD">০/০</div><div class="wl">আজকের অভ্যাস</div></div><div style="margin-left:auto;text-align:right"><div style="font-size:20px;font-weight:900;color:var(--accent)" id="totS">০</div><div style="font-size:10.5px;color:var(--text-muted)">মোট স্ট্রিক</div></div></div>
+            <div class="cd" style="padding:2px 16px"><div id="habitList"></div></div>
+            <button class="bp" onclick="openAddHabit()" style="margin-top:4px"><i class="fas fa-plus" style="margin-right:5px"></i>নতুন অভ্যাস যোগ করুন</button>
+        </section>
+
+        <!-- ইনসাইট -->
+        <section class="pg" id="pgIns">
+            <div class="sh" style="margin-top:2px">ইনসাইট ও বিশ্লেষণ</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.55">ফোন ব্যবহার, অভ্যাস ও সময় ব্যবস্থাপনার ত্রিমাত্রিক বিশ্লেষণ।</div>
+
+            <div class="cd"><div class="cd-t"><i class="fas fa-clock-rotate-left"></i> সময় ফিরে পান</div><div style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">সোশ্যাল মিডিয়ায় <strong style="color:var(--text)">১ ঘণ্টা ৫২ মিনিট</strong> ব্যয়। এই সময়ে পারতেন:</div><div id="reclaim"></div></div>
+
+            <div class="sh">সময় চুরি বিশ্লেষণ</div>
+            <div class="ins bd"><div class="ins-t"><i class="fas fa-user-secret" style="margin-right:5px;color:var(--danger)"></i>ফোন কখন সময় চুরি করছে</div><div class="ins-d">আপনার ৩টি সময় ব্লকে ফোন "সময় চুরি" করেছে। পড়াশোনা ব্লকে ৩৫ মিনিট, ব্যায়াম ব্লকে ১৫ মিনিট, এবং পরিবারের সাথে সময়ে ২০ মিনিট — মোট ৭০ মিনিট নষ্ট।</div><div class="ins-s bd"><i class="fas fa-arrow-down"></i> মোট চুরি: ৭০ মিনিট</div></div>
+
+            <div class="ins tm"><div class="ins-t"><i class="fas fa-shield-halved" style="margin-right:5px;color:var(--time)"></i>ফোন-মুক্ত জোন কমপ্লায়েন্স</div><div class="ins-d">আজ ৪টি ফোন-মুক্ত জোন সেট করেছিলেন। ২টিতে সফল হয়েছেন, ২টিতে ফোন ব্যবহার করেছেন। সফলতার হার ৫০% — গত সপ্তাহে ছিল ৬০%।</div><div class="ins-s wr"><i class="fas fa-triangle-exclamation"></i> ৫০% কমপ্লায়েন্স</div></div>
+
+            <div class="sh" style="margin-top:4px">ত্রিমাত্রিক সম্পর্ক</div>
+
+            <div class="ins tm"><div class="ins-t"><i class="fas fa-crosshairs" style="margin-right:5px;color:var(--time)"></i>টাইমার → ফোন → অভ্যাস</div><div class="ins-d">টাইমার ব্যবহারের দিনগুলোতে ফোন ট্যাপ ৩৫% কমে, টাস্ক সম্পন্ন ৮০% বেশি হয়, এবং অভ্যাস মিসের হার ৪০% কমে। কিন্তু গড়ে দিনে ১.২ বার টাইমার ব্যবহার হচ্ছে — লক্ষ্য ৩ বার।</div><div class="ins-s wr"><i class="fas fa-chart-line"></i> টাইমার ব্যবহার: কম</div></div>
+
+            <div class="ins bd"><div class="ins-t"><i class="fas fa-moon" style="margin-right:5px;color:var(--danger)"></i>রাতের ফোন → পরদিনের সব কিছু</div><div class="ins-d">রাত ১০-১২টায় ফোন সর্বোচ্চ। পরদিন টাস্ক সম্পন্ন ৪০% কমে, অভ্যাস মিস ৫০% বেশি হয়, ফোকাস টাইমার ব্যবহার ৭০% কমে। এটি তিনটি ডেটার সবচেয়ে শক্তিশালী নেগেটিভ কোরিলেশন।</div><div class="ins-s bd"><i class="fas fa-link"></i> শক্তিশালী নেগেটিভ সম্পর্ক</div></div>
+
+            <div class="ins"><div class="ins-t"><i class="fas fa-person-walking" style="margin-right:5px;color:var(--primary)"></i>ফোনমুক্ত সকাল = সব উন্নতি</div><div class="ins-d">ঘুম থেকে উঠে প্রথম ৩০ মিনিট ফোন-মুক্ত থাকলে ব্যায়াম ৬০% বেশি হয়, প্রথম টাস্ক ৪৫ মিনিট আগে শুরু হয়, এবং দিনের মোট ফোন ট্যাপ ২০% কমে।</div><div class="ins-s gd"><i class="fas fa-arrow-up"></i> সবচেয়ে বেশি প্রভাব</div></div>
+
+            <div class="sh" style="margin-top:4px">স্মার্ট পরামর্শ</div>
+            <div class="sgc"><div class="sgn">১</div><div class="sgt">টাইমার ব্যবহার দিনে <strong>কমপক্ষে ৩ বার</strong> করুন। প্রতিটি কাজ শুরুর আগে ২৫ মিনিট টাইমার সেট করার অভ্যাস গড়ে তুলুন।</div></div>
+            <div class="sgc"><div class="sgn">২</div><div class="sgt">পড়াশোনা ও ব্যায়াম ব্লককে <strong>ফোন-মুক্ত জোন</strong> হিসেবে মার্ক করুন। শুরুতে ফোন দূরে রেখে শুরু করুন।</div></div>
+            <div class="sgc"><div class="sgn">৩</div><div class="sgt">রাত ১০টায় <strong>স্বয়ংক্রিয় DND</strong> চালু করুন। এটি তিনটি মেট্রিকই উন্নত করবে — ঘুম, পরদিনের কাজ, এবং অভ্যাস।</div></div>
+            <div class="sgc"><div class="sgn">৪</div><div class="sgt">সকালে উঠে <strong>সরাসরি প্রথম কাজে</strong> যান, ফোন নয়। এটি সারাদিনের মোমেন্টাম তৈরি করে।</div></div>
+
+            <div class="cd" style="margin-top:12px"><div class="cd-t"><i class="fas fa-chart-line"></i> সপ্তাহ তুলনা</div><div id="wkCmp"></div></div>
+        </section>
+    </div>
+
+    <nav class="bnav" id="bnav">
+        <div class="ni on" data-p="home" onclick="nav('home')" role="button" tabindex="0" aria-label="হোম"><i class="fas fa-house"></i><span>হোম</span></div>
+        <div class="ni" data-p="time" onclick="nav('time')" role="button" tabindex="0" aria-label="সময়"><i class="fas fa-clock"></i><span>সময়</span></div>
+        <div class="ni" data-p="phone" onclick="nav('phone')" role="button" tabindex="0" aria-label="ফোন"><i class="fas fa-mobile-screen-button"></i><span>ফোন</span></div>
+        <div class="ni" data-p="habits" onclick="nav('habits')" role="button" tabindex="0" aria-label="অভ্যাস"><i class="fas fa-list-check"></i><span>অভ্যাস</span></div>
+        <div class="ni" data-p="ins" onclick="nav('ins')" role="button" tabindex="0" aria-label="ইনসাইট"><i class="fas fa-brain"></i><span>ইনসাইট</span></div>
+    </nav>
+</div>
+
+<!-- অভ্যাস মোডাল -->
+<div class="mo" id="mHabit"><div class="ms"><div class="mh"></div><div class="mt">নতুন অভ্যাস</div><input type="text" class="mi" id="inHName" placeholder="অভ্যাসের নাম" maxlength="40"><div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">আইকন</div><div class="ig" id="hIG"></div><div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">রঙ</div><div class="cg" id="hCG"></div><button class="bp" onclick="saveHabit()">সংরক্ষণ</button><button class="bs" onclick="closeM('mHabit')">বাতিল</button></div></div>
+<!-- কাজ মোডাল -->
+<div class="mo" id="mTask"><div class="ms"><div class="mh"></div><div class="mt">নতুন কাজ</div><input type="text" class="mi" id="inTName" placeholder="কাজের নাম" maxlength="50"><div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">অগ্রাধিকার</div><div class="pg"><button class="po ph" onclick="selPri('high',this)"><i class="fas fa-arrow-up" style="margin-right:3px"></i>উচ্চ</button><button class="po pm" onclick="selPri('mid',this)"><i class="fas fa-minus" style="margin-right:3px"></i>মধ্যম</button><button class="po pl" onclick="selPri('low',this)"><i class="fas fa-arrow-down" style="margin-right:3px"></i>নিম্ন</button></div><button class="bt" onclick="saveTask()">সংরক্ষণ</button><button class="bs" onclick="closeM('mTask')">বাতিল</button></div></div>
+
+<script>
+const D=['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+const toBn=n=>String(n).replace(/\d/g,c=>D[c]);
+
+// ===== ডেটা =====
+const PD={st:272,taps:1247,notifs:38,unlocks:67,hourly:[0,0,0,0,0,2,5,15,28,18,12,22,32,14,10,20,28,38,48,52,42,30,15,5],apps:[{n:'ফেসবুক',m:80,c:'#1877F2',i:'fa-facebook-f'},{n:'ইউটিউব',m:52,c:'#FF0000',i:'fa-youtube'},{n:'হোয়াটসঅ্যাপ',m:45,c:'#25D366',i:'fa-whatsapp'},{n:'টিকটক',m:38,c:'#FE2C55',i:'fa-tiktok'},{n:'ক্রোম',m:25,c:'#4285F4',i:'fa-chrome'},{n:'অন্যান্য',m:32,c:'#6B7280',i:'fa-ellipsis'}],notifs:[{l:'হোয়াটসঅ্যাপ',c:14},{l:'ফেসবুক',c:10},{l:'ইমেইল',c:6},{l:'ইউটিউব',c:4},{l:'অন্যান্য',c:4}]};
+
+function genWeek(done){const w=[];for(let i=0;i<6;i++)w.push(Math.random()>(done?0.35:0.55));w.push(done);return w}
+
+let habits=[
+    {id:1,name:'ফজরের নামাজ',icon:'fa-mosque',color:'#2ECC71',streak:12,done:true,week:genWeek(true)},
+    {id:2,name:'পড়াশোনা',icon:'fa-book-open',color:'#1ABC9C',streak:5,done:false,week:genWeek(false)},
+    {id:3,name:'ব্যায়াম / হাঁটা',icon:'fa-person-walking',color:'#E74C3C',streak:8,done:false,week:genWeek(false)},
+    {id:4,name:'বই পড়া',icon:'fa-book',color:'#F39C12',streak:3,done:true,week:genWeek(true)},
+    {id:5,name:'পরিবারের সাথে সময়',icon:'fa-people-roof',color:'#E91E63',streak:15,done:true,week:genWeek(true)},
+    {id:6,name:'প্রচুর পানি পান',icon:'fa-glass-water',color:'#00BCD4',streak:20,done:true,week:genWeek(true)},
+    {id:7,name:'সিগারেট না খাওয়া',icon:'fa-ban-smoking',color:'#9B59B6',streak:7,done:false,week:genWeek(false)},
+    {id:8,name:'রাত ১১টার মধ্যে ঘুম',icon:'fa-moon',color:'#546E7A',streak:4,done:false,week:genWeek(false)},
+];
+
+let tasks=[
+    {id:1,name:'বাংলা এসে পড়া',pri:'high',done:false},
+    {id:2,name:'অফিসের রিপোর্ট সাবমিট',pri:'high',done:true},
+    {id:3,name:'বাজার করা',pri:'mid',done:false},
+    {id:4,name:'বোনকে ফোন করা',pri:'low',done:true},
+    {id:5,name:'কুরআন তিলাওয়াত',pri:'high',done:false},
+    {id:6,name:'রুম গুছানো',pri:'low',done:false},
+    {id:7,name:'ইংরেজি ভোকাবুলারি',pri:'mid',done:false},
+];
+
+const TB=[
+    {t:'৬:০০',n:'ঘুম থেকে ওঠা / ফজর',d:'৩০ মি.',c:'#2ECC71',pfz:false,stolen:0},
+    {t:'৬:৩০',n:'ব্যায়াম / হাঁটা',d:'৪৫ মি.',c:'#E74C3C',pfz:true,stolen:15},
+    {t:'৭:১৫',n:'নাস্তা ও প্রস্তুতি',d:'৪৫ মি.',c:'#F39C12',pfz:false,stolen:0},
+    {t:'৮:০০',n:'অফিসে যাত্রা',d:'৩০ মি.',c:'#607D8B',pfz:false,stolen:0},
+    {t:'৯:০০',n:'অফিস কাজ',d:'৪ ঘণ্টা',c:'#1ABC9C',pfz:false,stolen:0},
+    {t:'১৩:০০',n:'জুমার নামাজ / খাবার',d:'১ ঘণ্টা',c:'#2ECC71',pfz:false,stolen:0},
+    {t:'১৪:০০',n:'অফিস কাজ (বিকেল)',d:'৩ ঘণ্টা',c:'#1ABC9C',pfz:false,stolen:0},
+    {t:'১৭:০০',n:'বাসায় ফেরা',d:'৪৫ মি.',c:'#F39C12',pfz:false,stolen:0},
+    {t:'১৮:৩০',n:'পড়াশোনা',d:'২ ঘণ্টা',c:'#00BFA5',pfz:true,stolen:35},
+    {t:'২০:৩০',n:'রাতের খাবার',d:'৩০ মি.',c:'#F39C12',pfz:false,stolen:0},
+    {t:'২১:০০',n:'পরিবারের সাথে সময়',d:'১ ঘণ্টা',c:'#E91E63',pfz:true,stolen:20},
+    {t:'২২:০০',n:'বই পড়া / বিশ্রাম',d:'১ ঘণ্টা',c:'#00BFA5',pfz:false,stolen:0},
+    {t:'২৩:০০',n:'ঘুমানো',d:'৭ ঘণ্টা',c:'#546E7A',pfz:true,stolen:0},
+];
+
+const TA=[{l:'ঘুম',h:7,c:'#546E7A'},{l:'অফিস',h:7,c:'#1ABC9C'},{l:'ফোন',h:4.5,c:'#E85D3A'},{l:'পড়াশোনা',h:1.25,c:'#00BFA5'},{l:'ব্যায়াম',h:.75,c:'#E74C3C'},{l:'পরিবার',h:1,c:'#E91E63'},{l:'অন্যান্য',h:2.5,c:'#6B7280'}];
+
+let liveTaps=PD.taps,curPage='home',selIcon='fa-star',selColor='#2ECC71',selPri='mid';
+// টাইমার
+const PRES=[{l:'২৫ মি.',m:25},{l:'৫০ মি.',m:50},{l:'৫ মি.',m:5},{l:'১৫ মি.',m:15}];
+let tState='idle',tTotal=25*60,tRem=25*60,tInt=null,aPre=0,linkedTask=null;
+
+// ===== নেভ =====
+function nav(p){
+    curPage=p;
+    document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));
+    const m={home:'pgHome',time:'pgTime',phone:'pgPhone',habits:'pgHabits',ins:'pgIns'};
+    document.getElementById(m[p]).classList.add('on');
+    document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));
+    document.querySelector(`.ni[data-p="${p}"]`).classList.add('on');
+    document.getElementById('pages').scrollTop=0;
+    if(p==='phone'){setTimeout(drawChart,50);updTap();aVal('pST',0,PD.st,1200)}
+    if(p==='habits'){rHabits();updWS()}
+    if(p==='time'){rAudit();rBlocks()}
+}
+document.querySelectorAll('.ni').forEach(x=>x.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();x.click()}}));
+
+// ===== হোম =====
+function initHome(){
+    const ds=['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+    const ms=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+    const nw=new Date();
+    document.getElementById('gDate').textContent=`${ds[nw.getDay()]}, ${toBn(nw.getDate())} ${ms[nw.getMonth()]} ${toBn(nw.getFullYear())}`;
+    const h=nw.getHours();let g='শুভ রাত্রি';
+    if(h>=5&&h<12)g='শুভ সকাল';else if(h>=12&&h<17)g='শুভ দুপুর';else if(h>=17&&h<21)g='শুভ সন্ধ্যা';
+    document.getElementById('gTime').textContent=g;
+
+    // কনটেক্সচুয়াল উইজেট
+    const cw=document.getElementById('ctxWidgets');
+    if(h>=5&&h<12){
+        document.getElementById('gText').textContent='নতুন দিন শুরু হোক সচেতনভাবে';
+        const undoneH=habits.filter(x=>!x.done);
+        const topT=tasks.find(x=>!x.done&&x.pri==='high');
+        cw.innerHTML=`
+            <div class="ctx" style="background:var(--primary-dim);border:1px solid rgba(46,204,113,0.2)" onclick="nav('habits')">
+                <div class="ctx-icon" style="background:var(--primary)"><i class="fas fa-sun"></i></div>
+                <div class="ctx-info"><div class="ctx-title">সকালের অভ্যাস শুরু করুন</div><div class="ctx-sub">${toBn(undoneH.length)}টি অভ্যাস বাকি</div></div>
+                <i class="fas fa-chevron-right ctx-arrow"></i>
+            </div>
+            ${topT?`<div class="ctx" style="background:var(--time-dim);border:1px solid rgba(0,191,165,0.2)" onclick="nav('time')"><div class="ctx-icon" style="background:var(--time)"><i class="fas fa-crosshairs"></i></div><div class="ctx-info"><div class="ctx-title">প্রথম কাজ: ${topT.name}</div><div class="ctx-sub">ফোকাস টাইমার দিয়ে শুরু করুন</div></div><i class="fas fa-chevron-right ctx-arrow"></i></div>`:''}`;
+    }else if(h>=12&&h<17){
+        document.getElementById('gText').textContent='দুপুরের অগ্রগতি দেখুন';
+        const doneT=tasks.filter(x=>x.done).length;
+        cw.innerHTML=`<div class="ctx" style="background:var(--time-dim);border:1px solid rgba(0,191,165,0.2)" onclick="nav('time')"><div class="ctx-icon" style="background:var(--time)"><i class="fas fa-chart-simple"></i></div><div class="ctx-info"><div class="ctx-title">দুপুরের আপডেট</div><div class="ctx-sub">${toBn(doneT)}/${toBn(tasks.length)} কাজ সম্পন্ন</div></div><i class="fas fa-chevron-right ctx-arrow"></i></div>`;
+    }else if(h>=17&&h<21){
+        document.getElementById('gText').textContent='সন্ধ্যায় সময়ের ব্যবহার চেক করুন';
+        cw.innerHTML=`<div class="ctx" style="background:var(--accent-dim);border:1px solid rgba(240,180,41,0.2)" onclick="nav('phone')"><div class="ctx-icon" style="background:var(--accent)"><i class="fas fa-mobile-screen"></i></div><div class="ctx-info"><div class="ctx-title">আজ কতটুকু সময় ফোনে গেছে?</div><div class="ctx-sub">স্ক্রিন টাইম ও অ্যাপ ব্রেকডাউন দেখুন</div></div><i class="fas fa-chevron-right ctx-arrow"></i></div>
+        <div class="ctx" style="background:var(--danger-dim);border:1px solid rgba(232,93,58,0.2)" onclick="nav('ins')"><div class="ctx-icon" style="background:var(--danger)"><i class="fas fa-triangle-exclamation"></i></div><div class="ctx-info"><div class="ctx-title">সময় চুরি চেক করুন</div><div class="ctx-sub">আজ ৭০ মিনিট ফোনে চুরি হয়েছে</div></div><i class="fas fa-chevron-right ctx-arrow"></i></div>`;
+    }else{
+        document.getElementById('gText').textContent='রাত হয়ে গেছে, ফোন রাখুন';
+        cw.innerHTML=`<div class="ctx" style="background:var(--primary-dim);border:1px solid rgba(46,204,113,0.2)" onclick="nav('habits')"><div class="ctx-icon" style="background:var(--primary)"><i class="fas fa-moon"></i></div><div class="ctx-info"><div class="ctx-title">ঘুমানোর আগে চেক করুন</div><div class="ctx-sub">${toBn(habits.filter(x=>!x.done).length)}টি অভ্যাস এখনও বাকি</div></div><i class="fas fa-chevron-right ctx-arrow"></i></div>`;
+    }
+
+    animScore();
+    aVal('sST',0,PD.st,1200);
+    updTS();updHS();rChips();
+
+    const tips=['আজ ফোন-মুক্ত জোনে ৫০% সফলতা। ব্যায়াম ও পড়াশোনা ব্লকে ফোন ব্যবহার হয়েছে — এগুলো ফোন-মুক্ত রাখলে ফল ভালো হবে।','দিনে মাত্র ১ বার ফোকাস টাইমার ব্যবহার হয়েছে। পরবর্তী কাজে টাইমার ব্যবহার করুন — ফোন ট্যাপ ৩৫% কমবে।','৭০ মিনিট ফোন চুরি হয়েছে আজ। পড়াশোনা ব্লকেই সবচেয়ে বেশি — টাইমার ব্যবহার করলে এটি আটকানো যাবে।'];
+    document.getElementById('timeTip').textContent=tips[Math.floor(Math.random()*tips.length)];
+}
+
+function updTS(){document.getElementById('sTK').textContent=`${toBn(tasks.filter(x=>x.done).length)}/${toBn(tasks.length)}`}
+function updHS(){document.getElementById('sHB').textContent=`${toBn(habits.filter(x=>x.done).length)}/${toBn(habits.length)}`}
+
+function calcScore(){
+    let s=100;
+    if(PD.st>300)s-=25;else if(PD.st>180)s-=15;else if(PD.st>120)s-=8;
+    if(PD.taps>2000)s-=20;else if(PD.taps>1000)s-=10;
+    if(PD.notifs>50)s-=10;else if(PD.notifs>30)s-=5;
+    s+=habits.filter(x=>x.done).length*3;
+    s+=tasks.filter(x=>x.done).length*2;
+    // ফোন-মুক্ত জোন বোনাস
+    const pfzOk=TB.filter(x=>x.pfz&&x.stolen===0).length;
+    const pfzTotal=TB.filter(x=>x.pfz).length;
+    if(pfzTotal>0)s+=Math.round((pfzOk/pfzTotal)*10);
+    return Math.max(0,Math.min(100,s));
+}
+
+function animScore(){
+    const sc=calcScore(),circ=2*Math.PI*52,off=circ*(1-sc/100);
+    const el=document.getElementById('scPr'),nm=document.getElementById('scN'),ds=document.getElementById('scD');
+    el.classList.remove('wr','bd');let d='';
+    if(sc>=80)d='চমৎকার! সব দিক থেকে ভালো চলছে।';
+    else if(sc>=60){el.classList.add('wr');d='মোটামুটি ভালো। ফোন-মুক্ত জোনে মনোযোগ দিন।';}
+    else{el.classList.add('bd');d='মনোযোগ দিন! ফোন ও সময় ব্যবস্থাপনায় উন্নতি দরকার।';}
+    setTimeout(()=>{el.style.strokeDashoffset=off;aVal('scN',0,sc,1500);ds.textContent=d},300);
+}
+
+function aVal(id,s,e,dur){
+    const el=document.getElementById(id);if(!el)return;const st=performance.now();
+    function u(n){const p=Math.min((n-st)/dur,1),v=1-Math.pow(1-p,3);el.textContent=toBn(Math.round(s+(e-s)*v));if(p<1)requestAnimationFrame(u)}
+    requestAnimationFrame(u);
+}
+
+function rChips(){
+    document.getElementById('chips').innerHTML=habits.map(h=>`<div class="chip ${h.done?'dn':''}" onclick="togChip(${h.id})"><div class="ci" style="background:${h.color}"><i class="fas ${h.done?'fa-check':h.icon}"></i></div><span>${h.name}</span></div>`).join('');
+}
+function togChip(id){const h=habits.find(x=>x.id===id);if(h){h.done=!h.done;if(h.done){h.streak++;h.week[6]=true;toast(`${h.name} সম্পন্ন!`)}else{h.streak=Math.max(0,h.streak-1);h.week[6]=false}rChips();animScore();updHS()}}
+
+// ===== ফোন =====
+function drawChart(){
+    const cv=document.getElementById('hChart');if(!cv)return;
+    const cx=cv.getContext('2d'),dpr=devicePixelRatio||1,r=cv.parentElement.getBoundingClientRect();
+    cv.width=r.width*dpr;cv.height=r.height*dpr;cx.scale(dpr,dpr);
+    const w=r.width,h=r.height,pd={t:14,r:6,b:26,l:30},cw=w-pd.l-pd.r,ch=h-pd.t-pd.b;
+    const data=PD.hourly,mx=Math.max(...data,1);
+    cx.strokeStyle='rgba(46,204,113,0.06)';cx.lineWidth=1;
+    for(let i=0;i<=4;i++){const y=pd.t+(ch/4)*i;cx.beginPath();cx.moveTo(pd.l,y);cx.lineTo(w-pd.r,y);cx.stroke()}
+    const gr=cx.createLinearGradient(0,pd.t,0,h-pd.b);gr.addColorStop(0,'rgba(46,204,113,0.22)');gr.addColorStop(1,'rgba(46,204,113,0.01)');
+    cx.beginPath();cx.moveTo(pd.l,h-pd.b);
+    data.forEach((v,i)=>{cx.lineTo(pd.l+(cw/23)*i,pd.t+ch-(v/mx)*ch)});
+    cx.lineTo(pd.l+cw,h-pd.b);cx.closePath();cx.fillStyle=gr;cx.fill();
+    cx.beginPath();cx.strokeStyle='#2ECC71';cx.lineWidth=2.5;cx.lineJoin='round';cx.lineCap='round';
+    data.forEach((v,i)=>{const x=pd.l+(cw/23)*i,y=pd.t+ch-(v/mx)*ch;i===0?cx.moveTo(x,y):cx.lineTo(x,y)});cx.stroke();
+    data.forEach((v,i)=>{if(v<1)return;cx.beginPath();cx.arc(pd.l+(cw/23)*i,pd.t+ch-(v/mx)*ch,Math.max(2.5,2.5),0,Math.PI*2);cx.fillStyle='#2ECC71';cx.fill()});
+    const bh=['১২','১','২','৩','৪','৫','৬','৭','৮','৯','১০','১১','১২','১','২','৩','৪','৫','৬','৭','৮','৯','১০','১১'];
+    cx.fillStyle='#5E8E72';cx.font='9.5px "Noto Sans Bengali"';cx.textAlign='center';
+    for(let i=0;i<24;i+=3)cx.fillText(bh[i],pd.l+(cw/23)*i,h-6);
+    cx.textAlign='right';for(let i=0;i<=4;i++){cx.fillText(toBn(Math.round(mx-(mx/4)*i)),pd.l-5,pd.t+(ch/4)*i+4)}
+}
+
+function initTap(){
+    document.getElementById('tapZ').addEventListener('pointerdown',function(e){
+        liveTaps++;updTap();
+        const rp=document.createElement('div');rp.className='trp';
+        const r=this.getBoundingClientRect();rp.style.left=(e.clientX-r.left-18)+'px';rp.style.top=(e.clientY-r.top-18)+'px';
+        this.appendChild(rp);setTimeout(()=>rp.remove(),550);
+        const n=document.getElementById('tapN');n.classList.add('bp');setTimeout(()=>n.classList.remove('bp'),120);
+    });
+}
+function updTap(){
+    const el=document.getElementById('tapN');if(el)el.textContent=toBn(liveTaps);
+    const v=document.getElementById('tapVs');if(v){const d=liveTaps-1180;v.textContent=d>0?`গড়ের চেয়ে ${toBn(d)} বেশি`:`গড়ের চেয়ে ${toBn(Math.abs(d))} কম`;v.style.color=d>0?'var(--danger)':'var(--primary)'}
+}
+
+function rAppBars(){
+    const c=document.getElementById('appBars'),mx=Math.max(...PD.apps.map(a=>a.m));
+    c.innerHTML=PD.apps.map(a=>`<div class="abi"><div class="aico" style="background:${a.c}"><i class="fab ${a.i}"></i></div><div class="ainf"><div class="anm">${a.n}</div><div class="atm">${toBn(a.m)} মিনিট</div><div class="abtr"><div class="abfl" style="width:0%;background:${a.c}" data-w="${(a.m/mx)*100}%"></div></div></div></div>`).join('');
+    setTimeout(()=>c.querySelectorAll('.abfl').forEach(b=>b.style.width=b.dataset.w),100);
+}
+function rNotifs(){document.getElementById('notifBrk').innerHTML=PD.notifs.map(n=>`<div class="nfr"><span class="nl">${n.l}</span><span style="font-weight:700;color:${n.c>8?'var(--danger)':'var(--text)'}">${toBn(n.c)}</span></div>`).join('')}
+
+// ===== অভ্যাস =====
+function rHabits(){
+    const dayNames=['শনি','রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র'];
+    const today=new Date().getDay();const todayIdx=(today+1)%7; // শনি=0 হিসেবে
+    document.getElementById('habitList').innerHTML=habits.map(h=>`
+        <div class="hci" onclick="togH(${h.id})">
+            <div class="hico" style="background:${h.color};${h.done?'box-shadow:0 0 14px '+h.color+'45;':''}"><i class="fas ${h.icon}"></i></div>
+            <div class="hinf">
+                <div class="hnm ${h.done?'str':''}">${h.name}</div>
+                <div class="hst"><i class="fas fa-fire"></i>${toBn(h.streak)} দিন</div>
+                <div class="hdots">${h.week.map((d,i)=>{
+                    const isToday=i===6;
+                    return `<div class="hdot ${d?'done':''} ${isToday?'today':''}" title="${dayNames[(todayIdx-6+i+7)%7]}"></div>`;
+                }).join('')}</div>
+            </div>
+            <button class="hcb ${h.done?'ck':''}" aria-label="${h.done?'সম্পন্ন':'করুন'}"><i class="fas fa-check"></i><div class="burst" id="burst-${h.id}"></div></button>
+        </div>`).join('');
+}
+
+function burst(id){
+    const el=document.getElementById('burst-'+id);if(!el)return;
+    for(let i=0;i<8;i++){
+        const p=document.createElement('div');p.className='burst-p';
+        const angle=(Math.PI*2/8)*i;const dist=16+Math.random()*8;
+        p.style.setProperty('--bx',Math.cos(angle)*dist+'px');p.style.setProperty('--by',Math.sin(angle)*dist+'px');
+        p.style.animation=`burstOut .5s ease-out forwards`;
+        el.appendChild(p);setTimeout(()=>p.remove(),500);
+    }
+}
+
+function togH(id){
+    const h=habits.find(x=>x.id===id);if(!h)return;
+    h.done=!h.done;h.week[6]=h.done;
+    if(h.done){h.streak++;toast(`${h.name} সম্পন্ন! স্ট্রিক: ${toBn(h.streak)}`);burst(id)}
+    else{h.streak=Math.max(0,h.streak-1);toast(`${h.name} আনডান`)}
+    rHabits();updWS();rChips();animScore();updHS();
+}
+
+function updWS(){
+    const dn=habits.filter(x=>x.done).length,tot=habits.length,circ=2*Math.PI*25;
+    document.getElementById('wkR').style.strokeDashoffset=circ*(1-dn/tot);
+    document.getElementById('wkD').textContent=`${toBn(dn)}/${toBn(tot)}`;
+    document.getElementById('totS').textContent=toBn(habits.reduce((s,h)=>s+h.streak,0));
+}
+
+// ===== টাইমার =====
+function initTmr(){
+    document.getElementById('tmrPres').innerHTML=PRES.map((p,i)=>`<button class="tpre ${i===0?'ac':''}" onclick="setPre(${i},this)">${p.l}</button>`).join('');
+    updTmrD();updTmrV();
+}
+function setPre(i,el){
+    if(tState==='running')return;aPre=i;tTotal=PRES[i].m*60;tRem=tTotal;tState='idle';linkedTask=null;
+    el.parentElement.querySelectorAll('.tpre').forEach(b=>b.classList.remove('ac'));el.classList.add('ac');
+    document.getElementById('tmrBtn').innerHTML='<i class="fas fa-play"></i>';
+    document.getElementById('tmrPr').classList.remove('ps','dn');
+    document.getElementById('tmrC').classList.remove('tGlow');
+    document.getElementById('tmrL').textContent='প্রস্তুত';
+    document.getElementById('taskPick').style.display='none';
+    updTmrD();updTmrV();
+}
+function updTmrD(){const m=Math.floor(tRem/60),s=tRem%60;document.getElementById('tmrD').textContent=`${toBn(String(m).padStart(2,'0'))}:${toBn(String(s).padStart(2,'0'))}`}
+function updTmrV(){const circ=2*Math.PI*88,prog=tTotal>0?(tRem/tTotal):1;document.getElementById('tmrPr').style.strokeDashoffset=circ*(1-prog)}
+function showTaskPicker(){
+    const undone=tasks.filter(x=>!x.done);
+    if(undone.length===0){document.getElementById('taskPick').style.display='none';return}
+    document.getElementById('taskPick').style.display='block';
+    document.getElementById('taskPickList').innerHTML=undone.map(t=>{
+        const pc=t.pri==='high'?'hi':t.pri==='mid'?'mi':'lo';const pl=t.pri==='high'?'উচ্চ':t.pri==='mid'?'মধ্যম':'নিম্ন';
+        return `<div class="tpick-item ${linkedTask===t.id?'sel':''}" onclick="pickTask(${t.id})"><span class="pb ${pc}" style="font-size:8px">${pl}</span><span>${t.name}</span></div>`;
+    }).join('');
+}
+function pickTask(id){linkedTask=id;showTaskPicker()}
+function tmrToggle(){
+    if(tState==='idle'||tState==='done'){
+        if(tState==='done')tRem=tTotal;
+        if(!linkedTask)showTaskPicker();
+        tState='running';startTmrInt();
+        document.getElementById('tmrBtn').innerHTML='<i class="fas fa-pause"></i>';
+        const tName=linkedTask?tasks.find(x=>x.id===linkedTask)?.name:'';
+        document.getElementById('tmrL').textContent=tName||'ফোকাস চলছে...';
+        document.getElementById('tmrPr').classList.remove('ps','dn');
+        document.getElementById('tmrC').classList.add('tGlow');
+        toast('ফোকাস শুরু!','tm');
+    }else if(tState==='running'){
+        tState='paused';clearInterval(tInt);
+        document.getElementById('tmrBtn').innerHTML='<i class="fas fa-play"></i>';
+        document.getElementById('tmrL').textContent='বিরতি';
+        document.getElementById('tmrPr').classList.add('ps');
+        document.getElementById('tmrC').classList.remove('tGlow');
+    }else if(tState==='paused'){
+        tState='running';startTmrInt();
+        document.getElementById('tmrBtn').innerHTML='<i class="fas fa-pause"></i>';
+        document.getElementById('tmrPr').classList.remove('ps');
+        document.getElementById('tmrC').classList.add('tGlow');
+    }
+}
+function startTmrInt(){clearInterval(tInt);tInt=setInterval(()=>{tRem--;updTmrD();updTmrV();if(tRem<=0){clearInterval(tInt);tState='done';document.getElementById('tmrBtn').innerHTML='<i class="fas fa-redo"></i>';document.getElementById('tmrL').textContent='সম্পন্ন!';document.getElementById('tmrPr').classList.remove('ps');document.getElementById('tmrPr').classList.add('dn');document.getElementById('tmrC').classList.remove('tGlow');
+    // লিংকড টাস্ক অটো-চেক
+    if(linkedTask){const t=tasks.find(x=>x.id===linkedTask);if(t&&!t.done){t.done=true;rTasks();updTS();animScore();toast(`"${t.name}" অটো-সম্পন্ন!`,'tm')}}
+    toast('ফোকাস সেশন সম্পন্ন!','tm')}},1000)}
+function tmrReset(){clearInterval(tInt);tState='idle';tRem=tTotal;linkedTask=null;document.getElementById('tmrBtn').innerHTML='<i class="fas fa-play"></i>';document.getElementById('tmrL').textContent='প্রস্তুত';document.getElementById('tmrPr').classList.remove('ps','dn');document.getElementById('tmrC').classList.remove('tGlow');document.getElementById('taskPick').style.display='none';updTmrD();updTmrV()}
+function tmrSkip(){clearInterval(tInt);tState='done';tRem=0;document.getElementById('tmrBtn').innerHTML='<i class="fas fa-redo"></i>';document.getElementById('tmrL').textContent='স্কিপ';document.getElementById('tmrPr').classList.remove('ps');document.getElementById('tmrPr').classList.add('dn');document.getElementById('tmrC').classList.remove('tGlow');updTmrD();updTmrV()}
+
+// ===== টাস্ক =====
+function rTasks(){
+    const sorted=[...tasks].sort((a,b)=>{const p={high:0,mid:1,low:2};return p[a.pri]-p[b.pri]});
+    document.getElementById('taskList').innerHTML=sorted.map(t=>{
+        const pc=t.pri==='high'?'hi':t.pri==='mid'?'mi':'lo';const pl=t.pri==='high'?'উচ্চ':t.pri==='mid'?'মধ্যম':'নিম্ন';
+        return `<div class="tsi" onclick="togT(${t.id})"><div class="tck ${t.done?'ck':''}"><i class="fas fa-check"></i><div class="burst" id="tb-${t.id}"></div></div><div class="tinf"><div class="tnm ${t.done?'str':''}">${t.name}</div><div class="tmeta"><span class="pb ${pc}">${pl}</span></div></div></div>`;
+    }).join('');
+}
+function togT(id){
+    const t=tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;
+    if(t.done){toast(`"${t.name}" সম্পন্ন!`,'tm');tBurst(id)}
+    rTasks();updTS();animScore();
+}
+function tBurst(id){
+    const el=document.getElementById('tb-'+id);if(!el)return;
+    for(let i=0;i<6;i++){const p=document.createElement('div');p.className='burst-p';p.style.background='var(--time)';const a=(Math.PI*2/6)*i,d=14+Math.random()*6;p.style.setProperty('--bx',Math.cos(a)*d+'px');p.style.setProperty('--by',Math.sin(a)*d+'px');p.style.animation='burstOut .45s ease-out forwards';el.appendChild(p);setTimeout(()=>p.remove(),450)}
+}
+function openAddTask(){document.getElementById('mTask').classList.add('op');document.getElementById('inTName').value='';selPri='mid';document.querySelectorAll('.po').forEach(b=>b.classList.remove('sl'));document.querySelector('.po.pm').classList.add('sl');setTimeout(()=>document.getElementById('inTName').focus(),350)}
+function selPri(p,el){selPri=p;document.querySelectorAll('.po').forEach(b=>b.classList.remove('sl'));el.classList.add('sl')}
+function saveTask(){
+    const n=document.getElementById('inTName').value.trim();if(!n){toast('কাজের নাম লিখুন');return}
+    tasks.push({id:Math.max(...tasks.map(x=>x.id))+1,name:n,pri:selPri,done:false});
+    closeM('mTask');rTasks();updTS();animScore();toast(`"${n}" যোগ হয়েছে!`,'tm');
+}
+
+// ===== সময় ব্লক =====
+function rAudit(){
+    const tot=TA.reduce((s,a)=>s+a.h,0);
+    document.getElementById('auditBar').innerHTML=TA.map(a=>`<div class="ta-seg" style="width:${(a.h/tot)*100}%;background:${a.c}">${(a.h/tot)*100>9?toBn(a.h)+'h':''}</div>`).join('');
+    document.getElementById('auditLeg').innerHTML=TA.map(a=>`<div class="ta-li"><div class="ta-ld" style="background:${a.c}"></div>${a.l}: ${toBn(a.h)} ঘণ্টা</div>`).join('');
+}
+
+function rBlocks(){
+    const now=new Date(),nowM=now.getHours()*60+now.getMinutes();
+    document.getElementById('timeBlocks').innerHTML=TB.map((b,i)=>{
+        const parts=b.t.split(':');const bMin=parseInt(parts[0])*60+parseInt(parts[1]||0);
+        const next=TB[i+1];let nxtMin=24*60;if(next){const np=next.t.split(':');nxtMin=parseInt(np[0])*60+parseInt(np[1]||0)}
+        let cls='';if(nowM>=nxtMin)cls='pst';else if(nowM>=bMin)cls='cur';
+
+        let badges='';
+        if(b.pfz){
+            const breached=b.stolen>0;
+            badges+=` <span class="pfz ${breached?'breached':''}"><i class="fas fa-${breached?'xmark':'shield-halved'}" style="margin-right:2px"></i>${breached?'চুরি হয়েছে':'ফোন-মুক্ত'}</span>`;
+        }
+        if(b.stolen>0&&!b.pfz)badges+=` <span class="stolen"><i class="fas fa-user-secret" style="margin-right:2px"></i>${toBn(b.stolen)} মি. চুরি</span>`;
+
+        return `<div class="tbl ${cls}"><div class="tbt">${b.t}</div><div class="tbln"><div class="tbd" style="background:${b.c}"></div></div><div class="tbc"><div class="tbn">${b.n}${badges}</div><div class="tbdur">${b.d}</div></div></div>`;
+    }).join('');
+}
+
+// ===== ইনসাইট =====
+function rIns(){
+    document.getElementById('reclaim').innerHTML=[{i:'fa-book',t:'২০ পৃষ্ঠা বই পড়া'},{i:'fa-person-walking',t:'৪০ মিনিট ব্যায়াম'},{i:'fa-book-open',t:'১টি অধ্যায় পড়াশোনা'},{i:'fa-people-roof',t:'পরিবারের সাথে গল্প'}].map(r=>`<div class="rci"><div class="rcic"><i class="fas ${r.i}"></i></div><span>${r.t}</span></div>`).join('');
+    document.getElementById('wkCmp').innerHTML=[
+        {l:'স্ক্রিন টাইম',n:'৪ ঘণ্টা ৩২ মি.',p:'৩ ঘণ্টা ৫১ মি.',b:1},
+        {l:'টাস্ক সম্পন্ন',n:'৩/৭',p:'৫/৭',b:1},
+        {l:'ফোকাস সেশন',n:'১',p:'২',b:1},
+        {l:'ফোন-মুক্ত জোন',n:'৫০%',p:'৬০%',b:1},
+        {l:'সময় চুরি',n:'৭০ মি.',p:'৪৫ মি.',b:1},
+        {l:'গড় স্ট্রিক',n:'৯.৩ দিন',p:'৮.১ দিন',b:0},
+    ].map(w=>`<div class="nfr"><span class="nl">${w.l}</span><span style="font-size:11.5px"><span style="color:var(--text-muted);text-decoration:line-through;margin-right:5px">${w.p}</span><span style="color:${w.b?'var(--danger)':'var(--primary)'};font-weight:700">${w.n}</span></span></div>`).join('');
+}
+
+// ===== মোডাল =====
+function closeM(id){document.getElementById(id).classList.remove('op')}
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('op')}));
+
+function openAddHabit(){
+    document.getElementById('mHabit').classList.add('op');
+    const icons=['fa-star','fa-heart','fa-bolt','fa-sun','fa-cloud','fa-leaf','fa-music','fa-pen','fa-dumbbell','fa-bicycle','fa-apple-whole','fa-mug-hot'];
+    document.getElementById('hIG').innerHTML=icons.map(ic=>`<div class="io ${ic===selIcon?'sl':''}" onclick="sIco('${ic}',this)"><i class="fas ${ic}"></i></div>`).join('');
+    const colors=['#2ECC71','#1ABC9C','#E74C3C','#F39C12','#E91E63','#00BCD4','#9B59B6','#546E7A','#FF5722','#607D8B'];
+    document.getElementById('hCG').innerHTML=colors.map(c=>`<div class="co ${c===selColor?'sl':''}" style="background:${c}" onclick="sClr('${c}',this)"></div>`).join('');
+    document.getElementById('inHName').value='';setTimeout(()=>document.getElementById('inHName').focus(),350);
+}
+function sIco(ic,el){selIcon=ic;el.parentElement.querySelectorAll('.io').forEach(e=>e.classList.remove('sl'));el.classList.add('sl')}
+function sClr(c,el){selColor=c;el.parentElement.querySelectorAll('.co').forEach(e=>e.classList.remove('sl'));el.classList.add('sl')}
+function saveHabit(){
+    const n=document.getElementById('inHName').value.trim();if(!n){toast('নাম লিখুন');return}
+    habits.push({id:Math.max(...habits.map(x=>x.id))+1,name:n,icon:selIcon,color:selColor,streak:0,done:false,week:genWeek(false)});
+    closeM('mHabit');rHabits();updWS();rChips();animScore();updHS();toast(`"${n}" যোগ হয়েছে!`);
+}
+
+// ===== টোস্ট =====
+function toast(msg,type){
+    const c=document.getElementById('toasts'),t=document.createElement('div');
+    t.className=`tt ${type==='tm'?'ttm':''}`;
+    t.innerHTML=`<i class="fas fa-check-circle"></i>${msg}`;
+    c.appendChild(t);requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('sh')));
+    setTimeout(()=>{t.classList.remove('sh');setTimeout(()=>t.remove(),300)},2600);
+}
+
+// ===== ইনিট =====
+window.addEventListener('resize',()=>{if(curPage==='phone')drawChart()});
+function init(){
+    setTimeout(()=>document.getElementById('splash').classList.add('hd'),1800);
+    initHome();rAppBars();rNotifs();initTap();initTmr();rTasks();rAudit();rBlocks();rIns();
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

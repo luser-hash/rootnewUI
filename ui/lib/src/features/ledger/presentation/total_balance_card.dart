@@ -30,10 +30,18 @@ class TotalBalanceCard extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 18),
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border.withValues(alpha: .72)),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: .08, blur: 22)],
+        border: Border.all(
+          color: AppThemeColors.border(context).withValues(alpha: .72),
+        ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .08),
+            blurRadius: 22,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,23 +53,23 @@ class TotalBalanceCard extends StatelessWidget {
                 height: 42,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.greenLt,
+                  color: AppThemeColors.statusSuccessBg(context),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.account_balance_wallet_outlined,
                   size: 21,
-                  color: AppColors.green,
+                  color: AppThemeColors.statusSuccessFg(context),
                 ),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'TOTAL BALANCE',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                     letterSpacing: 0.55,
                   ),
                 ),
@@ -71,10 +79,10 @@ class TotalBalanceCard extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             balance,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
-              color: AppColors.text,
+              color: AppThemeColors.text(context),
               height: 1.08,
             ),
           ),
@@ -85,7 +93,9 @@ class TotalBalanceCard extends StatelessWidget {
               fontSize: 12,
               height: 1.4,
               fontWeight: FontWeight.w700,
-              color: errorMessage == null ? AppColors.textMute : AppColors.red,
+              color: errorMessage == null
+                  ? AppThemeColors.textMuted(context)
+                  : AppThemeColors.statusErrorFg(context),
             ),
           ),
           if (pending > 0)
@@ -93,15 +103,15 @@ class TotalBalanceCard extends StatelessWidget {
               padding: const EdgeInsets.only(top: 20),
               child: Column(
                 children: <Widget>[
-                  const Divider(height: 1, color: AppColors.border),
+                  Divider(height: 1, color: AppThemeColors.divider(context)),
                   const SizedBox(height: 16),
                   _BalanceMetaItem(
                     icon: Icons.schedule_rounded,
                     label: 'Pending',
                     value:
                         '+${formatMoneyTextUnsigned(statement?.pendingTotal)}',
-                    foreground: AppColors.amber,
-                    background: AppColors.amberLt,
+                    foreground: AppThemeColors.statusWarningFg(context),
+                    background: AppThemeColors.statusWarningBg(context),
                   ),
                 ],
               ),
@@ -145,10 +155,10 @@ class _BalanceMetaItem extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.textMute,
+              color: AppThemeColors.textMuted(context),
             ),
           ),
         ),

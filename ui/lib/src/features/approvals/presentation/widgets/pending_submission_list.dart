@@ -26,14 +26,14 @@ class _PendingSubmissionList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
             child: Text(
               'Awaiting Review',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
                 letterSpacing: 0.72,
               ),
             ),
@@ -50,15 +50,15 @@ class _PendingSubmissionList extends StatelessWidget {
               _QueueMessageCard(
                 icon: Icons.error_outline,
                 message: errorMessage!,
-                background: AppColors.redLt,
-                foreground: AppColors.red,
+                background: AppThemeColors.statusErrorBg(context),
+                foreground: AppThemeColors.statusErrorFg(context),
               ),
             if (pending.isEmpty && errorMessage == null)
-              const _QueueMessageCard(
+              _QueueMessageCard(
                 icon: Icons.inbox_outlined,
                 message: 'No submissions are awaiting review.',
-                background: AppColors.surface,
-                foreground: AppColors.textMute,
+                background: AppThemeColors.surface(context),
+                foreground: AppThemeColors.textMuted(context),
               )
             else
               ...pending.map(

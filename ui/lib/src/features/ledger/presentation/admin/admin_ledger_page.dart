@@ -88,8 +88,7 @@ class _LedgerPageState extends State<LedgerPage> {
       return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
-        background: AppColors.redLt,
-        foreground: AppColors.red,
+        tone: AppMessageTone.error,
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(18),
         borderRadius: 18,
@@ -102,8 +101,7 @@ class _LedgerPageState extends State<LedgerPage> {
       return const AppMessageCard(
         icon: Icons.menu_book_outlined,
         message: 'No ledger entries found.',
-        background: AppColors.surface,
-        foreground: AppColors.textMute,
+        tone: AppMessageTone.neutral,
         margin: EdgeInsets.symmetric(horizontal: 16),
         padding: EdgeInsets.all(18),
         borderRadius: 18,
@@ -130,7 +128,7 @@ class _LedgerPageState extends State<LedgerPage> {
         await showModalBottomSheet<AdminLedgerPostResult>(
           context: context,
           isScrollControlled: true,
-          backgroundColor: AppColors.white,
+          backgroundColor: AppThemeColors.card(context),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
           ),

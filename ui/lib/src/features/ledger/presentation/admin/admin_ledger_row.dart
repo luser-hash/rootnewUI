@@ -10,8 +10,8 @@ class _LedgerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final double amount = double.tryParse(entry.amount) ?? 0;
     final bool positive = _isInflow(entry.entryType, amount);
-    final Color bg = _entryBackground(entry.entryType);
-    final Color fg = _entryForeground(entry.entryType);
+    final Color bg = _entryBackground(context, entry.entryType);
+    final Color fg = _entryForeground(context, entry.entryType);
 
     return AppTableRow(
       onTap: () => _showLedgerDetails(context, entry),
@@ -51,7 +51,7 @@ class _LedgerRow extends StatelessWidget {
                 maxLines: 1,
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
               ),
               AppTextCell(
                 entry.comment.isEmpty
@@ -60,7 +60,7 @@ class _LedgerRow extends StatelessWidget {
                 maxLines: 1,
                 fontSize: 10,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
               ),
             ],
           ),
@@ -70,14 +70,16 @@ class _LedgerRow extends StatelessWidget {
           children: <Widget>[
             AppTextCell(
               '${positive ? '+' : '-'}${formatMoneyTextUnsigned(entry.amount)}',
-              color: positive ? AppColors.green : AppColors.red,
+              color: positive
+                  ? AppThemeColors.statusSuccessFg(context)
+                  : AppThemeColors.statusErrorFg(context),
               fontSize: 14,
             ),
             AppTextCell(
               entry.txnDate,
               fontSize: 11,
               fontWeight: FontWeight.w400,
-              color: AppColors.textMute,
+              color: AppThemeColors.textMuted(context),
             ),
           ],
         ),
@@ -92,7 +94,7 @@ class _LedgerRow extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.white,
+      backgroundColor: AppThemeColors.card(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
@@ -111,13 +113,13 @@ class _LedgerRow extends StatelessWidget {
                       height: 42,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: _entryBackground(entry.entryType),
+                        color: _entryBackground(context, entry.entryType),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
                         _entryIcon(entry.entryType),
                         size: 18,
-                        color: _entryForeground(entry.entryType),
+                        color: _entryForeground(context, entry.entryType),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -129,10 +131,10 @@ class _LedgerRow extends StatelessWidget {
                             entry.memberName.isEmpty
                                 ? entry.entryType.label
                                 : entry.memberName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.text,
+                              color: AppThemeColors.text(context),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -140,10 +142,10 @@ class _LedgerRow extends StatelessWidget {
                             entry.memberContact.isEmpty
                                 ? entry.userId
                                 : entry.memberContact,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textMute,
+                              color: AppThemeColors.textMuted(context),
                             ),
                           ),
                         ],
@@ -157,7 +159,9 @@ class _LedgerRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: positive ? AppColors.green : AppColors.red,
+                    color: positive
+                        ? AppThemeColors.statusSuccessFg(context)
+                        : AppThemeColors.statusErrorFg(context),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -255,23 +259,27 @@ InputDecoration _fieldDecoration({
   );
 }
 
-Color _entryBackground(MemberLedgerEntryType type) {
+Color _entryBackground(BuildContext context, MemberLedgerEntryType type) {
   return switch (type) {
-    MemberLedgerEntryType.submission => AppColors.greenLt,
-    MemberLedgerEntryType.withdraw => AppColors.redLt,
-    MemberLedgerEntryType.adjustment => AppColors.amberLt,
-    MemberLedgerEntryType.distribution => AppColors.blueLt,
-    MemberLedgerEntryType.distributionReversal => AppColors.redLt,
+    MemberLedgerEntryType.submission => AppThemeColors.statusSuccessBg(context),
+    MemberLedgerEntryType.withdraw => AppThemeColors.statusErrorBg(context),
+    MemberLedgerEntryType.adjustment => AppThemeColors.statusWarningBg(context),
+    MemberLedgerEntryType.distribution => AppThemeColors.statusInfoBg(context),
+    MemberLedgerEntryType.distributionReversal => AppThemeColors.statusErrorBg(
+      context,
+    ),
   };
 }
 
-Color _entryForeground(MemberLedgerEntryType type) {
+Color _entryForeground(BuildContext context, MemberLedgerEntryType type) {
   return switch (type) {
-    MemberLedgerEntryType.submission => AppColors.green,
-    MemberLedgerEntryType.withdraw => AppColors.red,
-    MemberLedgerEntryType.adjustment => AppColors.amber,
-    MemberLedgerEntryType.distribution => AppColors.blue,
-    MemberLedgerEntryType.distributionReversal => AppColors.red,
+    MemberLedgerEntryType.submission => AppThemeColors.statusSuccessFg(context),
+    MemberLedgerEntryType.withdraw => AppThemeColors.statusErrorFg(context),
+    MemberLedgerEntryType.adjustment => AppThemeColors.statusWarningFg(context),
+    MemberLedgerEntryType.distribution => AppThemeColors.statusInfoFg(context),
+    MemberLedgerEntryType.distributionReversal => AppThemeColors.statusErrorFg(
+      context,
+    ),
   };
 }
 

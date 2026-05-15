@@ -39,8 +39,7 @@ class InvestmentDetailPage extends StatelessWidget {
             body = const AppMessageCard(
               icon: Icons.error_outline,
               message: 'Unable to load investment details. Please try again.',
-              background: AppColors.redLt,
-              foreground: AppColors.red,
+              tone: AppMessageTone.error,
               fullWidth: true,
             );
           } else {
@@ -68,12 +67,12 @@ class InvestmentDetailPage extends StatelessWidget {
                       height: 42,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: AppColors.blueLt,
+                        color: AppThemeColors.statusInfoBg(context),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.account_balance_outlined,
-                        color: AppColors.blue,
+                        color: AppThemeColors.statusInfoFg(context),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -85,20 +84,20 @@ class InvestmentDetailPage extends StatelessWidget {
                             investment.title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.text,
+                              color: AppThemeColors.text(context),
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             valueOrDash(investment.to),
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textMute,
+                              color: AppThemeColors.textMuted(context),
                             ),
                           ),
                         ],
@@ -149,17 +148,17 @@ class _InvestmentDetailContent extends StatelessWidget {
               child: AppMetricCard(
                 label: 'Invested',
                 value: fmt(invested),
-                background: AppColors.surface,
-                color: AppColors.text,
+                background: AppThemeColors.surface(context),
+                color: AppThemeColors.text(context),
                 borderRadius: 12,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 10,
                 ),
-                valueStyle: const TextStyle(
+                valueStyle: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.text,
+                  color: AppThemeColors.text(context),
                 ),
               ),
             ),
@@ -171,15 +170,15 @@ class _InvestmentDetailContent extends StatelessWidget {
                     ? 'Pending'
                     : '${pnl >= 0 ? '+' : '-'}${fmt(pnl)}',
                 background: pnl == null
-                    ? AppColors.surface
+                    ? AppThemeColors.surface(context)
                     : pnl >= 0
-                    ? AppColors.greenLt
-                    : AppColors.redLt,
+                    ? AppThemeColors.statusSuccessBg(context)
+                    : AppThemeColors.statusErrorBg(context),
                 color: pnl == null
-                    ? AppColors.textMute
+                    ? AppThemeColors.textMuted(context)
                     : pnl >= 0
-                    ? AppColors.green
-                    : AppColors.red,
+                    ? AppThemeColors.statusSuccessFg(context)
+                    : AppThemeColors.statusErrorFg(context),
                 borderRadius: 12,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -189,10 +188,10 @@ class _InvestmentDetailContent extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: pnl == null
-                      ? AppColors.textMute
+                      ? AppThemeColors.textMuted(context)
                       : pnl >= 0
-                      ? AppColors.green
-                      : AppColors.red,
+                      ? AppThemeColors.statusSuccessFg(context)
+                      : AppThemeColors.statusErrorFg(context),
                 ),
               ),
             ),
@@ -201,9 +200,9 @@ class _InvestmentDetailContent extends StatelessWidget {
         const SizedBox(height: 14),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: AppThemeColors.card(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppThemeColors.border(context)),
           ),
           child: Column(
             children: <Widget>[
@@ -358,7 +357,7 @@ class _InvestmentDetailContent extends StatelessWidget {
             value: detail.comment,
             padding: const EdgeInsets.all(14),
             borderRadius: 16,
-            valueColor: AppColors.textMid,
+            valueColor: AppThemeColors.textMid(context),
             valueFontSize: 13,
           ),
         ],
@@ -369,7 +368,7 @@ class _InvestmentDetailContent extends StatelessWidget {
             value: detail.closureComment,
             padding: const EdgeInsets.all(14),
             borderRadius: 16,
-            valueColor: AppColors.textMid,
+            valueColor: AppThemeColors.textMid(context),
             valueFontSize: 13,
           ),
         ],
@@ -377,8 +376,8 @@ class _InvestmentDetailContent extends StatelessWidget {
           const SizedBox(height: 10),
           AppActionButton(
             label: 'Distribution Record',
-            background: AppColors.blueLt,
-            foreground: AppColors.blue,
+            background: AppThemeColors.statusInfoBg(context),
+            foreground: AppThemeColors.statusInfoFg(context),
             onTap: onDistributionRecord,
           ),
         ],

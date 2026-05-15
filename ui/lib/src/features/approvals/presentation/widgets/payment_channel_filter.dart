@@ -33,13 +33,13 @@ class _PaymentChannelFilter extends StatelessWidget {
             selected: active,
             label: Text(filter.label),
             selectedColor: AppColors.primary,
-            backgroundColor: AppColors.white,
+            backgroundColor: AppThemeColors.card(context),
             labelStyle: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: active ? Colors.white : AppColors.textMid,
+              color: active ? Colors.white : AppThemeColors.textMid(context),
             ),
-            side: const BorderSide(color: AppColors.border),
+            side: BorderSide(color: AppThemeColors.border(context)),
             onSelected: (_) => onSelected(filter.channel),
           );
         },

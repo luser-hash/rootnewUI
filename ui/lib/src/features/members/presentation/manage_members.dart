@@ -120,9 +120,15 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 12)],
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .10),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Form(
         key: _formKey,
@@ -133,9 +139,7 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
               AppMessageCard(
                 icon: Icons.error_outline,
                 message: _controller.errorMessage!,
-                background: AppColors.redLt,
-                foreground: AppColors.red,
-                textColor: AppColors.red,
+                tone: AppMessageTone.error,
                 padding: const EdgeInsets.all(12),
                 borderRadius: 14,
                 showBorder: false,
@@ -146,9 +150,7 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
               const AppMessageCard(
                 icon: Icons.check_circle_outline,
                 message: 'Member created successfully.',
-                background: AppColors.greenLt,
-                foreground: AppColors.green,
-                textColor: AppColors.green,
+                tone: AppMessageTone.success,
                 padding: EdgeInsets.all(12),
                 borderRadius: 14,
                 showBorder: false,

@@ -76,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final bool? changed = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.white,
+      backgroundColor: AppThemeColors.card(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
@@ -183,9 +183,15 @@ class _ProfileDetailsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 12)],
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .10),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: <Widget>[
@@ -273,16 +279,16 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                     height: 42,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: AppColors.greenLt,
+                      color: AppThemeColors.statusSuccessBg(context),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.lock_reset_rounded,
-                      color: AppColors.primary,
+                      color: AppThemeColors.statusSuccessFg(context),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
@@ -291,16 +297,16 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.text,
+                            color: AppThemeColors.text(context),
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           'Update your account password.',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textMute,
+                            color: AppThemeColors.textMuted(context),
                           ),
                         ),
                       ],
@@ -313,8 +319,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                 AppMessageCard(
                   icon: Icons.error_outline,
                   message: _errorMessage!,
-                  background: AppColors.redLt,
-                  foreground: AppColors.red,
+                  tone: AppMessageTone.error,
                   padding: const EdgeInsets.all(12),
                   borderRadius: 14,
                   iconSize: 18,

@@ -22,14 +22,22 @@ class _SubmissionCard extends StatelessWidget {
     final int colorIdx = submission.memberName.hashCode.abs();
     final String initials = _initials(submission.memberName);
     final double amount = double.tryParse(submission.amount) ?? 0;
+    final bool lockedReject = isActionLocked && !isRejecting;
+    final bool lockedApprove = isActionLocked && !isApproving;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow()],
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .15),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: <Widget>[
@@ -53,19 +61,19 @@ class _SubmissionCard extends StatelessWidget {
                         children: <Widget>[
                           Text(
                             submission.memberName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.text,
+                              color: AppThemeColors.text(context),
                             ),
                           ),
                           Text(
                             submission.memberContact.isEmpty
                                 ? submission.requestType.label
                                 : submission.memberContact,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
-                              color: AppColors.textMute,
+                              color: AppThemeColors.textMuted(context),
                             ),
                           ),
                         ],
@@ -79,10 +87,10 @@ class _SubmissionCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   fmt(amount),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -128,21 +136,23 @@ class _SubmissionCard extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: const BoxDecoration(
-              color: AppColors.surface,
-              border: Border(top: BorderSide(color: AppColors.border)),
+            decoration: BoxDecoration(
+              color: AppThemeColors.surface(context),
+              border: Border(
+                top: BorderSide(color: AppThemeColors.border(context)),
+              ),
             ),
             child: Row(
               children: <Widget>[
                 Expanded(
                   child: AppActionButton(
                     label: isRejecting ? 'Rejecting...' : '✕ Reject',
-                    background: isActionLocked && !isRejecting
-                        ? AppColors.textMute
-                        : AppColors.redLt,
-                    foreground: isActionLocked && !isRejecting
+                    background: lockedReject
+                        ? AppThemeColors.textMuted(context)
+                        : AppThemeColors.statusErrorBg(context),
+                    foreground: lockedReject
                         ? Colors.white
-                        : AppColors.red,
+                        : AppThemeColors.statusErrorFg(context),
                     onTap: isActionLocked
                         ? null
                         : () => onReject(submission.requestId),
@@ -152,8 +162,8 @@ class _SubmissionCard extends StatelessWidget {
                 Expanded(
                   child: AppActionButton(
                     label: isApproving ? 'Approving...' : '✓ Approve',
-                    background: isActionLocked && !isApproving
-                        ? AppColors.textMute
+                    background: lockedApprove
+                        ? AppThemeColors.textMuted(context)
                         : AppColors.primary,
                     foreground: Colors.white,
                     onTap: isActionLocked

@@ -28,7 +28,7 @@ class _MemberLedgerSection extends StatelessWidget {
             message: error,
             tone: AppMessageTone.neutral,
             background: Colors.transparent,
-            textColor: AppColors.textMute,
+            textColor: AppThemeColors.textMuted(context),
             padding: const EdgeInsets.all(20),
             showBorder: false,
             showIcon: false,
@@ -42,14 +42,14 @@ class _MemberLedgerSection extends StatelessWidget {
     final List<MemberLedgerEntry> entries =
         statement?.entries ?? <MemberLedgerEntry>[];
     if (entries.isEmpty) {
-      return const AppCardList(
+      return AppCardList(
         children: <Widget>[
           AppMessageCard(
             message: 'No ledger entries yet.',
             tone: AppMessageTone.neutral,
             background: Colors.transparent,
-            textColor: AppColors.textMute,
-            padding: EdgeInsets.all(20),
+            textColor: AppThemeColors.textMuted(context),
+            padding: const EdgeInsets.all(20),
             showBorder: false,
             showIcon: false,
             textAlign: TextAlign.center,
@@ -89,7 +89,7 @@ class _MemberLedgerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final double amount = double.tryParse(entry.amount) ?? 0;
     final bool positive = _isLedgerInflow(entry.entryType, amount);
-    final Color foreground = _ledgerEntryForeground(entry.entryType);
+    final Color foreground = _ledgerEntryForeground(context, entry.entryType);
 
     return Material(
       color: Colors.transparent,
@@ -101,7 +101,7 @@ class _MemberLedgerRow extends StatelessWidget {
             border: Border(
               bottom: isLast
                   ? BorderSide.none
-                  : const BorderSide(color: AppColors.border),
+                  : BorderSide(color: AppThemeColors.border(context)),
             ),
           ),
           child: Row(
@@ -111,7 +111,7 @@ class _MemberLedgerRow extends StatelessWidget {
                 height: 42,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: _ledgerEntryBackground(entry.entryType),
+                  color: _ledgerEntryBackground(context, entry.entryType),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(
@@ -128,20 +128,20 @@ class _MemberLedgerRow extends StatelessWidget {
                     Text(
                       entry.txnDate.isEmpty ? '-' : entry.txnDate,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.text,
+                        color: AppThemeColors.text(context),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       entry.entryType.label,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textMute,
+                        color: AppThemeColors.textMuted(context),
                       ),
                     ),
                   ],
@@ -152,7 +152,9 @@ class _MemberLedgerRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: positive ? AppColors.green : AppColors.red,
+                  color: positive
+                      ? AppThemeColors.statusSuccessFg(context)
+                      : AppThemeColors.statusErrorFg(context),
                 ),
               ),
             ],
@@ -170,7 +172,7 @@ class _MemberLedgerRow extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.white,
+      backgroundColor: AppThemeColors.card(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
@@ -189,13 +191,13 @@ class _MemberLedgerRow extends StatelessWidget {
                       height: 42,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: _ledgerEntryBackground(entry.entryType),
+                        color: _ledgerEntryBackground(context, entry.entryType),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
                         _ledgerEntryIcon(entry.entryType),
                         size: 18,
-                        color: _ledgerEntryForeground(entry.entryType),
+                        color: _ledgerEntryForeground(context, entry.entryType),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -205,10 +207,10 @@ class _MemberLedgerRow extends StatelessWidget {
                         children: <Widget>[
                           Text(
                             entry.entryType.label,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.text,
+                              color: AppThemeColors.text(context),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -218,10 +220,10 @@ class _MemberLedgerRow extends StatelessWidget {
                                   ? user?.fullName
                                   : entry.memberName,
                             ),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.textMute,
+                              color: AppThemeColors.textMuted(context),
                             ),
                           ),
                         ],
@@ -235,7 +237,9 @@ class _MemberLedgerRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: positive ? AppColors.green : AppColors.red,
+                    color: positive
+                        ? AppThemeColors.statusSuccessFg(context)
+                        : AppThemeColors.statusErrorFg(context),
                   ),
                 ),
                 const SizedBox(height: 14),

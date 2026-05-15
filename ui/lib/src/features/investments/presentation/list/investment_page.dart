@@ -114,8 +114,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
       return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
-        background: AppColors.redLt,
-        foreground: AppColors.red,
+        tone: AppMessageTone.error,
         fullWidth: true,
       );
     }
@@ -124,8 +123,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
       return const AppMessageCard(
         icon: Icons.savings_outlined,
         message: 'No investments found.',
-        background: AppColors.surface,
-        foreground: AppColors.textMute,
+        tone: AppMessageTone.neutral,
         fullWidth: true,
       );
     }
@@ -161,7 +159,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.white,
+      backgroundColor: AppThemeColors.card(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
       ),
@@ -233,7 +231,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
         await showModalBottomSheet<InvestmentCloseRequest>(
           context: context,
           isScrollControlled: true,
-          backgroundColor: AppColors.white,
+          backgroundColor: AppThemeColors.card(context),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
           ),

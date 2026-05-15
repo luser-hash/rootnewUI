@@ -134,24 +134,29 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
                 child: AppMetricCard(
                   value: '${submissions.length}',
                   label: 'Submissions',
-                  color: AppColors.text,
                   iconText: '📋',
-                  iconBackground: AppColors.surface,
+                  iconBackground: AppThemeColors.surface(context),
                   horizontal: true,
                   uppercaseLabel: false,
                   valueFirst: true,
                   boxShadow: <BoxShadow>[
-                    AppColors.softShadow(opacity: 0.15, blur: 8),
+                    BoxShadow(
+                      color: AppThemeColors.shadow(
+                        context,
+                      ).withValues(alpha: .15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
                   ],
-                  labelStyle: const TextStyle(
+                  labelStyle: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                   ),
-                  valueStyle: const TextStyle(
+                  valueStyle: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
               ),
@@ -160,24 +165,29 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
                 child: AppMetricCard(
                   value: '${submissions.where(_isApprovedHistory).length}',
                   label: 'Approved',
-                  color: AppColors.text,
                   iconText: '✓',
-                  iconBackground: AppColors.surface,
+                  iconBackground: AppThemeColors.surface(context),
                   horizontal: true,
                   uppercaseLabel: false,
                   valueFirst: true,
                   boxShadow: <BoxShadow>[
-                    AppColors.softShadow(opacity: 0.15, blur: 8),
+                    BoxShadow(
+                      color: AppThemeColors.shadow(
+                        context,
+                      ).withValues(alpha: .15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
                   ],
-                  labelStyle: const TextStyle(
+                  labelStyle: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                   ),
-                  valueStyle: const TextStyle(
+                  valueStyle: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
               ),
