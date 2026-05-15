@@ -6,7 +6,6 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppThemeTokens.light.background,
-      fontFamily: 'Nunito',
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
         brightness: Brightness.light,
@@ -27,7 +26,6 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppThemeTokens.dark.background,
-      fontFamily: 'Nunito',
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryLt,
         brightness: Brightness.dark,

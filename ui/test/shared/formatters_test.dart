@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ui/src/features/shared/finance.dart';
+import 'package:root_finance_ui/src/features/shared/finance.dart';
 
 void main() {
   group('money formatters', () {

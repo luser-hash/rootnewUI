@@ -1,4 +1,4 @@
-name: ui
+name: root_finance_ui
 description: "Root mobile app for member finance, approvals, and investment workflows."
 publish_to: 'none'
 version: 0.1.0+1

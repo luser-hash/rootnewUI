@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ui/core/theme/app_theme.dart';
+import 'package:root_finance_ui/core/theme/app_theme.dart';
 
 void main() {
   testWidgets('light theme semantic colors preserve existing app colors', (

@@ -1,0 +1,4 @@
+storePassword=rootfinanceappflutterrelease#123
+keyPassword=sameasstorepasswordbutforkeypassword#123
+keyAlias=root-finance-release
+storeFile=../release-keystore.jks

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ui/core/theme/theme_mode_controller.dart';
+import 'package:root_finance_ui/core/theme/theme_mode_controller.dart';
 
 void main() {
   test('theme controller loads a persisted theme mode', () async {

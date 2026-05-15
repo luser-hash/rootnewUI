@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ui/core/theme/app_theme.dart';
-import 'package:ui/src/features/shared/widgets/app_data_table.dart';
-import 'package:ui/src/features/shared/widgets/app_detail_row.dart';
-import 'package:ui/src/features/shared/widgets/app_form_fields.dart';
-import 'package:ui/src/features/shared/widgets/app_message_card.dart';
-import 'package:ui/src/features/shared/widgets/app_panel.dart';
-import 'package:ui/src/features/shared/widgets/status_pills.dart';
+import 'package:root_finance_ui/core/theme/app_theme.dart';
+import 'package:root_finance_ui/src/features/shared/widgets/app_data_table.dart';
+import 'package:root_finance_ui/src/features/shared/widgets/app_detail_row.dart';
+import 'package:root_finance_ui/src/features/shared/widgets/app_form_fields.dart';
+import 'package:root_finance_ui/src/features/shared/widgets/app_message_card.dart';
+import 'package:root_finance_ui/src/features/shared/widgets/app_panel.dart';
+import 'package:root_finance_ui/src/features/shared/widgets/status_pills.dart';
 
 void main() {
   testWidgets('AppMessageCard renders title and message', (
