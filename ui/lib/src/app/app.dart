@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -51,6 +53,7 @@ class _AppState extends State<App> {
     super.initState();
 
     _themeController = AppThemeController();
+    unawaited(_themeController.loadThemeMode());
     _authStorage = SecureAuthStorage();
     late final ApiAuthRepository authRepository;
     final ApiClient apiClient = ApiClient(
@@ -104,6 +107,13 @@ class _AppState extends State<App> {
       staffReportRepository: _staffReportRepository,
     );
     _authController.bootstrap();
+  }
+
+  @override
+  void dispose() {
+    _themeController.dispose();
+    _authController.dispose();
+    super.dispose();
   }
 
   @override

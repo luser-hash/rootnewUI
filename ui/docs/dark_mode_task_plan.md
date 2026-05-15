@@ -177,17 +177,21 @@ Acceptance checks:
 
 Current toggle behavior can be in-memory. Persist it after the visual migration is stable.
 
-- [ ] Decide storage location:
+Implementation note: the selected theme mode is stored in secure storage under
+`root_finance_theme_mode`. The app defaults to light mode when no stored
+preference exists or when the stored value is invalid.
+
+- [x] Decide storage location:
   - shared preferences, or
   - secure storage if avoiding a new dependency is preferred.
-- [ ] Save selected theme mode.
-- [ ] Restore selected theme mode during app startup.
-- [ ] Consider system mode support: light, dark, system.
+- [x] Save selected theme mode.
+- [x] Restore selected theme mode during app startup.
+- [x] Consider system mode support: light, dark, system.
 
 Acceptance checks:
 
-- [ ] User selection survives app restart.
-- [ ] Default behavior is documented.
+- [x] User selection survives app restart.
+- [x] Default behavior is documented.
 
 ### Phase 7 - Verification
 
