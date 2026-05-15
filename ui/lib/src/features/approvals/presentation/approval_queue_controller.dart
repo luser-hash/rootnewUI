@@ -41,6 +41,7 @@ class ApprovalQueueController extends ChangeNotifier {
       _queue?.results ?? <SubmissionQueueItem>[],
     );
   }
+
   List<SubmissionHistoryItem> get historyResults {
     return List<SubmissionHistoryItem>.unmodifiable(
       _history?.results ?? <SubmissionHistoryItem>[],
@@ -128,10 +129,7 @@ class ApprovalQueueController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _repository.reject(
-        requestId,
-        rejectionReason: rejectionReason,
-      );
+      await _repository.reject(requestId, rejectionReason: rejectionReason);
       remove(requestId);
       await loadHistory();
       return true;

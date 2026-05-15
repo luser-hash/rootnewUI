@@ -69,7 +69,7 @@ class _LedgerRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             AppTextCell(
-              '${positive ? '+' : '-'}${_formatMoney(entry.amount)}',
+              '${positive ? '+' : '-'}${formatMoneyTextUnsigned(entry.amount)}',
               color: positive ? AppColors.green : AppColors.red,
               fontSize: 14,
             ),
@@ -153,7 +153,7 @@ class _LedgerRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '${positive ? '+' : '-'}${_formatMoney(entry.amount)}',
+                  '${positive ? '+' : '-'}${formatMoneyTextUnsigned(entry.amount)}',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -229,51 +229,6 @@ class _LedgerRow extends StatelessWidget {
   }
 }
 
-class _MessageCard extends StatelessWidget {
-  const _MessageCard({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 10)],
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                height: 1.35,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 InputDecoration _fieldDecoration({
   required String label,
   required IconData icon,
@@ -341,17 +296,9 @@ bool _isInflow(MemberLedgerEntryType type, double amount) {
   };
 }
 
-String _formatMoney(String? value) {
-  final double amount = double.tryParse(value ?? '0') ?? 0;
-  return '৳${amount.abs().toStringAsFixed(2)}';
-}
-
 String _formatCompactMoney(String? value) {
   final double amount = double.tryParse(value ?? '0')?.abs() ?? 0;
-  if (amount >= 1000) {
-    return '৳${(amount / 1000).toStringAsFixed(1)}K';
-  }
-  return '৳${amount.toStringAsFixed(0)}';
+  return formatMoneyCompactSigned(amount);
 }
 
 String _formatDate(DateTime value) {

@@ -141,7 +141,7 @@ class _SubmissionHistoryRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   Text(
-                    _formatMoney(submission.amount),
+                    formatMoneyTextUnsigned(submission.amount),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -233,7 +233,7 @@ class _SubmissionHistoryRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  _formatMoney(submission.amount),
+                  formatMoneyTextUnsigned(submission.amount),
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,

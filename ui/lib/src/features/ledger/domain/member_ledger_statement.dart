@@ -57,10 +57,7 @@ class AdminLedgerPostRequest {
 }
 
 class AdminLedgerPostResult {
-  const AdminLedgerPostResult({
-    required this.entry,
-    required this.newBalance,
-  });
+  const AdminLedgerPostResult({required this.entry, required this.newBalance});
 
   final MemberLedgerEntry? entry;
   final String newBalance;

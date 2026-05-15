@@ -1,9 +1,5 @@
 class MemberStatementFilter {
-  const MemberStatementFilter({
-    this.fromDate,
-    this.toDate,
-    this.entryType,
-  });
+  const MemberStatementFilter({this.fromDate, this.toDate, this.entryType});
 
   final DateTime? fromDate;
   final DateTime? toDate;

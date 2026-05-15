@@ -208,9 +208,7 @@ class AppRouter {
                   path: RouteNames.manageMembersSegment,
                   builder: (BuildContext context, GoRouterState state) {
                     return _scroll(
-                      ManageMembersPage(
-                        repository: memberManagementRepository,
-                      ),
+                      ManageMembersPage(repository: memberManagementRepository),
                     );
                   },
                 ),
@@ -219,9 +217,7 @@ class AppRouter {
                   builder: (BuildContext context, GoRouterState state) {
                     final Object? extra = state.extra;
                     final MemberDetailRouteArgs? args =
-                        extra is MemberDetailRouteArgs
-                        ? extra
-                        : null;
+                        extra is MemberDetailRouteArgs ? extra : null;
 
                     if (args == null) {
                       return _scroll(const SizedBox.shrink());

@@ -52,12 +52,20 @@ features/reports/
   data/
   presentation/
     member/
+      member_report_page.dart
+      member_report_controller.dart
+      sections/
     staff/
       staff_report_page.dart
+      staff_report_controller.dart
       sections/
       widgets/
-      controllers/
 ```
+
+Current cleanup status:
+
+- `member_report.dart` and `staff_report.dart` are compatibility exports to the split implementations.
+- Shared report table/status/message/formatter helpers are now used by the split report surfaces where behavior matched.
 
 ## Priority Tasks
 

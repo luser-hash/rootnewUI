@@ -381,13 +381,13 @@ Goal: shorten large presentation files and remove repeated UI code without chang
 
 ## Phase 12 - Cleanup
 
-- [ ] Remove old private widgets after their call sites are fully migrated.
-- [ ] Remove duplicate local formatter helpers.
-- [ ] Remove unused imports.
-- [ ] Run `dart format .`.
-- [ ] Run `flutter analyze`.
-- [ ] Update `docs/large_file_refactor_plan.md` with completed decisions if APIs changed.
-- [ ] Update chunk analysis docs if final structure differs from the proposed structure.
+- [x] Remove old private widgets after their call sites are fully migrated.
+- [x] Remove duplicate local formatter helpers.
+- [x] Remove unused imports.
+- [x] Run `dart format .`.
+- [x] Run `flutter analyze`.
+- [x] Update `docs/large_file_refactor_plan.md` with completed decisions if APIs changed.
+- [x] Update chunk analysis docs if final structure differs from the proposed structure.
 
 ## Suggested Implementation Batches
 

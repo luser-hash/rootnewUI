@@ -31,9 +31,7 @@ class MemberManagementApi {
       '/users/$encodedUserId/',
     );
     final Object? data = response['data'];
-    return ManagedUser.fromJson(
-      data is Map<String, dynamic> ? data : response,
-    );
+    return ManagedUser.fromJson(data is Map<String, dynamic> ? data : response);
   }
 
   Future<Map<String, dynamic>> create(MemberCreateRequest request) {
@@ -50,9 +48,7 @@ class MemberManagementApi {
     if (data == null && response.isEmpty) {
       return detail(userId);
     }
-    return ManagedUser.fromJson(
-      data is Map<String, dynamic> ? data : response,
-    );
+    return ManagedUser.fromJson(data is Map<String, dynamic> ? data : response);
   }
 
   Future<void> delete(String userId) async {
@@ -60,10 +56,7 @@ class MemberManagementApi {
     await _apiClient.delete('/users/$encodedUserId/');
   }
 
-  List<dynamic> _extractItems(
-    Object? data,
-    Map<String, dynamic> response,
-  ) {
+  List<dynamic> _extractItems(Object? data, Map<String, dynamic> response) {
     if (data is List<dynamic>) {
       return data;
     }

@@ -40,7 +40,9 @@ class CapitalSubmissionApi {
     );
   }
 
-  Future<SubmissionApprovalQueue> queue({PaymentChannel? paymentChannel}) async {
+  Future<SubmissionApprovalQueue> queue({
+    PaymentChannel? paymentChannel,
+  }) async {
     final Uri uri = Uri(
       path: '/submission/queue/',
       queryParameters: paymentChannel == null

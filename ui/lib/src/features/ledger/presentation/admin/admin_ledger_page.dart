@@ -5,6 +5,7 @@ import '../../../shared/finance.dart';
 import '../../../shared/widgets/app_card_list.dart';
 import '../../../shared/widgets/app_data_table.dart';
 import '../../../shared/widgets/app_detail_block.dart';
+import '../../../shared/widgets/app_message_card.dart';
 import '../../../shared/widgets/app_screen_header.dart';
 import '../../data/member_ledger_repository.dart';
 import '../../domain/member_ledger_statement.dart';
@@ -84,22 +85,28 @@ class _LedgerPageState extends State<LedgerPage> {
 
     final String? error = _controller.errorMessage;
     if (error != null) {
-      return _MessageCard(
+      return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
         background: AppColors.redLt,
         foreground: AppColors.red,
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(18),
+        borderRadius: 18,
       );
     }
 
     final List<MemberLedgerEntry> entries =
         statement?.entries ?? <MemberLedgerEntry>[];
     if (entries.isEmpty) {
-      return const _MessageCard(
+      return const AppMessageCard(
         icon: Icons.menu_book_outlined,
         message: 'No ledger entries found.',
         background: AppColors.surface,
         foreground: AppColors.textMute,
+        margin: EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.all(18),
+        borderRadius: 18,
       );
     }
 

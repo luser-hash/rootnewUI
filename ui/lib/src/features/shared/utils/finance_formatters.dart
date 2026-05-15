@@ -31,6 +31,10 @@ String formatMoneyTextSigned(String? value) {
   return formatMoneySigned(num.tryParse(value ?? '') ?? 0);
 }
 
+String formatMoneyTextUnsigned(String? value) {
+  return formatMoneyUnsigned(num.tryParse(value ?? '') ?? 0);
+}
+
 String formatMoneyCompactSigned(num value) {
   final String sign = value < 0 ? '-' : '';
   final double absValue = value.abs().toDouble();

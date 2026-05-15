@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../shared/finance.dart';
 import '../../shared/widgets/app_card_list.dart';
 import '../../shared/widgets/app_data_table.dart';
+import '../../shared/widgets/app_message_card.dart';
 import '../../shared/widgets/app_screen_header.dart';
 import '../data/member_ledger_repository.dart';
 import '../domain/member_ledger_statement.dart';
@@ -74,22 +76,28 @@ class _MemberLedgerPageState extends State<MemberLedgerPage> {
 
     final String? error = _controller.errorMessage;
     if (error != null) {
-      return _MessageCard(
+      return AppMessageCard(
         icon: Icons.error_outline,
         message: error,
         background: AppColors.redLt,
         foreground: AppColors.red,
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(18),
+        borderRadius: 18,
       );
     }
 
     final List<MemberLedgerEntry> entries =
         statement?.entries ?? <MemberLedgerEntry>[];
     if (entries.isEmpty) {
-      return const _MessageCard(
+      return const AppMessageCard(
         icon: Icons.menu_book_outlined,
         message: 'No ledger entries found for your account.',
         background: AppColors.surface,
         foreground: AppColors.textMute,
+        margin: EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.all(18),
+        borderRadius: 18,
       );
     }
 
@@ -120,11 +128,11 @@ class _MemberLedgerHeaderContent extends StatelessWidget {
         <({String label, String value})>[
           (
             label: 'Balance',
-            value: _formatMoney(statement?.currentBalance ?? '0.00'),
+            value: formatMoneyTextSigned(statement?.currentBalance),
           ),
           (
             label: 'Pending',
-            value: _formatMoney(statement?.pendingTotal ?? '0.00'),
+            value: formatMoneyTextSigned(statement?.pendingTotal),
           ),
           (label: 'Entries', value: '${statement?.entryCount ?? 0}'),
         ];
@@ -465,7 +473,7 @@ class _MemberLedgerRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             AppTextCell(
-              '${positive ? '+' : ''}${_formatMoney(entry.amount)}',
+              '${positive ? '+' : ''}${formatMoneyTextSigned(entry.amount)}',
               color: positive ? AppColors.green : AppColors.red,
               fontSize: 14,
             ),
@@ -478,51 +486,6 @@ class _MemberLedgerRow extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _MessageCard extends StatelessWidget {
-  const _MessageCard({
-    required this.icon,
-    required this.message,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String message;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: foreground.withValues(alpha: .18)),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 10)],
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(icon, color: foreground),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                fontSize: 13,
-                height: 1.35,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -581,13 +544,6 @@ IconData _entryIcon(MemberLedgerEntryType type) {
     MemberLedgerEntryType.distribution => Icons.call_split_rounded,
     MemberLedgerEntryType.distributionReversal => Icons.undo_rounded,
   };
-}
-
-String _formatMoney(String value) {
-  final double amount = double.tryParse(value) ?? 0;
-  final String sign = amount < 0 ? '-' : '';
-  final String fixed = amount.abs().toStringAsFixed(2);
-  return '$sign৳$fixed';
 }
 
 String _formatDate(DateTime value) {

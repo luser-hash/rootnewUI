@@ -75,4 +75,3 @@ extension InvestmentStatusX on InvestmentStatus {
     }
   }
 }
-

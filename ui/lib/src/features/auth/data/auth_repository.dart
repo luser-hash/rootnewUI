@@ -158,7 +158,8 @@ class ApiAuthRepository implements AuthRepository {
 
     return _refreshSession(
       current,
-      persist: current.tokens.refreshToken ==
+      persist:
+          current.tokens.refreshToken ==
           (await _storage.readSession())?.tokens.refreshToken,
     );
   }

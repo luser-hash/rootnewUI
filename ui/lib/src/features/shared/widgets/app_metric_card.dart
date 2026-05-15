@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -175,7 +173,9 @@ class AppMoneyMetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String displayValue = textValue == null
-        ? (signed ? formatMoneySigned(value ?? 0) : formatMoneyUnsigned(value ?? 0))
+        ? (signed
+              ? formatMoneySigned(value ?? 0)
+              : formatMoneyUnsigned(value ?? 0))
         : textValueIsFormattedMoney
         ? formatMoneyTextSigned(textValue!)
         : textValue!;

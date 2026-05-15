@@ -148,7 +148,7 @@ class _MemberLedgerRow extends StatelessWidget {
                 ),
               ),
               Text(
-                '${positive ? '+' : '-'}${_formatMoney(entry.amount)}',
+                '${positive ? '+' : '-'}${formatMoneyTextUnsigned(entry.amount)}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -231,7 +231,7 @@ class _MemberLedgerRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '${positive ? '+' : '-'}${_formatMoney(entry.amount)}',
+                  '${positive ? '+' : '-'}${formatMoneyTextUnsigned(entry.amount)}',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -249,13 +249,13 @@ class _MemberLedgerRow extends StatelessWidget {
                   children: <Widget>[
                     AppDetailBlock(
                       label: 'Balance',
-                      value: _formatMoney(statement?.currentBalance),
+                      value: formatMoneyTextUnsigned(statement?.currentBalance),
                       borderColor: AppColors.border,
                       center: true,
                     ),
                     AppDetailBlock(
                       label: 'Pending',
-                      value: _formatMoney(statement?.pendingTotal),
+                      value: formatMoneyTextUnsigned(statement?.pendingTotal),
                       borderColor: AppColors.border,
                       center: true,
                     ),

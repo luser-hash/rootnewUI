@@ -18,7 +18,7 @@ import '../../domain/investment_close_request.dart';
 import '../../domain/investment_capital_summary.dart';
 import '../investment_controller.dart';
 import '../investment_detail_page.dart';
-import '../p&l_wallet.dart';
+import '../pnl_wallet.dart';
 
 part 'investments_header.dart';
 part 'investment_full_card.dart';

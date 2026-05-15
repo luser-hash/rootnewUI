@@ -12,6 +12,7 @@ void main() {
     test('formatMoneyUnsigned always formats absolute values', () {
       expect(formatMoneyUnsigned(-1234567.8), '৳12,34,567.80');
       expect(formatMoneyUnsigned(1234567.8), '৳12,34,567.80');
+      expect(formatMoneyTextUnsigned('-2500'), '৳2,500.00');
     });
 
     test('formatMoneyCompactSigned preserves signs for compact values', () {

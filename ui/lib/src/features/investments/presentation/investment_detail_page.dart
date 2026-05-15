@@ -93,7 +93,7 @@ class InvestmentDetailPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            _valueOrDash(investment.to),
+                            valueOrDash(investment.to),
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 12,
@@ -229,7 +229,7 @@ class _InvestmentDetailContent extends StatelessWidget {
               ),
               AppDetailRow(
                 label: 'Type',
-                value: _prettyType(detail.investmentType),
+                value: prettyEnumLabel(detail.investmentType),
                 labelExpanded: true,
                 valueTextAlign: TextAlign.end,
                 padding: const EdgeInsets.symmetric(
@@ -269,7 +269,7 @@ class _InvestmentDetailContent extends StatelessWidget {
               ),
               AppDetailRow(
                 label: 'Close Date',
-                value: _valueOrDash(detail.closeDate),
+                value: valueOrDash(detail.closeDate),
                 labelExpanded: true,
                 valueTextAlign: TextAlign.end,
                 padding: const EdgeInsets.symmetric(
@@ -279,7 +279,7 @@ class _InvestmentDetailContent extends StatelessWidget {
               ),
               AppDetailRow(
                 label: 'Fund Released At',
-                value: _formatDateTime(detail.fundReleasedAt),
+                value: formatDateTimeShort(detail.fundReleasedAt),
                 labelExpanded: true,
                 valueTextAlign: TextAlign.end,
                 padding: const EdgeInsets.symmetric(
@@ -289,7 +289,7 @@ class _InvestmentDetailContent extends StatelessWidget {
               ),
               AppDetailRow(
                 label: 'Fund Released By',
-                value: _valueOrDash(detail.fundReleasedBy),
+                value: valueOrDash(detail.fundReleasedBy),
                 labelExpanded: true,
                 valueTextAlign: TextAlign.end,
                 padding: const EdgeInsets.symmetric(
@@ -299,7 +299,7 @@ class _InvestmentDetailContent extends StatelessWidget {
               ),
               AppDetailRow(
                 label: 'Created By',
-                value: _valueOrDash(detail.createdBy?.fullName),
+                value: valueOrDash(detail.createdBy?.fullName),
                 labelExpanded: true,
                 valueTextAlign: TextAlign.end,
                 padding: const EdgeInsets.symmetric(
@@ -309,7 +309,7 @@ class _InvestmentDetailContent extends StatelessWidget {
               ),
               AppDetailRow(
                 label: 'Created By ID',
-                value: _valueOrDash(detail.createdBy?.userId),
+                value: valueOrDash(detail.createdBy?.userId),
                 labelExpanded: true,
                 valueTextAlign: TextAlign.end,
                 padding: const EdgeInsets.symmetric(
@@ -329,7 +329,7 @@ class _InvestmentDetailContent extends StatelessWidget {
               ),
               AppDetailRow(
                 label: 'Created At',
-                value: _formatDateTime(detail.createdAt),
+                value: formatDateTimeShort(detail.createdAt),
                 labelExpanded: true,
                 valueTextAlign: TextAlign.end,
                 padding: const EdgeInsets.symmetric(
@@ -339,7 +339,7 @@ class _InvestmentDetailContent extends StatelessWidget {
               ),
               AppDetailRow(
                 label: 'Updated At',
-                value: _formatDateTime(detail.updatedAt),
+                value: formatDateTimeShort(detail.updatedAt),
                 isLast: true,
                 labelExpanded: true,
                 valueTextAlign: TextAlign.end,
@@ -385,34 +385,4 @@ class _InvestmentDetailContent extends StatelessWidget {
       ],
     );
   }
-}
-
-String _valueOrDash(String? value) {
-  final String text = value?.trim() ?? '';
-  return text.isEmpty ? '-' : text;
-}
-
-String _prettyType(String value) {
-  final String normalized = value.trim().replaceAll('_', ' ').toLowerCase();
-  if (normalized.isEmpty) {
-    return '-';
-  }
-  return normalized
-      .split(RegExp(r'\s+'))
-      .where((String part) => part.isNotEmpty)
-      .map((String part) => '${part[0].toUpperCase()}${part.substring(1)}')
-      .join(' ');
-}
-
-String _formatDateTime(DateTime? value) {
-  if (value == null) {
-    return '-';
-  }
-
-  final DateTime local = value.toLocal();
-  final String month = local.month.toString().padLeft(2, '0');
-  final String day = local.day.toString().padLeft(2, '0');
-  final String hour = local.hour.toString().padLeft(2, '0');
-  final String minute = local.minute.toString().padLeft(2, '0');
-  return '${local.year}-$month-$day $hour:$minute';
 }

@@ -348,7 +348,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
     }
 
     final bool confirmed = await _confirmDelete(context);
-    if (!mounted || !confirmed) {
+    if (!context.mounted || !confirmed) {
       return;
     }
 
@@ -360,7 +360,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
     try {
       await widget.repository.delete(widget.user.userId);
 
-      if (!mounted) {
+      if (!context.mounted) {
         return;
       }
 

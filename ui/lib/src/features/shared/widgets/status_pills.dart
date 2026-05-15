@@ -126,22 +126,15 @@ class MemberStatusPill extends StatelessWidget {
 
 ({Color background, Color foreground}) appStatusPillColors(String status) {
   return switch (status.trim().toUpperCase()) {
-    'PENDING' || 'DRAFT' => (
-      background: AppColors.amberLt,
-      foreground: AppColors.amber,
-    ),
-    'APPROVED' || 'ACTIVE' || 'OPEN' || 'POSTED' => (
-      background: AppColors.greenLt,
-      foreground: AppColors.green,
-    ),
-    'REJECTED' || 'REVERSED' => (
-      background: AppColors.redLt,
-      foreground: AppColors.red,
-    ),
-    'DISTRIBUTED' => (
-      background: AppColors.blueLt,
-      foreground: AppColors.blue,
-    ),
+    'PENDING' ||
+    'DRAFT' => (background: AppColors.amberLt, foreground: AppColors.amber),
+    'APPROVED' ||
+    'ACTIVE' ||
+    'OPEN' ||
+    'POSTED' => (background: AppColors.greenLt, foreground: AppColors.green),
+    'REJECTED' ||
+    'REVERSED' => (background: AppColors.redLt, foreground: AppColors.red),
+    'DISTRIBUTED' => (background: AppColors.blueLt, foreground: AppColors.blue),
     'CLOSED' || 'INACTIVE' => (
       background: AppColors.surface,
       foreground: AppColors.textMute,

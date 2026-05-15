@@ -70,12 +70,8 @@ class _AppState extends State<App> {
       api: AuthApi(apiClient),
       storage: _authStorage,
     );
-    _authController = AuthController(
-      repository: authRepository,
-    );
-    _activityRepository = ApiActivityRepository(
-      api: ActivityApi(apiClient),
-    );
+    _authController = AuthController(repository: authRepository);
+    _activityRepository = ApiActivityRepository(api: ActivityApi(apiClient));
     _capitalSubmissionRepository = ApiCapitalSubmissionRepository(
       api: CapitalSubmissionApi(apiClient),
     );

@@ -50,12 +50,24 @@ features/investments/
     investment_workflow_service.dart
   data/
   presentation/
+    investment_page.dart
+    pnl_wallet.dart
     list/
-    detail/
-    create/
-    distribution/
+      investment_page.dart
+      investments_header.dart
+      investment_full_card.dart
+      close_investment_sheet.dart
+    investment_detail_page.dart
+    investment_create_page.dart
+    distribution_record.dart
     widgets/
 ```
+
+Current cleanup status:
+
+- `investment_page.dart` is now a compatibility export to `presentation/list/investment_page.dart`.
+- `p&l_wallet.dart` was renamed to `pnl_wallet.dart` to satisfy Dart filename linting.
+- Investment detail now uses shared text/date formatting helpers where behavior matched existing output.
 
 ## Priority Tasks
 

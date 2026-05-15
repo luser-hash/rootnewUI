@@ -202,9 +202,7 @@ class AppHeaderStatsRow extends StatelessWidget {
       children: stats.map((AppHeaderStat stat) {
         return Expanded(
           child: Container(
-            margin: EdgeInsets.only(
-              right: stat == stats.last ? 0 : 8,
-            ),
+            margin: EdgeInsets.only(right: stat == stats.last ? 0 : 8),
             padding: EdgeInsets.symmetric(
               horizontal: horizontalPadding,
               vertical: verticalPadding,

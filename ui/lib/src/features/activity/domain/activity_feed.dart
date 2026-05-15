@@ -1,8 +1,5 @@
 class ActivityFeed {
-  const ActivityFeed({
-    required this.count,
-    required this.events,
-  });
+  const ActivityFeed({required this.count, required this.events});
 
   final int count;
   final List<ActivityEvent> events;
@@ -71,10 +68,7 @@ class ActivityEvent {
 }
 
 class ActivityUser {
-  const ActivityUser({
-    required this.userId,
-    required this.fullName,
-  });
+  const ActivityUser({required this.userId, required this.fullName});
 
   final String userId;
   final String fullName;

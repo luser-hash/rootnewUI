@@ -83,8 +83,3 @@ bool _isLedgerInflow(MemberLedgerEntryType type, double amount) {
     _ => true,
   };
 }
-
-String _formatMoney(String? value) {
-  final double amount = double.tryParse(value ?? '0') ?? 0;
-  return '৳${amount.abs().toStringAsFixed(2)}';
-}

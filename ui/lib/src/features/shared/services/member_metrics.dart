@@ -10,7 +10,9 @@ class MemberMetrics {
   }
 
   static int activeMemberCount(Iterable<Member> members) {
-    return members.where((Member member) => member.status == MemberStatus.active).length;
+    return members
+        .where((Member member) => member.status == MemberStatus.active)
+        .length;
   }
 
   static int capitalSharePercent({

@@ -53,7 +53,8 @@ class _SubmissionDetailPageState extends State<SubmissionDetailPage> {
           children: <Widget>[
             const AppScreenHeader(
               title: 'Submission Detail',
-              subtitle: 'Review the full request information and decision result.',
+              subtitle:
+                  'Review the full request information and decision result.',
               padding: EdgeInsets.fromLTRB(20, 14, 20, 24),
               gradientColors: <Color>[
                 AppColors.primary,

@@ -69,7 +69,8 @@ class LandingHeroSummaryController extends ChangeNotifier {
   num _weeklyAddedFromLedger(List<MemberLedgerEntry> entries) {
     final DateTime cutoff = DateTime.now().subtract(const Duration(days: 7));
     return entries.fold<num>(0, (num sum, MemberLedgerEntry entry) {
-      final DateTime? entryDate = entry.createdAt ?? _parseTxnDate(entry.txnDate);
+      final DateTime? entryDate =
+          entry.createdAt ?? _parseTxnDate(entry.txnDate);
       final num amount = num.tryParse(entry.amount) ?? 0;
       if (entryDate == null || entryDate.isBefore(cutoff) || amount <= 0) {
         return sum;

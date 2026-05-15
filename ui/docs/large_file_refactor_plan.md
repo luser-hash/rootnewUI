@@ -463,6 +463,27 @@ First safe extraction:
 
 - Reuse shared table cells, message cards, date buttons, and money formatting.
 
+### P1: `investment_page.dart`
+
+Implemented structure:
+
+```text
+features/investments/presentation/
+  investment_page.dart        # compatibility export
+  pnl_wallet.dart
+  list/
+    investment_page.dart
+    investments_header.dart
+    investment_full_card.dart
+    close_investment_sheet.dart
+```
+
+Cleanup decisions:
+
+- Renamed `p&l_wallet.dart` to `pnl_wallet.dart` so analyzer filename lint passes.
+- Kept old report, member detail, ledger, and investment page files as compatibility exports so route imports remain stable.
+- Added `formatMoneyTextUnsigned` for string-backed money values and removed remaining local money/date/text formatter clones where shared helpers already existed.
+
 ## Recommended Implementation Order
 
 1. Add shared formatter helpers and tests.

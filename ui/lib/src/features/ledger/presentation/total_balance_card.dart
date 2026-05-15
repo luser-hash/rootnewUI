@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../shared/finance.dart';
 import '../domain/member_ledger_statement.dart';
 
 class TotalBalanceCard extends StatelessWidget {
@@ -19,9 +20,8 @@ class TotalBalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final String balance = isLoading && statement == null
         ? 'Loading...'
-        : _formatMoney(statement?.currentBalance);
-    final double pending =
-        double.tryParse(statement?.pendingTotal ?? '0') ?? 0;
+        : formatMoneyTextUnsigned(statement?.currentBalance);
+    final double pending = double.tryParse(statement?.pendingTotal ?? '0') ?? 0;
     final String supportText =
         errorMessage ??
         (isLoading ? 'Refreshing balance' : 'Available ledger balance');
@@ -33,9 +33,7 @@ class TotalBalanceCard extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border.withValues(alpha: .72)),
-        boxShadow: <BoxShadow>[
-          AppColors.softShadow(opacity: .08, blur: 22),
-        ],
+        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: .08, blur: 22)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +98,8 @@ class TotalBalanceCard extends StatelessWidget {
                   _BalanceMetaItem(
                     icon: Icons.schedule_rounded,
                     label: 'Pending',
-                    value: '+${_formatMoney(statement?.pendingTotal)}',
+                    value:
+                        '+${formatMoneyTextUnsigned(statement?.pendingTotal)}',
                     foreground: AppColors.amber,
                     background: AppColors.amberLt,
                   ),
@@ -165,9 +164,4 @@ class _BalanceMetaItem extends StatelessWidget {
       ],
     );
   }
-}
-
-String _formatMoney(String? value) {
-  final double amount = double.tryParse(value ?? '0') ?? 0;
-  return '৳${amount.abs().toStringAsFixed(2)}';
 }

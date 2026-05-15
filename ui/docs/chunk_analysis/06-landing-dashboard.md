@@ -43,11 +43,21 @@
 ```text
 features/landing/
   presentation/
-    home_screen.dart
-    home_controller.dart
-    home_action_policy.dart
+    landing_page.dart
+    landing_hero_summary_controller.dart
+    landing_approval_summary_controller.dart
     widgets/
+      home_status_bar.dart
+      home_hero.dart
+      quick_action_grid.dart
+      members_carousel.dart
+      recent_activity_section.dart
 ```
+
+Current cleanup status:
+
+- `landing_page.dart` now keeps orchestration/state while dashboard sections live in `widgets/`.
+- Quick-action assembly moved into `quick_action_grid.dart`; a shared route-permission policy is still a future architecture task.
 
 ## Priority Tasks
 

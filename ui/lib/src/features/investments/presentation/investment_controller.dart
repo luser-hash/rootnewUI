@@ -35,14 +35,10 @@ class InvestmentController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String? get actionErrorMessage => _actionErrorMessage;
   InvestmentCapitalSummary? get capitalSummary => _capitalSummary;
-  List<Investment> get investments => List<Investment>.unmodifiable(
-    _investments,
-  );
+  List<Investment> get investments =>
+      List<Investment>.unmodifiable(_investments);
 
-  Future<void> load({
-    InvestmentStatus? status,
-    String? investmentType,
-  }) async {
+  Future<void> load({InvestmentStatus? status, String? investmentType}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -164,9 +160,7 @@ class InvestmentController extends ChangeNotifier {
 
   void _replaceInvestment(Investment investment) {
     _investments = _investments
-        .map(
-          (Investment item) => item.id == investment.id ? investment : item,
-        )
+        .map((Investment item) => item.id == investment.id ? investment : item)
         .toList();
     notifyListeners();
   }
