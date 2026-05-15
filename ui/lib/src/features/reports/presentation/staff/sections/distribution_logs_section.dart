@@ -22,49 +22,51 @@ class _DistributionList extends StatelessWidget {
               ),
             ),
             child: ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+              tilePadding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
               childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-              title: Row(
+              expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+              iconColor: AppThemeColors.textMid(context),
+              collapsedIconColor: AppThemeColors.textMid(context),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Expanded(flex: 2, child: AppTextCell(item.investmentTitle)),
-                  Expanded(child: AppMoneyCell(item.pnlAmount)),
-                  Expanded(child: AppMoneyCell(item.roundedTotal)),
-                  Expanded(
-                    child: AppMoneyCell(
-                      item.remainderApplied,
-                      color: (num.tryParse(item.remainderApplied) ?? 0) == 0
-                          ? AppThemeColors.text(context)
-                          : AppColors.amber,
-                    ),
-                  ),
-                  Expanded(
-                    child: AppStatusPill(
-                      label: prettyEnumLabel(item.status),
-                      color: reversed ? AppColors.red : AppColors.green,
-                      strike: reversed,
-                      showBorder: true,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
-                        vertical: 5,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          valueOrDash(item.investmentTitle),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            height: 1.2,
+                            fontWeight: FontWeight.w900,
+                            color: AppThemeColors.text(context),
+                          ),
+                        ),
                       ),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      textHeight: null,
-                    ),
+                      const SizedBox(width: 8),
+                      AppStatusPill(
+                        label: prettyEnumLabel(item.status),
+                        color: reversed ? AppColors.red : AppColors.green,
+                        strike: reversed,
+                        showBorder: true,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 5,
+                        ),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        textHeight: null,
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 10),
+                  _DistributionAmountStrip(item: item),
+                  const SizedBox(height: 8),
+                  _DistributionMetaLine(item: item),
                 ],
-              ),
-              subtitle: Text(
-                'Posted by ${valueOrDash(item.postedBy)} at ${formatDateTimeShort(item.postedAt)} - '
-                'Reversed by ${valueOrDash(item.reversedBy)} at ${formatDateTimeShort(item.reversedAt)} - '
-                '${item.memberCount} members',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppThemeColors.textMuted(context),
-                ),
               ),
               children: <Widget>[
                 if (item.lines.isEmpty)
@@ -84,6 +86,171 @@ class _DistributionList extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+class _DistributionAmountStrip extends StatelessWidget {
+  const _DistributionAmountStrip({required this.item});
+
+  final StaffDistributionLogItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final num remainder = num.tryParse(item.remainderApplied) ?? 0;
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: _DistributionAmountTile(
+            label: 'P&L',
+            value: item.pnlAmount,
+            color: AppThemeColors.text(context),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: _DistributionAmountTile(
+            label: 'Rounded',
+            value: item.roundedTotal,
+            color: AppThemeColors.text(context),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: _DistributionAmountTile(
+            label: 'Remainder',
+            value: item.remainderApplied,
+            color: remainder == 0
+                ? AppThemeColors.text(context)
+                : AppThemeColors.statusWarningFg(context),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DistributionAmountTile extends StatelessWidget {
+  const _DistributionAmountTile({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 46),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+      decoration: BoxDecoration(
+        color: AppThemeColors.surface(context),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppThemeColors.border(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 9,
+              height: 1,
+              fontWeight: FontWeight.w900,
+              color: AppThemeColors.textMuted(context),
+            ),
+          ),
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              formatMoneyTextSigned(value),
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.05,
+                fontWeight: FontWeight.w900,
+                color: color,
+                fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DistributionMetaLine extends StatelessWidget {
+  const _DistributionMetaLine({required this.item});
+
+  final StaffDistributionLogItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: <Widget>[
+        _DistributionMetaChip(
+          icon: Icons.person_outline_rounded,
+          text: valueOrDash(item.postedBy),
+        ),
+        _DistributionMetaChip(
+          icon: Icons.schedule_rounded,
+          text: formatDateTimeShort(item.postedAt),
+        ),
+        _DistributionMetaChip(
+          icon: Icons.groups_outlined,
+          text: '${item.memberCount} members',
+        ),
+        if (item.reversedBy.trim().isNotEmpty || item.reversedAt != null)
+          _DistributionMetaChip(
+            icon: Icons.undo_rounded,
+            text:
+                '${valueOrDash(item.reversedBy)} ${formatDateTimeShort(item.reversedAt)}',
+          ),
+      ],
+    );
+  }
+}
+
+class _DistributionMetaChip extends StatelessWidget {
+  const _DistributionMetaChip({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(icon, size: 13, color: AppThemeColors.textMuted(context)),
+        const SizedBox(width: 4),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 190),
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 11,
+              height: 1.2,
+              fontWeight: FontWeight.w700,
+              color: AppThemeColors.textMuted(context),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

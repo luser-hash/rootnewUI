@@ -1,5 +1,5 @@
 name: ui
-description: "A new Flutter project."
+description: "Root mobile app for member finance, approvals, and investment workflows."
 publish_to: 'none'
 version: 0.1.0+1
 
