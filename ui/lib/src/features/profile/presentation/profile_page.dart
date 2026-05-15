@@ -363,7 +363,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                     ? 'Changing Password...'
                     : 'Change Password',
                 background: _isSubmitting
-                    ? AppColors.textMute
+                    ? AppThemeColors.textMuted(context)
                     : AppColors.primary,
                 foreground: Colors.white,
                 onTap: _isSubmitting ? null : _submit,

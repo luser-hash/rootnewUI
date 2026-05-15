@@ -27,7 +27,7 @@ class _PnlWalletPageState extends State<PnlWalletPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppThemeColors.background(context),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -50,14 +50,14 @@ class _PnlWalletPageState extends State<PnlWalletPage> {
                       }
 
                       if (snapshot.hasError || !snapshot.hasData) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
+                        return Padding(
+                          padding: const EdgeInsets.all(16),
                           child: AppMessageCard(
                             icon: Icons.error_outline,
                             message:
                                 'Unable to load P&L wallet. Please try again.',
-                            background: AppColors.redLt,
-                            foreground: AppColors.red,
+                            background: AppThemeColors.statusErrorBg(context),
+                            foreground: AppThemeColors.statusErrorFg(context),
                             fullWidth: true,
                           ),
                         );
@@ -153,7 +153,7 @@ class _WalletContent extends StatelessWidget {
                 child: _CountCard(
                   label: 'Break Even',
                   value: summary.breakEvenCount,
-                  color: AppColors.textMid,
+                  color: AppThemeColors.textMid(context),
                 ),
               ),
             ],
@@ -177,9 +177,16 @@ class _NetPnlCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.08, blur: 10)],
+        border: Border.all(color: AppThemeColors.border(context)),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .08),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: <Widget>[
@@ -188,12 +195,16 @@ class _NetPnlCard extends StatelessWidget {
             height: 46,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isProfit ? AppColors.greenLt : AppColors.redLt,
+              color: isProfit
+                  ? AppThemeColors.statusSuccessBg(context)
+                  : AppThemeColors.statusErrorBg(context),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
               Icons.account_balance_wallet_outlined,
-              color: isProfit ? AppColors.green : AppColors.red,
+              color: isProfit
+                  ? AppThemeColors.statusSuccessFg(context)
+                  : AppThemeColors.statusErrorFg(context),
             ),
           ),
           const SizedBox(width: 12),
@@ -201,12 +212,12 @@ class _NetPnlCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                const Text(
+                Text(
                   'Net P&L',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -221,10 +232,10 @@ class _NetPnlCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   '${summary.investmentCount} finalized investments',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                   ),
                 ),
               ],
@@ -252,9 +263,9 @@ class _CountCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppThemeColors.border(context)),
       ),
       child: Column(
         children: <Widget>[
@@ -270,10 +281,10 @@ class _CountCard extends StatelessWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: AppColors.textMute,
+              color: AppThemeColors.textMuted(context),
             ),
           ),
         ],
@@ -292,9 +303,9 @@ class _MoneyGrid extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppThemeColors.border(context)),
       ),
       child: Column(
         children: <Widget>[
@@ -327,13 +338,13 @@ class _MoneyRow extends StatelessWidget {
   const _MoneyRow({
     required this.label,
     required this.value,
-    this.valueColor = AppColors.text,
+    this.valueColor,
     this.showDivider = true,
   });
 
   final String label;
   final String value;
-  final Color valueColor;
+  final Color? valueColor;
   final bool showDivider;
 
   @override
@@ -342,7 +353,7 @@ class _MoneyRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         border: showDivider
-            ? const Border(bottom: BorderSide(color: AppColors.border))
+            ? Border(bottom: BorderSide(color: AppThemeColors.border(context)))
             : null,
       ),
       child: Row(
@@ -350,10 +361,10 @@ class _MoneyRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
               ),
             ),
           ),
@@ -362,7 +373,7 @@ class _MoneyRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
-              color: valueColor,
+              color: valueColor ?? AppThemeColors.text(context),
             ),
           ),
         ],

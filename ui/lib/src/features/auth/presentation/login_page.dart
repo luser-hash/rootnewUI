@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
     final AuthController authController = AuthScope.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: AppThemeColors.background(context),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
@@ -88,10 +88,16 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 18)],
+        border: Border.all(color: AppThemeColors.border(context)),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .10),
+            blurRadius: 18,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Form(
         key: _formKey,
@@ -99,23 +105,23 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Text(
+            Text(
               'Welcome back',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: AppColors.text,
+                color: AppThemeColors.text(context),
                 height: 1.15,
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Sign in to manage activity.',
               style: TextStyle(
                 fontSize: 13,
                 height: 1.45,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textMute,
+                color: AppThemeColors.textMuted(context),
               ),
             ),
             if (authController.errorMessage != null) ...<Widget>[
@@ -155,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
                   size: 20,
-                  color: AppColors.textMute,
+                  color: AppThemeColors.textMuted(context),
                 ),
                 tooltip: _obscurePassword ? 'Show password' : 'Hide password',
               ),
@@ -179,20 +185,23 @@ class _LoginPageState extends State<LoginPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    side: const BorderSide(color: AppColors.border, width: 1.5),
+                    side: BorderSide(
+                      color: AppThemeColors.border(context),
+                      width: 1.5,
+                    ),
                     onChanged: (bool? value) {
                       setState(() => _rememberMe = value ?? false);
                     },
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Remember this device',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textMid,
+                      color: AppThemeColors.textMid(context),
                     ),
                   ),
                 ),
@@ -213,7 +222,9 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 22),
             AppActionButton(
               label: isBusy ? 'Signing In...' : 'Sign In',
-              background: isBusy ? AppColors.textMute : AppColors.primary,
+              background: isBusy
+                  ? AppThemeColors.textMuted(context)
+                  : AppColors.primary,
               foreground: Colors.white,
               onTap: isBusy ? null : () => _submit(authController),
             ),
@@ -412,22 +423,28 @@ class _LoginErrorMessage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.redLt,
+        color: AppThemeColors.statusErrorBg(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.red.withValues(alpha: .22)),
+        border: Border.all(
+          color: AppThemeColors.statusErrorFg(context).withValues(alpha: .22),
+        ),
       ),
       child: Row(
         children: <Widget>[
-          const Icon(Icons.error_outline, size: 18, color: AppColors.red),
+          Icon(
+            Icons.error_outline,
+            size: 18,
+            color: AppThemeColors.statusErrorFg(context),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 height: 1.35,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
+                color: AppThemeColors.textMid(context),
               ),
             ),
           ),
@@ -445,14 +462,20 @@ class _LoginSecurityNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.greenLt,
+        color: AppThemeColors.statusSuccessBg(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.primary.withValues(alpha: .14)),
+        border: Border.all(
+          color: AppThemeColors.statusSuccessFg(context).withValues(alpha: .18),
+        ),
       ),
-      child: const Row(
+      child: Row(
         children: <Widget>[
-          Icon(Icons.verified_user_outlined, size: 18, color: AppColors.green),
-          SizedBox(width: 10),
+          Icon(
+            Icons.verified_user_outlined,
+            size: 18,
+            color: AppThemeColors.statusSuccessFg(context),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'Protected workspace for verified association admins.',
@@ -460,7 +483,7 @@ class _LoginSecurityNote extends StatelessWidget {
                 fontSize: 11,
                 height: 1.35,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
+                color: AppThemeColors.textMid(context),
               ),
             ),
           ),

@@ -234,27 +234,31 @@ class _LedgerRow extends StatelessWidget {
 }
 
 InputDecoration _fieldDecoration({
+  required BuildContext context,
   required String label,
   required IconData icon,
 }) {
   return InputDecoration(
     labelText: label,
-    prefixIcon: Icon(icon, size: 20, color: AppColors.textMute),
+    prefixIcon: Icon(icon, size: 20, color: AppThemeColors.textMuted(context)),
     filled: true,
-    fillColor: AppColors.white,
+    fillColor: AppThemeColors.elevatedSurface(context),
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-    labelStyle: const TextStyle(
+    labelStyle: TextStyle(
       fontSize: 13,
       fontWeight: FontWeight.w700,
-      color: AppColors.textMute,
+      color: AppThemeColors.textMuted(context),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: AppThemeColors.border(context)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      borderSide: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 1.5,
+      ),
     ),
   );
 }

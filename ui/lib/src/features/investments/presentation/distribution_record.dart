@@ -53,6 +53,7 @@ class _DistributionRecordPageState extends State<DistributionRecordPage> {
           child: DropdownButtonFormField<InvestmentDistributionStatus?>(
             initialValue: _status,
             decoration: _fieldDecoration(
+              context: context,
               label: 'Status',
               icon: Icons.tune_rounded,
             ),
@@ -98,12 +99,12 @@ class _DistributionRecordPageState extends State<DistributionRecordPage> {
                   }
 
                   if (snapshot.hasError) {
-                    return const AppMessageCard(
+                    return AppMessageCard(
                       icon: Icons.error_outline,
                       message:
                           'Unable to load distribution records. Please try again.',
-                      background: AppColors.redLt,
-                      foreground: AppColors.red,
+                      background: AppThemeColors.statusErrorBg(context),
+                      foreground: AppThemeColors.statusErrorFg(context),
                       fullWidth: true,
                     );
                   }
@@ -111,11 +112,11 @@ class _DistributionRecordPageState extends State<DistributionRecordPage> {
                   final List<InvestmentDistributionRecord> records =
                       snapshot.data ?? <InvestmentDistributionRecord>[];
                   if (records.isEmpty) {
-                    return const AppMessageCard(
+                    return AppMessageCard(
                       icon: Icons.call_split_rounded,
                       message: 'No distribution record exists yet.',
-                      background: AppColors.surface,
-                      foreground: AppColors.textMute,
+                      background: AppThemeColors.surface(context),
+                      foreground: AppThemeColors.textMuted(context),
                       fullWidth: true,
                     );
                   }
@@ -221,18 +222,24 @@ class _DistributionRecordCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color statusBg = record.status == InvestmentDistributionStatus.posted
-        ? AppColors.greenLt
-        : AppColors.redLt;
+        ? AppThemeColors.statusSuccessBg(context)
+        : AppThemeColors.statusErrorBg(context);
     final Color statusFg = record.status == InvestmentDistributionStatus.posted
-        ? AppColors.green
-        : AppColors.red;
+        ? AppThemeColors.statusSuccessFg(context)
+        : AppThemeColors.statusErrorFg(context);
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.08, blur: 10)],
+        border: Border.all(color: AppThemeColors.border(context)),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: AppThemeColors.shadow(context).withValues(alpha: .08),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -258,19 +265,19 @@ class _DistributionRecordCard extends StatelessWidget {
           title: Text(
             '${record.status.displayName} ${formatMoneyTextSigned(record.pnlAmount)}',
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: AppColors.text,
+              color: AppThemeColors.text(context),
             ),
           ),
           subtitle: Text(
             'Posted ${formatDateTimeShort(record.postedAt)}',
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
+              color: AppThemeColors.textMuted(context),
             ),
           ),
           children: <Widget>[
@@ -364,14 +371,14 @@ class _DistributionRecordCard extends StatelessWidget {
             ],
             if (record.lines.isNotEmpty) ...<Widget>[
               const SizedBox(height: 12),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'MEMBER SHARES',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                     letterSpacing: 0.4,
                   ),
                 ),
@@ -400,7 +407,7 @@ class _DistributionLineTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppThemeColors.surface(context),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -412,29 +419,29 @@ class _DistributionLineTile extends StatelessWidget {
                 Text(
                   valueOrDash(line.fullName),
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Ratio ${valueOrDash(line.ratioUsed)}',
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                   ),
                 ),
                 Text(
                   'Ledger ${valueOrDash(line.ledgerEntryId)}',
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                   ),
                 ),
               ],
@@ -443,10 +450,10 @@ class _DistributionLineTile extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             formatMoneyTextSigned(line.shareAmount),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: AppColors.text,
+              color: AppThemeColors.text(context),
             ),
           ),
         ],
@@ -456,6 +463,7 @@ class _DistributionLineTile extends StatelessWidget {
 }
 
 InputDecoration _fieldDecoration({
+  required BuildContext context,
   required String label,
   required IconData icon,
 }) {
@@ -463,18 +471,21 @@ InputDecoration _fieldDecoration({
     labelText: label,
     prefixIcon: Icon(icon, size: 18),
     filled: true,
-    fillColor: AppColors.white,
+    fillColor: AppThemeColors.elevatedSurface(context),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: AppThemeColors.border(context)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.border),
+      borderSide: BorderSide(color: AppThemeColors.border(context)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: AppColors.primary, width: 1.3),
+      borderSide: BorderSide(
+        color: Theme.of(context).colorScheme.primary,
+        width: 1.3,
+      ),
     ),
   );
 }

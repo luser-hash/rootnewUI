@@ -224,7 +224,7 @@ class _SubmitFundsPageState extends State<SubmitFundsPage> {
                   ? 'Submitting...'
                   : 'Submit Request',
               background: _controller.isSubmitting
-                  ? AppColors.textMute
+                  ? AppThemeColors.textMuted(context)
                   : AppColors.primary,
               foreground: Colors.white,
               onTap: _controller.isSubmitting ? null : _submit,

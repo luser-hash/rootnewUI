@@ -272,37 +272,31 @@ class _SubmissionHistoryRow extends StatelessWidget {
                     AppDetailBlock(
                       label: 'Type',
                       value: submission.requestType.label,
-                      borderColor: AppColors.border,
                       center: true,
                     ),
                     AppDetailBlock(
                       label: 'Channel',
                       value: submission.paymentChannel.label,
-                      borderColor: AppColors.border,
                       center: true,
                     ),
                     AppDetailBlock(
                       label: 'Txn Date',
                       value: valueOrDash(submission.txnDate),
-                      borderColor: AppColors.border,
                       center: true,
                     ),
                     AppDetailBlock(
                       label: 'Reviewed',
                       value: formatDateTimeShort(submission.reviewedAt),
-                      borderColor: AppColors.border,
                       center: true,
                     ),
                     AppDetailBlock(
                       label: 'Reference',
                       value: valueOrDash(submission.externalReference),
-                      borderColor: AppColors.border,
                       center: true,
                     ),
                     AppDetailBlock(
                       label: 'Reviewed By',
                       value: valueOrDash(submission.reviewedBy?.fullName),
-                      borderColor: AppColors.border,
                       center: true,
                     ),
                   ],
@@ -311,7 +305,6 @@ class _SubmissionHistoryRow extends StatelessWidget {
                 AppDetailBlock(
                   label: 'Request ID',
                   value: valueOrDash(submission.requestId),
-                  borderColor: AppColors.border,
                   selectable: true,
                 ),
                 if ((submission.memberName).trim().isNotEmpty) ...<Widget>[
@@ -319,7 +312,6 @@ class _SubmissionHistoryRow extends StatelessWidget {
                   AppDetailBlock(
                     label: 'Member',
                     value: submission.memberName,
-                    borderColor: AppColors.border,
                     selectable: true,
                   ),
                 ],
@@ -328,7 +320,6 @@ class _SubmissionHistoryRow extends StatelessWidget {
                   AppDetailBlock(
                     label: 'Contact',
                     value: submission.memberContact,
-                    borderColor: AppColors.border,
                     selectable: true,
                   ),
                 ],
@@ -338,7 +329,6 @@ class _SubmissionHistoryRow extends StatelessWidget {
                   AppDetailBlock(
                     label: 'Reviewer ID',
                     value: submission.reviewedBy!.userId,
-                    borderColor: AppColors.border,
                     selectable: true,
                   ),
                 ],
@@ -347,7 +337,6 @@ class _SubmissionHistoryRow extends StatelessWidget {
                   AppDetailBlock(
                     label: 'Rejection Reason',
                     value: submission.rejectionReason,
-                    borderColor: AppColors.border,
                     selectable: true,
                   ),
                 ],

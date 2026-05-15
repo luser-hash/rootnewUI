@@ -191,7 +191,7 @@ class _InvestmentCreatePageState extends State<InvestmentCreatePage> {
                   ? 'Creating Investment...'
                   : 'Create Investment',
               background: _isSubmitting
-                  ? AppColors.textMute
+                  ? AppThemeColors.textMuted(context)
                   : AppColors.primary,
               foreground: Colors.white,
               onTap: _isSubmitting ? null : _submit,

@@ -65,16 +65,16 @@ class _AdminLedgerPostSheetState extends State<_AdminLedgerPostSheet> {
                     height: 42,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: AppColors.greenLt,
+                      color: AppThemeColors.statusSuccessBg(context),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.add_rounded,
-                      color: AppColors.primary,
+                      color: AppThemeColors.statusSuccessFg(context),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
@@ -83,7 +83,7 @@ class _AdminLedgerPostSheetState extends State<_AdminLedgerPostSheet> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.text,
+                            color: AppThemeColors.text(context),
                           ),
                         ),
                         SizedBox(height: 2),
@@ -92,7 +92,7 @@ class _AdminLedgerPostSheetState extends State<_AdminLedgerPostSheet> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textMute,
+                            color: AppThemeColors.textMuted(context),
                           ),
                         ),
                       ],
@@ -108,6 +108,7 @@ class _AdminLedgerPostSheetState extends State<_AdminLedgerPostSheet> {
               TextFormField(
                 controller: _contactNoController,
                 decoration: _fieldDecoration(
+                  context: context,
                   label: 'Contact No',
                   icon: Icons.phone_outlined,
                 ),
@@ -119,6 +120,7 @@ class _AdminLedgerPostSheetState extends State<_AdminLedgerPostSheet> {
               DropdownButtonFormField<MemberLedgerEntryType>(
                 initialValue: _entryType,
                 decoration: _fieldDecoration(
+                  context: context,
                   label: 'Entry Type',
                   icon: Icons.tune_rounded,
                 ),
@@ -143,6 +145,7 @@ class _AdminLedgerPostSheetState extends State<_AdminLedgerPostSheet> {
               TextFormField(
                 controller: _amountController,
                 decoration: _fieldDecoration(
+                  context: context,
                   label: 'Amount',
                   icon: Icons.payments_outlined,
                 ),
@@ -163,6 +166,7 @@ class _AdminLedgerPostSheetState extends State<_AdminLedgerPostSheet> {
               TextFormField(
                 controller: _commentController,
                 decoration: _fieldDecoration(
+                  context: context,
                   label: 'Comment',
                   icon: Icons.notes_outlined,
                 ),
@@ -175,6 +179,7 @@ class _AdminLedgerPostSheetState extends State<_AdminLedgerPostSheet> {
               TextFormField(
                 controller: _referenceController,
                 decoration: _fieldDecoration(
+                  context: context,
                   label: 'Reference ID',
                   icon: Icons.tag_outlined,
                 ),
@@ -291,9 +296,11 @@ class _InlineError extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.redLt,
+        color: AppThemeColors.statusErrorBg(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.red.withValues(alpha: .18)),
+        border: Border.all(
+          color: AppThemeColors.statusErrorFg(context).withValues(alpha: .2),
+        ),
       ),
       child: Row(
         children: <Widget>[
@@ -302,10 +309,10 @@ class _InlineError extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textMid,
+                color: AppThemeColors.textMid(context),
               ),
             ),
           ),

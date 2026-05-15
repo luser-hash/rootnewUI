@@ -239,7 +239,7 @@ class _EditMemberPageState extends State<EditMemberPage> {
             AppActionButton(
               label: _isSubmitting ? 'Saving Changes...' : 'Save Changes',
               background: _isSubmitting
-                  ? AppColors.textMute
+                  ? AppThemeColors.textMuted(context)
                   : AppColors.primary,
               foreground: Colors.white,
               onTap: _isSubmitting ? null : _submit,

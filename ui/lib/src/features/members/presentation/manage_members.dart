@@ -219,7 +219,7 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
                   ? 'Creating Member...'
                   : 'Create Member',
               background: _controller.isSubmitting
-                  ? AppColors.textMute
+                  ? AppThemeColors.textMuted(context)
                   : AppColors.primary,
               foreground: Colors.white,
               onTap: _controller.isSubmitting ? null : _submit,

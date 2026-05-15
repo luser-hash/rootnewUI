@@ -46,8 +46,8 @@ class _ApprovalHeaderContent extends StatelessWidget {
                 ),
                 AppPill(
                   label: '$pendingCount pending',
-                  background: AppColors.amberLt,
-                  foreground: AppColors.amber,
+                  background: AppThemeColors.statusWarningBg(context),
+                  foreground: AppThemeColors.statusWarningFg(context),
                 ),
               ],
             ),

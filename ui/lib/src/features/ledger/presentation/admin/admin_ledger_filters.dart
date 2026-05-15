@@ -49,6 +49,7 @@ class _LedgerFiltersState extends State<_LedgerFilters> {
           DropdownButtonFormField<MemberLedgerEntryType?>(
             initialValue: filter.entryType,
             decoration: _fieldDecoration(
+              context: context,
               label: 'Entry Type',
               icon: Icons.tune_rounded,
             ),
@@ -145,6 +146,7 @@ class _LedgerFiltersState extends State<_LedgerFilters> {
           TextField(
             controller: _userIdController,
             decoration: _fieldDecoration(
+              context: context,
               label: 'Member User ID',
               icon: Icons.person_search_rounded,
             ).copyWith(suffixIcon: _UserIdApplyButton(onTap: _applyUserId)),
