@@ -76,6 +76,9 @@ class _MembersCarouselState extends State<_MembersCarousel> {
         itemBuilder: (BuildContext context, int index) {
           final ManagedUser user = users[index];
           final Member member = user.toMember();
+          final Color shadow = AppThemeColors.shadow(
+            context,
+          ).withValues(alpha: .15);
           return InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: () => widget.onMemberSelect(member, index),
@@ -83,10 +86,14 @@ class _MembersCarouselState extends State<_MembersCarousel> {
               width: 72,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: AppThemeColors.card(context),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: <BoxShadow>[
-                  AppColors.softShadow(opacity: 0.15, blur: 8),
+                  BoxShadow(
+                    color: shadow,
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
                 ],
               ),
               child: Column(
@@ -103,21 +110,21 @@ class _MembersCarouselState extends State<_MembersCarousel> {
                     _firstName(member.name),
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       height: 1.3,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textMid,
+                      color: AppThemeColors.textMid(context),
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     user.role.label,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textMute,
+                      color: AppThemeColors.textMuted(context),
                     ),
                   ),
                 ],
@@ -145,19 +152,26 @@ class _MemberCarouselMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color shadow = AppThemeColors.shadow(context).withValues(alpha: .10);
+
     return Container(
       height: 110,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 8)],
+        boxShadow: <BoxShadow>[
+          BoxShadow(color: shadow, blurRadius: 8, offset: const Offset(0, 2)),
+        ],
       ),
       child: Text(
         message,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 12, color: AppColors.textMute),
+        style: TextStyle(
+          fontSize: 12,
+          color: AppThemeColors.textMuted(context),
+        ),
       ),
     );
   }

@@ -116,7 +116,7 @@ class _ActivityEventRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _ActivityVisual visual = _activityVisual(event);
+    final _ActivityVisual visual = _activityVisual(context, event);
     final String? amount = _formatActivityAmount(event);
     final String date = _formatActivityDate(event.occurredAt);
 
@@ -125,7 +125,7 @@ class _ActivityEventRow extends StatelessWidget {
         border: Border(
           bottom: isLast
               ? BorderSide.none
-              : const BorderSide(color: AppColors.border),
+              : BorderSide(color: AppThemeColors.divider(context)),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -150,10 +150,10 @@ class _ActivityEventRow extends StatelessWidget {
                   valueOrDash(event.title),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -161,9 +161,9 @@ class _ActivityEventRow extends StatelessWidget {
                   valueOrDash(event.detail),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textMute,
+                    color: AppThemeColors.textMuted(context),
                   ),
                 ),
               ],
@@ -185,7 +185,10 @@ class _ActivityEventRow extends StatelessWidget {
               if (amount != null) const SizedBox(height: 2),
               Text(
                 date,
-                style: const TextStyle(fontSize: 11, color: AppColors.textMute),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppThemeColors.textMuted(context),
+                ),
               ),
             ],
           ),
@@ -207,45 +210,45 @@ class _ActivityVisual {
   final Color foreground;
 }
 
-_ActivityVisual _activityVisual(ActivityEvent event) {
+_ActivityVisual _activityVisual(BuildContext context, ActivityEvent event) {
   final String eventType = event.eventType.toUpperCase();
   final num amount = num.tryParse(event.amount ?? '') ?? 0;
   if (amount < 0 || eventType.contains('REJECTED')) {
-    return const _ActivityVisual(
+    return _ActivityVisual(
       icon: Icons.north_rounded,
-      background: AppColors.redLt,
-      foreground: AppColors.red,
+      background: AppThemeColors.statusErrorBg(context),
+      foreground: AppThemeColors.statusErrorFg(context),
     );
   }
 
   if (eventType.contains('DISTRIBUTION')) {
-    return const _ActivityVisual(
+    return _ActivityVisual(
       icon: Icons.call_split_rounded,
-      background: AppColors.blueLt,
-      foreground: AppColors.blue,
+      background: AppThemeColors.statusInfoBg(context),
+      foreground: AppThemeColors.statusInfoFg(context),
     );
   }
 
   if (eventType.contains('INVESTMENT')) {
-    return const _ActivityVisual(
+    return _ActivityVisual(
       icon: Icons.account_balance_rounded,
-      background: AppColors.blueLt,
-      foreground: AppColors.blue,
+      background: AppThemeColors.statusInfoBg(context),
+      foreground: AppThemeColors.statusInfoFg(context),
     );
   }
 
   if (eventType.contains('MEMBER')) {
-    return const _ActivityVisual(
+    return _ActivityVisual(
       icon: Icons.person_add_alt_1_rounded,
-      background: AppColors.purpleLt,
-      foreground: AppColors.primary,
+      background: AppThemeColors.statusPurpleBg(context),
+      foreground: AppThemeColors.statusPurpleFg(context),
     );
   }
 
-  return const _ActivityVisual(
+  return _ActivityVisual(
     icon: Icons.south_rounded,
-    background: AppColors.greenLt,
-    foreground: AppColors.green,
+    background: AppThemeColors.statusSuccessBg(context),
+    foreground: AppThemeColors.statusSuccessFg(context),
   );
 }
 
@@ -289,19 +292,26 @@ class _RecentActivityMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color shadow = AppThemeColors.shadow(context).withValues(alpha: .15);
+
     return Container(
       height: 110,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: <BoxShadow>[AppColors.softShadow()],
+        boxShadow: <BoxShadow>[
+          BoxShadow(color: shadow, blurRadius: 12, offset: const Offset(0, 2)),
+        ],
       ),
       child: Text(
         message,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 12, color: AppColors.textMute),
+        style: TextStyle(
+          fontSize: 12,
+          color: AppThemeColors.textMuted(context),
+        ),
       ),
     );
   }

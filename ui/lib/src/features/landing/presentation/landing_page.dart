@@ -384,20 +384,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAlert(int pendingCount) {
+    final Color background = AppThemeColors.statusWarningBg(context);
+    final Color foreground = AppThemeColors.statusWarningFg(context);
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: <Color>[
-            AppColors.amber.withValues(alpha: .15),
-            AppColors.amber.withValues(alpha: .08),
-          ],
+          colors: <Color>[background, background.withValues(alpha: .72)],
         ),
-        border: Border.all(
-          color: AppColors.amber.withValues(alpha: .4),
-          width: 1.5,
-        ),
+        border: Border.all(color: foreground.withValues(alpha: .4), width: 1.5),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -410,16 +407,19 @@ class _HomeScreenState extends State<HomeScreen> {
               children: <Widget>[
                 Text(
                   '$pendingCount Pending Approvals',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.text,
+                    color: AppThemeColors.text(context),
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   'Review submission requests',
-                  style: TextStyle(fontSize: 11, color: AppColors.textMute),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppThemeColors.textMuted(context),
+                  ),
                 ),
               ],
             ),
@@ -440,18 +440,21 @@ class _HomeScreenState extends State<HomeScreen> {
       pendingCount: pendingCount,
       role: role,
     );
+    final Color card = AppThemeColors.card(context);
+    final Color text = AppThemeColors.textMid(context);
+    final Color shadow = AppThemeColors.shadow(context).withValues(alpha: .06);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const Text(
+          Text(
             'Quick Actions',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.textMid,
+              color: text,
             ),
           ),
           const SizedBox(height: 14),
@@ -475,10 +478,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(4, 14, 4, 12),
                   decoration: BoxDecoration(
-                    color: AppColors.white,
+                    color: card,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: <BoxShadow>[
-                      AppColors.softShadow(opacity: 0.06, blur: 8),
+                      BoxShadow(
+                        color: shadow,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
                     ],
                   ),
                   child: Column(
@@ -492,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 46,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: action.color,
+                              color: action.background(context),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Text(
@@ -511,10 +518,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 decoration: BoxDecoration(
                                   color: AppColors.red,
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.white,
-                                    width: 2,
-                                  ),
+                                  border: Border.all(color: card, width: 2),
                                 ),
                                 child: Text(
                                   '${action.badge}',
@@ -533,11 +537,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         action.label,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
                           height: 1.3,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textMid,
+                          color: text,
                         ),
                       ),
                     ],
@@ -685,15 +689,20 @@ class _InvestmentPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final num? pnl = investment.pnl;
     final bool positivePnl = (pnl ?? 0) >= 0;
+    final Color shadow = AppThemeColors.shadow(context).withValues(alpha: .10);
 
     return Container(
       width: 236,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border.withValues(alpha: .65)),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 10)],
+        border: Border.all(
+          color: AppThemeColors.border(context).withValues(alpha: .65),
+        ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(color: shadow, blurRadius: 10, offset: const Offset(0, 2)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -704,10 +713,10 @@ class _InvestmentPreviewCard extends StatelessWidget {
             investment.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: AppColors.text,
+              color: AppThemeColors.text(context),
             ),
           ),
           const SizedBox(height: 4),
@@ -715,10 +724,10 @@ class _InvestmentPreviewCard extends StatelessWidget {
             investment.to.trim().isEmpty ? '-' : investment.to,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: AppColors.textMute,
+              color: AppThemeColors.textMuted(context),
             ),
           ),
           const SizedBox(height: 14),
@@ -726,10 +735,10 @@ class _InvestmentPreviewCard extends StatelessWidget {
             fmt(investment.amount),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.w900,
-              color: AppColors.text,
+              color: AppThemeColors.text(context),
             ),
           ),
           const SizedBox(height: 6),
@@ -743,10 +752,10 @@ class _InvestmentPreviewCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w900,
               color: pnl == null
-                  ? AppColors.textMute
+                  ? AppThemeColors.textMuted(context)
                   : positivePnl
-                  ? AppColors.green
-                  : AppColors.red,
+                  ? AppThemeColors.statusSuccessFg(context)
+                  : AppThemeColors.statusErrorFg(context),
             ),
           ),
         ],
@@ -762,19 +771,26 @@ class _InvestmentPreviewMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color shadow = AppThemeColors.shadow(context).withValues(alpha: .10);
+
     return Container(
       height: 150,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppThemeColors.card(context),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: <BoxShadow>[AppColors.softShadow(opacity: 0.10, blur: 8)],
+        boxShadow: <BoxShadow>[
+          BoxShadow(color: shadow, blurRadius: 8, offset: const Offset(0, 2)),
+        ],
       ),
       child: Text(
         message,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 12, color: AppColors.textMute),
+        style: TextStyle(
+          fontSize: 12,
+          color: AppThemeColors.textMuted(context),
+        ),
       ),
     );
   }
@@ -807,10 +823,10 @@ class _Section extends StatelessWidget {
             children: <Widget>[
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.text,
+                  color: AppThemeColors.text(context),
                 ),
               ),
               if (actionLabel != null)
@@ -823,10 +839,10 @@ class _Section extends StatelessWidget {
                   ),
                   child: Text(
                     actionLabel!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
