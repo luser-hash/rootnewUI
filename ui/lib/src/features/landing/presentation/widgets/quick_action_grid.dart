@@ -92,13 +92,13 @@ List<_QuickAction> _quickActionsFor({
           ? RouteNames.memberLedger
           : RouteNames.ledger,
     ),
-    if (role.canDistribute)
-      const _QuickAction(
-        icon: '📤',
-        label: 'Distribute',
-        tone: _QuickActionTone.error,
-        lightBackground: Color(0xFFFEF0F0),
-      ),
+    // if (role.canDistribute)
+    //   const _QuickAction(
+    //     icon: '📤',
+    //     label: 'Distribute',
+    //     tone: _QuickActionTone.error,
+    //     lightBackground: Color(0xFFFEF0F0),
+    //   ),
     if (role.canViewOwnReports)
       const _QuickAction(
         icon: '📈',
@@ -115,11 +115,11 @@ List<_QuickAction> _quickActionsFor({
         lightBackground: Color(0xFFFFF8ED),
         screen: RouteNames.staffReport,
       ),
-    if (role.canManagePermissions)
-      const _QuickAction(
-        icon: '⚙️',
-        label: 'Permissions',
-        tone: _QuickActionTone.neutral,
-      ),
+    // if (role.canManagePermissions)
+    //   const _QuickAction(
+    //     icon: '⚙️',
+    //     label: 'Permissions',
+    //     tone: _QuickActionTone.neutral,
+    //   ),
   ];
 }
