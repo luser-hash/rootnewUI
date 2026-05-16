@@ -286,16 +286,16 @@ class _InvestmentDetailContent extends StatelessWidget {
                   vertical: 12,
                 ),
               ),
-              // AppDetailRow(
-              //   label: 'Fund Released By',
-              //   value: valueOrDash(detail.fundReleasedBy?.fullname),
-              //   labelExpanded: true,
-              //   valueTextAlign: TextAlign.end,
-              //   padding: const EdgeInsets.symmetric(
-              //     horizontal: 14,
-              //     vertical: 12,
-              //   ),
-              // ),
+              AppDetailRow(
+                label: 'Fund Released By',
+                value: valueOrDash(detail.fundReleasedBy?.fullName),
+                labelExpanded: true,
+                valueTextAlign: TextAlign.end,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+              ),
               AppDetailRow(
                 label: 'Created By',
                 value: valueOrDash(detail.createdBy?.fullName),

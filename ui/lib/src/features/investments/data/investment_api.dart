@@ -151,6 +151,7 @@ class InvestmentApi {
 
   InvestmentDetail _detailFromJson(Map<String, dynamic> json) {
     final Object? createdBy = json['created_by'];
+    final Object? fundReleasedBy = json['fund_released_by'];
     return InvestmentDetail(
       id: '${json['investment_id'] ?? json['id'] ?? ''}',
       title: '${json['title'] ?? 'Untitled investment'}',
@@ -161,7 +162,12 @@ class InvestmentApi {
       comment: '${json['comment'] ?? ''}',
       status: _statusFromApi(json['status']),
       fundReleasedAt: DateTime.tryParse('${json['fund_released_at'] ?? ''}'),
-      fundReleasedBy: _optionalText(json['fund_released_by']),
+      fundReleasedBy: fundReleasedBy is Map<String, dynamic>
+          ? InvestmentCreatedBy(
+              userId: '${fundReleasedBy['user_id'] ?? ''}',
+              fullName: '${fundReleasedBy['full_name'] ?? ''}',
+            )
+          : null,
       closeDate: _optionalText(json['close_date']),
       returnAmount: _optionalText(json['return_amount']),
       pnlAmount: _optionalText(json['pnl_amount']),

@@ -31,7 +31,7 @@ class InvestmentDetail {
   final String comment;
   final InvestmentStatus status;
   final DateTime? fundReleasedAt;
-  final String? fundReleasedBy;
+  final InvestmentCreatedBy? fundReleasedBy;
   final String? closeDate;
   final String? returnAmount;
   final String? pnlAmount;
