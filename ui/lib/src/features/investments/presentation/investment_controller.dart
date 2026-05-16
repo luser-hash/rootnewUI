@@ -17,6 +17,7 @@ class InvestmentController extends ChangeNotifier {
   String? _releasingInvestmentId;
   String? _closingInvestmentId;
   String? _distributingInvestmentId;
+  String? _deletingInvestmentId;
   String? _errorMessage;
   String? _actionErrorMessage;
   List<Investment> _investments = <Investment>[];
@@ -26,10 +27,12 @@ class InvestmentController extends ChangeNotifier {
   String? get releasingInvestmentId => _releasingInvestmentId;
   String? get closingInvestmentId => _closingInvestmentId;
   String? get distributingInvestmentId => _distributingInvestmentId;
+  String? get deletingInvestmentId => _deletingInvestmentId;
   bool get hasActionInFlight {
     return _releasingInvestmentId != null ||
         _closingInvestmentId != null ||
-        _distributingInvestmentId != null;
+        _distributingInvestmentId != null ||
+        _deletingInvestmentId != null;
   }
 
   String? get errorMessage => _errorMessage;
@@ -148,6 +151,32 @@ class InvestmentController extends ChangeNotifier {
     }
   }
 
+  Future<bool> delete(String investmentId) async {
+    if (hasActionInFlight) {
+      return false;
+    }
+
+    _deletingInvestmentId = investmentId;
+    _actionErrorMessage = null;
+    notifyListeners();
+
+    try {
+      await _repository.delete(investmentId);
+      _removeInvestment(investmentId);
+      await _refreshCapitalSummary();
+      return true;
+    } on ApiException catch (error) {
+      _actionErrorMessage = error.message;
+      return false;
+    } catch (_) {
+      _actionErrorMessage = 'Unable to delete investment. Please try again.';
+      return false;
+    } finally {
+      _deletingInvestmentId = null;
+      notifyListeners();
+    }
+  }
+
   Future<void> _refreshCapitalSummary() async {
     try {
       _capitalSummary = await _repository.capitalSummary();
@@ -161,6 +190,13 @@ class InvestmentController extends ChangeNotifier {
   void _replaceInvestment(Investment investment) {
     _investments = _investments
         .map((Investment item) => item.id == investment.id ? investment : item)
+        .toList();
+    notifyListeners();
+  }
+
+  void _removeInvestment(String investmentId) {
+    _investments = _investments
+        .where((Investment item) => item.id != investmentId)
         .toList();
     notifyListeners();
   }

@@ -142,9 +142,11 @@ class _InvestmentPageState extends State<InvestmentPage> {
                 onReleaseFunds: () => _releaseFunds(inv),
                 onCloseInvestment: () => _closeInvestment(inv),
                 onDistribute: () => _distribute(inv),
+                onDelete: () => _deleteInvestment(inv),
                 isReleasing: _controller.releasingInvestmentId == inv.id,
                 isClosing: _controller.closingInvestmentId == inv.id,
                 isDistributing: _controller.distributingInvestmentId == inv.id,
+                isDeleting: _controller.deletingInvestmentId == inv.id,
                 actionsDisabled: _controller.hasActionInFlight,
                 canManageActions: canManageInvestments,
               ),
@@ -300,6 +302,50 @@ class _InvestmentPageState extends State<InvestmentPage> {
         'Unable to distribute P&L. Please try again.';
     final String message = distributed
         ? 'P&L distributed successfully.'
+        : (_controller.actionErrorMessage ?? fallbackMessage);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _deleteInvestment(Investment investment) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete draft investment?'),
+          content: Text(
+            'This will permanently delete "${investment.title}". This action '
+            'is only available for draft investments.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.red),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || confirmed != true) {
+      return;
+    }
+
+    final bool deleted = await _controller.delete(investment.id);
+    if (!mounted) {
+      return;
+    }
+
+    const String fallbackMessage =
+        'Unable to delete investment. Please try again.';
+    final String message = deleted
+        ? 'Investment deleted successfully.'
         : (_controller.actionErrorMessage ?? fallbackMessage);
     ScaffoldMessenger.of(
       context,

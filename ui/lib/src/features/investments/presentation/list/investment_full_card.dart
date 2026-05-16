@@ -8,9 +8,11 @@ class _InvestmentFullCard extends StatelessWidget {
     required this.onReleaseFunds,
     required this.onCloseInvestment,
     required this.onDistribute,
+    required this.onDelete,
     required this.isReleasing,
     required this.isClosing,
     required this.isDistributing,
+    required this.isDeleting,
     required this.actionsDisabled,
     required this.canManageActions,
   });
@@ -21,9 +23,11 @@ class _InvestmentFullCard extends StatelessWidget {
   final VoidCallback onReleaseFunds;
   final VoidCallback onCloseInvestment;
   final VoidCallback onDistribute;
+  final VoidCallback onDelete;
   final bool isReleasing;
   final bool isClosing;
   final bool isDistributing;
+  final bool isDeleting;
   final bool actionsDisabled;
   final bool canManageActions;
 
@@ -197,6 +201,19 @@ class _InvestmentFullCard extends StatelessWidget {
                 foreground: AppThemeColors.textMid(context),
                 onTap: onDetails,
               ),
+              if (canManageActions && inv.status == InvestmentStatus.draft) ...[
+                const SizedBox(width: 8),
+                AppSmallButton(
+                  label: isDeleting ? 'Deleting...' : 'Delete',
+                  background: actionsDisabled && !isDeleting
+                      ? AppThemeColors.surface(context)
+                      : AppThemeColors.statusErrorBg(context),
+                  foreground: actionsDisabled && !isDeleting
+                      ? AppThemeColors.textMuted(context)
+                      : AppThemeColors.statusErrorFg(context),
+                  onTap: actionsDisabled ? null : onDelete,
+                ),
+              ],
             ],
           ),
         ],

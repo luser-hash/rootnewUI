@@ -20,6 +20,7 @@ abstract class InvestmentRepository {
     InvestmentCloseRequest request,
   );
   Future<InvestmentDetail> distribute(String investmentId);
+  Future<void> delete(String investmentId);
   Future<List<InvestmentDistributionRecord>> distributionRecords(
     String investmentId, {
     InvestmentDistributionStatus? status,
@@ -70,6 +71,11 @@ class ApiInvestmentRepository implements InvestmentRepository {
   @override
   Future<InvestmentDetail> distribute(String investmentId) {
     return _api.distribute(investmentId);
+  }
+
+  @override
+  Future<void> delete(String investmentId) {
+    return _api.delete(investmentId);
   }
 
   @override

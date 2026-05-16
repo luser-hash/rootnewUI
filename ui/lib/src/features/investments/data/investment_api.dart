@@ -103,6 +103,11 @@ class InvestmentApi {
     return _detailFromJson(data is Map<String, dynamic> ? data : response);
   }
 
+  Future<void> delete(String investmentId) async {
+    final String encodedId = Uri.encodeComponent(investmentId.trim());
+    await _apiClient.delete('/investments/$encodedId/');
+  }
+
   Future<List<InvestmentDistributionRecord>> distributionRecords(
     String investmentId, {
     InvestmentDistributionStatus? status,
