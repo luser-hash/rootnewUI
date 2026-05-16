@@ -133,11 +133,8 @@ class InvestmentController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final InvestmentDetail distributed = await _repository.distribute(
-        investmentId,
-      );
-      _replaceInvestment(_investmentFromDetail(distributed));
-      await _refreshCapitalSummary();
+      await _repository.distribute(investmentId);
+      await _refreshAfterAction();
       return true;
     } on ApiException catch (error) {
       _actionErrorMessage = error.message;
@@ -181,6 +178,22 @@ class InvestmentController extends ChangeNotifier {
     try {
       _capitalSummary = await _repository.capitalSummary();
     } catch (_) {
+      return;
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> _refreshAfterAction() async {
+    try {
+      final List<Object> results = await Future.wait<Object>(<Future<Object>>[
+        _repository.list(),
+        _repository.capitalSummary(),
+      ]);
+      _investments = results[0] as List<Investment>;
+      _capitalSummary = results[1] as InvestmentCapitalSummary;
+    } catch (_) {
+      await _refreshCapitalSummary();
       return;
     } finally {
       notifyListeners();
