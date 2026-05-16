@@ -286,15 +286,12 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
     }
 
     if (created) {
-      _nameController.clear();
-      _phoneController.clear();
-      _emailController.clear();
-      _notesController.clear();
-      _passwordController.clear();
-      setState(() {
-        _joinDate = DateTime.now();
-        _obscurePassword = true;
-      });
+      if (context.canPop()) {
+        context.pop(true);
+        return;
+      }
+
+      context.go(RouteNames.members);
     }
   }
 

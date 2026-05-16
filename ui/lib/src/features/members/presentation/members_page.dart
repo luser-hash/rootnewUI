@@ -24,7 +24,7 @@ class MembersPage extends StatefulWidget {
   });
 
   final MemberManagementRepository repository;
-  final VoidCallback onAdd;
+  final Future<bool?> Function() onAdd;
   final void Function(Member member, int index) onSelect;
 
   @override
@@ -59,7 +59,7 @@ class _MembersPageState extends State<MembersPage> {
             _MembersHeaderContent(
               filter: _controller.filter,
               searchController: _searchController,
-              onAdd: widget.onAdd,
+              onAdd: _openAddMember,
               onSearch: _applySearch,
               onStatusChanged: _applyStatus,
               onRoleChanged: _applyRole,
@@ -163,6 +163,18 @@ class _MembersPageState extends State<MembersPage> {
         search: _searchController.text,
       ),
     );
+  }
+
+  Future<void> _openAddMember() async {
+    final bool? created = await widget.onAdd();
+    if (!mounted || created != true) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Member created successfully.')),
+    );
+    await _controller.load();
   }
 }
 

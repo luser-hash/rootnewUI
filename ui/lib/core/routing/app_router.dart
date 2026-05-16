@@ -190,7 +190,7 @@ class AppRouter {
                 return _scroll(
                   MembersPage(
                     repository: memberManagementRepository,
-                    onAdd: () => context.push(RouteNames.manageMembers),
+                    onAdd: () => context.push<bool>(RouteNames.manageMembers),
                     onSelect: (Member member, int memberColorIdx) {
                       context.push(
                         RouteNames.memberDetail,
