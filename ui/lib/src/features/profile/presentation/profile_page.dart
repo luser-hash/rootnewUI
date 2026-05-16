@@ -195,11 +195,11 @@ class _ProfileDetailsCard extends StatelessWidget {
       ),
       child: Column(
         children: <Widget>[
-          AppDetailRow(
-            icon: Icons.badge_outlined,
-            label: 'Member ID',
-            value: valueOrDash(user?.id),
-          ),
+          // AppDetailRow(
+          //   icon: Icons.badge_outlined,
+          //   label: 'Member ID',
+          //   value: valueOrDash(user?.id),
+          // ),
           AppDetailRow(
             icon: Icons.phone_outlined,
             label: 'Contact No',

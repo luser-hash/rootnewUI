@@ -206,16 +206,16 @@ class _InvestmentDetailContent extends StatelessWidget {
           ),
           child: Column(
             children: <Widget>[
-              AppDetailRow(
-                label: 'Investment ID',
-                value: detail.id,
-                labelExpanded: true,
-                valueTextAlign: TextAlign.end,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-              ),
+              // AppDetailRow(
+              //   label: 'Investment ID',
+              //   value: detail.id,
+              //   labelExpanded: true,
+              //   valueTextAlign: TextAlign.end,
+              //   padding: const EdgeInsets.symmetric(
+              //     horizontal: 14,
+              //     vertical: 12,
+              //   ),
+              // ),
               AppDetailRow(
                 label: 'Status',
                 value: detail.status.label,
@@ -286,16 +286,16 @@ class _InvestmentDetailContent extends StatelessWidget {
                   vertical: 12,
                 ),
               ),
-              AppDetailRow(
-                label: 'Fund Released By',
-                value: valueOrDash(detail.fundReleasedBy),
-                labelExpanded: true,
-                valueTextAlign: TextAlign.end,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-              ),
+              // AppDetailRow(
+              //   label: 'Fund Released By',
+              //   value: valueOrDash(detail.fundReleasedBy?.fullname),
+              //   labelExpanded: true,
+              //   valueTextAlign: TextAlign.end,
+              //   padding: const EdgeInsets.symmetric(
+              //     horizontal: 14,
+              //     vertical: 12,
+              //   ),
+              // ),
               AppDetailRow(
                 label: 'Created By',
                 value: valueOrDash(detail.createdBy?.fullName),
@@ -306,16 +306,16 @@ class _InvestmentDetailContent extends StatelessWidget {
                   vertical: 12,
                 ),
               ),
-              AppDetailRow(
-                label: 'Created By ID',
-                value: valueOrDash(detail.createdBy?.userId),
-                labelExpanded: true,
-                valueTextAlign: TextAlign.end,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-              ),
+              // AppDetailRow(
+              //   label: 'Created By ID',
+              //   value: valueOrDash(detail.createdBy?.userId),
+              //   labelExpanded: true,
+              //   valueTextAlign: TextAlign.end,
+              //   padding: const EdgeInsets.symmetric(
+              //     horizontal: 14,
+              //     vertical: 12,
+              //   ),
+              // ),
               AppDetailRow(
                 label: 'Snapshot',
                 value: detail.hasSnapshot ? 'Available' : 'Not available',

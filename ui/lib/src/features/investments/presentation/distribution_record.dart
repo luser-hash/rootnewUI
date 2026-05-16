@@ -199,15 +199,15 @@ class _DistributionHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          Text(
-            investmentId,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: Colors.white.withValues(alpha: .7),
-            ),
-          ),
+          // Text(
+          //   investmentId,
+          //   overflow: TextOverflow.ellipsis,
+          //   style: TextStyle(
+          //     fontSize: 12,
+          //     fontWeight: FontWeight.w700,
+          //     color: Colors.white.withValues(alpha: .7),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -344,19 +344,19 @@ class _DistributionRecordCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            AppDetailBlock(
-              label: 'Distribution ID',
-              value: record.distributionId,
-              fullWidth: true,
-              selectable: true,
-            ),
-            const SizedBox(height: 8),
-            AppDetailBlock(
-              label: 'Snapshot ID',
-              value: record.snapshotId,
-              fullWidth: true,
-              selectable: true,
-            ),
+            // AppDetailBlock(
+            //   label: 'Distribution ID',
+            //   value: record.distributionId,
+            //   fullWidth: true,
+            //   selectable: true,
+            // ),
+            // const SizedBox(height: 8),
+            // AppDetailBlock(
+            //   label: 'Snapshot ID',
+            //   value: record.snapshotId,
+            //   fullWidth: true,
+            //   selectable: true,
+            // ),
             if (record.reversedAt != null ||
                 record.reversedBy != null) ...<Widget>[
               const SizedBox(height: 8),
@@ -435,15 +435,15 @@ class _DistributionLineTile extends StatelessWidget {
                     color: AppThemeColors.textMuted(context),
                   ),
                 ),
-                Text(
-                  'Ledger ${valueOrDash(line.ledgerEntryId)}',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: AppThemeColors.textMuted(context),
-                  ),
-                ),
+                // Text(
+                //   'Ledger ${valueOrDash(line.ledgerEntryId)}',
+                //   overflow: TextOverflow.ellipsis,
+                //   style: TextStyle(
+                //     fontSize: 10,
+                //     fontWeight: FontWeight.w600,
+                //     color: AppThemeColors.textMuted(context),
+                //   ),
+                // ),
               ],
             ),
           ),

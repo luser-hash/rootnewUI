@@ -285,12 +285,6 @@ class _MemberLedgerRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 AppDetailBlock(
-                  label: 'User ID',
-                  value: valueOrDash(user?.userId ?? entry.userId),
-                  selectable: true,
-                ),
-                const SizedBox(height: 8),
-                AppDetailBlock(
                   label: 'Full Name',
                   value: valueOrDash(user?.fullName ?? entry.memberName),
                   selectable: true,
@@ -299,12 +293,6 @@ class _MemberLedgerRow extends StatelessWidget {
                 AppDetailBlock(
                   label: 'Contact No',
                   value: valueOrDash(user?.contactNo ?? entry.memberContact),
-                  selectable: true,
-                ),
-                const SizedBox(height: 8),
-                AppDetailBlock(
-                  label: 'Ledger ID',
-                  value: entry.ledgerId,
                   selectable: true,
                 ),
                 const SizedBox(height: 8),

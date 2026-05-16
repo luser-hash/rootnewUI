@@ -92,14 +92,6 @@ class _MemberDetailHeader extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Member ID: ${member.id}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withValues(alpha: .7),
-                      ),
-                    ),
                     const SizedBox(height: 8),
                     AppPill(
                       label: member.status.label,

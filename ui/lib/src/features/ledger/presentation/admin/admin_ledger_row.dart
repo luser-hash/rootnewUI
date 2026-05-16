@@ -186,28 +186,28 @@ class _LedgerRow extends StatelessWidget {
                           ? '-'
                           : entry.referenceType,
                     ),
-                    AppDetailBlock(
-                      label: 'Reference ID',
-                      value: entry.referenceId.isEmpty
-                          ? '-'
-                          : entry.referenceId,
-                    ),
+                    // AppDetailBlock(
+                    //   label: 'Reference ID',
+                    //   value: entry.referenceId.isEmpty
+                    //       ? '-'
+                    //       : entry.referenceId,
+                    // ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                AppDetailBlock(
-                  label: 'Ledger ID',
-                  value: entry.ledgerId,
-                  selectable: true,
-                ),
-                if (entry.userId.isNotEmpty) ...<Widget>[
-                  const SizedBox(height: 8),
-                  AppDetailBlock(
-                    label: 'User ID',
-                    value: entry.userId,
-                    selectable: true,
-                  ),
-                ],
+                // const SizedBox(height: 8),
+                // AppDetailBlock(
+                //   label: 'Ledger ID',
+                //   value: entry.ledgerId,
+                //   selectable: true,
+                // ),
+                // if (entry.userId.isNotEmpty) ...<Widget>[
+                //   const SizedBox(height: 8),
+                //   AppDetailBlock(
+                //     label: 'User ID',
+                //     value: entry.userId,
+                //     selectable: true,
+                //   ),
+                // ],
                 if (entry.comment.isNotEmpty) ...<Widget>[
                   const SizedBox(height: 8),
                   AppDetailBlock(

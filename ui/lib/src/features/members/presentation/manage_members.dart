@@ -86,7 +86,7 @@ class _ManageMembersPageState extends State<ManageMembersPage> {
                             ),
                             SizedBox(height: 6),
                             Text(
-                              'Create member accounts with MANAGE_USERS access.',
+                              'Create member accounts.',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,

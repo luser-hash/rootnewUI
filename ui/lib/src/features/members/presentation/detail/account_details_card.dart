@@ -52,11 +52,6 @@ class _AccountDetailsCard extends StatelessWidget {
             )
           else ...<Widget>[
             AppDetailRow(
-              icon: Icons.badge_outlined,
-              label: 'User ID',
-              value: valueOrDash(profile.userId),
-            ),
-            AppDetailRow(
               icon: Icons.phone_outlined,
               label: 'Contact No',
               value: valueOrDash(profile.contactNo),
