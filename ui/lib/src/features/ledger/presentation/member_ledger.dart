@@ -248,6 +248,38 @@ class _MemberLedgerFilters extends StatelessWidget {
               onChanged(
                 MemberLedgerFilter(
                   entryType: entryType,
+                  walletType: filter.walletType,
+                  fromDate: filter.fromDate,
+                  toDate: filter.toDate,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<LedgerWalletType?>(
+            initialValue: filter.walletType,
+            decoration: _fieldDecoration(
+              context: context,
+              label: 'Wallet',
+              icon: Icons.account_balance_wallet_outlined,
+            ),
+            items: <DropdownMenuItem<LedgerWalletType?>>[
+              const DropdownMenuItem<LedgerWalletType?>(
+                value: null,
+                child: Text('All Wallets'),
+              ),
+              ...LedgerWalletType.values.map(
+                (LedgerWalletType value) => DropdownMenuItem<LedgerWalletType?>(
+                  value: value,
+                  child: Text(value.label),
+                ),
+              ),
+            ],
+            onChanged: (LedgerWalletType? walletType) {
+              onChanged(
+                MemberLedgerFilter(
+                  entryType: filter.entryType,
+                  walletType: walletType,
                   fromDate: filter.fromDate,
                   toDate: filter.toDate,
                 ),
@@ -268,6 +300,7 @@ class _MemberLedgerFilters extends StatelessWidget {
                       onChanged(
                         MemberLedgerFilter(
                           entryType: filter.entryType,
+                          walletType: filter.walletType,
                           fromDate: date,
                           toDate: filter.toDate,
                         ),
@@ -288,6 +321,7 @@ class _MemberLedgerFilters extends StatelessWidget {
                       onChanged(
                         MemberLedgerFilter(
                           entryType: filter.entryType,
+                          walletType: filter.walletType,
                           fromDate: filter.fromDate,
                           toDate: date,
                         ),
@@ -450,7 +484,7 @@ class _MemberLedgerRow extends StatelessWidget {
               const SizedBox(height: 2),
               AppTextCell(
                 entry.comment.isEmpty
-                    ? '${entry.referenceType} · ${entry.referenceId}'
+                    ? _entryMeta(entry)
                     : entry.comment,
                 maxLines: 1,
                 fontSize: 11,
@@ -459,7 +493,16 @@ class _MemberLedgerRow extends StatelessWidget {
               ),
               if (entry.createdByName.isNotEmpty)
                 AppTextCell(
-                  'By ${entry.createdByName}',
+                  '${entry.walletType.label} · By ${entry.createdByName}',
+                  maxLines: 1,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w400,
+                  color: AppThemeColors.textMuted(context),
+                ),
+              if (entry.createdByName.isEmpty &&
+                  _entryMeta(entry) != entry.walletType.label)
+                AppTextCell(
+                  entry.walletType.label,
                   maxLines: 1,
                   fontSize: 10,
                   fontWeight: FontWeight.w400,
@@ -489,6 +532,14 @@ class _MemberLedgerRow extends StatelessWidget {
       ],
     );
   }
+}
+
+String _entryMeta(MemberLedgerEntry entry) {
+  final String reference = <String>[
+    entry.referenceType,
+    entry.referenceId,
+  ].where((String value) => value.trim().isNotEmpty).join(' · ');
+  return reference.isEmpty ? entry.walletType.label : reference;
 }
 
 InputDecoration _fieldDecoration({

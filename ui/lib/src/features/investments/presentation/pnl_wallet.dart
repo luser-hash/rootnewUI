@@ -55,7 +55,8 @@ class _PnlWalletPageState extends State<PnlWalletPage> {
                           child: AppMessageCard(
                             icon: Icons.error_outline,
                             message:
-                                'Unable to load P&L wallet. Please try again.',
+                                'Unable to load investment P&L summary. '
+                                'Please try again.',
                             background: AppThemeColors.statusErrorBg(context),
                             foreground: AppThemeColors.statusErrorFg(context),
                             fullWidth: true,
@@ -100,7 +101,7 @@ class _WalletHeader extends StatelessWidget {
           ),
           const Expanded(
             child: Text(
-              'P&L Wallet',
+              'Investment P&L Summary',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,

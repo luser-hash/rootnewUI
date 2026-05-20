@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../auth/domain/auth_session.dart';
+import '../../auth/presentation/auth_scope.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_detail_block.dart';
 import '../../shared/widgets/app_message_card.dart';
@@ -35,6 +37,9 @@ class _DistributionRecordPageState extends State<DistributionRecordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final AuthUser? currentUser = AuthScope.of(context).session?.user;
+    final bool memberView = currentUser?.role == UserRole.member;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -126,7 +131,11 @@ class _DistributionRecordPageState extends State<DistributionRecordPage> {
                         .map(
                           (InvestmentDistributionRecord record) => Padding(
                             padding: const EdgeInsets.only(bottom: 12),
-                            child: _DistributionRecordCard(record: record),
+                            child: _DistributionRecordCard(
+                              record: record,
+                              memberView: memberView,
+                              currentUser: currentUser,
+                            ),
                           ),
                         )
                         .toList(),
@@ -186,14 +195,28 @@ class _DistributionHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Distribution Records',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Text(
+                      'Distribution Records',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Posted shares are routed to Profit Wallets.',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withValues(alpha: .66),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -215,12 +238,21 @@ class _DistributionHeader extends StatelessWidget {
 }
 
 class _DistributionRecordCard extends StatelessWidget {
-  const _DistributionRecordCard({required this.record});
+  const _DistributionRecordCard({
+    required this.record,
+    required this.memberView,
+    required this.currentUser,
+  });
 
   final InvestmentDistributionRecord record;
+  final bool memberView;
+  final AuthUser? currentUser;
 
   @override
   Widget build(BuildContext context) {
+    final List<InvestmentDistributionLine> visibleLines = memberView
+        ? record.lines.where(_isCurrentUserLine).toList()
+        : record.lines;
     final Color statusBg = record.status == InvestmentDistributionStatus.posted
         ? AppThemeColors.statusSuccessBg(context)
         : AppThemeColors.statusErrorBg(context);
@@ -272,7 +304,7 @@ class _DistributionRecordCard extends StatelessWidget {
             ),
           ),
           subtitle: Text(
-            'Posted ${formatDateTimeShort(record.postedAt)}',
+            'Profit Wallet · ${formatDateTimeShort(record.postedAt)}',
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 11,
@@ -316,8 +348,8 @@ class _DistributionRecordCard extends StatelessWidget {
                   valueWeight: FontWeight.w800,
                 ),
                 AppDetailBlock(
-                  label: 'Lines',
-                  value: '${record.lines.length}',
+                  label: 'Wallet',
+                  value: 'Profit Wallet',
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 10,
@@ -329,8 +361,8 @@ class _DistributionRecordCard extends StatelessWidget {
                   valueWeight: FontWeight.w800,
                 ),
                 AppDetailBlock(
-                  label: 'Posted By',
-                  value: valueOrDash(record.postedBy?.fullName),
+                  label: 'Lines',
+                  value: '${visibleLines.length}',
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 10,
@@ -342,6 +374,13 @@ class _DistributionRecordCard extends StatelessWidget {
                   valueWeight: FontWeight.w800,
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            AppDetailBlock(
+              label: 'Posted By',
+              value: valueOrDash(record.postedBy?.fullName),
+              fullWidth: true,
+              selectable: true,
             ),
             const SizedBox(height: 8),
             // AppDetailBlock(
@@ -374,7 +413,7 @@ class _DistributionRecordCard extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'MEMBER SHARES',
+                  memberView ? 'YOUR SHARE' : 'MEMBER SHARES',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -384,15 +423,42 @@ class _DistributionRecordCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              ...record.lines.map(
-                (InvestmentDistributionLine line) =>
-                    _DistributionLineTile(line: line),
-              ),
+              if (visibleLines.isEmpty)
+                AppMessageCard(
+                  icon: Icons.account_balance_wallet_outlined,
+                  message: 'No distribution share was found for your account.',
+                  tone: AppMessageTone.neutral,
+                  foreground: AppColors.blue,
+                  fullWidth: true,
+                  compact: true,
+                )
+              else
+                ...visibleLines.map(
+                  (InvestmentDistributionLine line) =>
+                      _DistributionLineTile(line: line),
+                ),
             ],
           ],
         ),
       ),
     );
+  }
+
+  bool _isCurrentUserLine(InvestmentDistributionLine line) {
+    final AuthUser? user = currentUser;
+    if (user == null) {
+      return false;
+    }
+
+    final String lineUserId = line.userId.trim();
+    final String userId = user.id.trim();
+    if (lineUserId.isNotEmpty && userId.isNotEmpty) {
+      return lineUserId == userId;
+    }
+
+    final String lineName = line.fullName.trim().toLowerCase();
+    final String userName = user.name.trim().toLowerCase();
+    return lineName.isNotEmpty && userName.isNotEmpty && lineName == userName;
   }
 }
 
@@ -427,7 +493,7 @@ class _DistributionLineTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Ratio ${valueOrDash(line.ratioUsed)}',
+                  'Ratio ${valueOrDash(line.ratioUsed)} · Profit Wallet',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 11,

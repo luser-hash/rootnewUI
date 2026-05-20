@@ -70,6 +70,39 @@ class _LedgerFiltersState extends State<_LedgerFilters> {
               widget.onChanged(
                 MemberLedgerFilter(
                   entryType: entryType,
+                  walletType: filter.walletType,
+                  fromDate: filter.fromDate,
+                  toDate: filter.toDate,
+                  userId: filter.userId,
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 10),
+          DropdownButtonFormField<LedgerWalletType?>(
+            initialValue: filter.walletType,
+            decoration: _fieldDecoration(
+              context: context,
+              label: 'Wallet',
+              icon: Icons.account_balance_wallet_outlined,
+            ),
+            items: <DropdownMenuItem<LedgerWalletType?>>[
+              const DropdownMenuItem<LedgerWalletType?>(
+                value: null,
+                child: Text('All Wallets'),
+              ),
+              ...LedgerWalletType.values.map(
+                (LedgerWalletType value) => DropdownMenuItem<LedgerWalletType?>(
+                  value: value,
+                  child: Text(value.label),
+                ),
+              ),
+            ],
+            onChanged: (LedgerWalletType? walletType) {
+              widget.onChanged(
+                MemberLedgerFilter(
+                  entryType: filter.entryType,
+                  walletType: walletType,
                   fromDate: filter.fromDate,
                   toDate: filter.toDate,
                   userId: filter.userId,
@@ -91,6 +124,7 @@ class _LedgerFiltersState extends State<_LedgerFilters> {
                       widget.onChanged(
                         MemberLedgerFilter(
                           entryType: filter.entryType,
+                          walletType: filter.walletType,
                           fromDate: date,
                           toDate: filter.toDate,
                           userId: filter.userId,
@@ -112,6 +146,7 @@ class _LedgerFiltersState extends State<_LedgerFilters> {
                       widget.onChanged(
                         MemberLedgerFilter(
                           entryType: filter.entryType,
+                          walletType: filter.walletType,
                           fromDate: filter.fromDate,
                           toDate: date,
                           userId: filter.userId,
@@ -162,6 +197,7 @@ class _LedgerFiltersState extends State<_LedgerFilters> {
     widget.onChanged(
       MemberLedgerFilter(
         entryType: widget.filter.entryType,
+        walletType: widget.filter.walletType,
         fromDate: widget.filter.fromDate,
         toDate: widget.filter.toDate,
         userId: _userIdController.text.trim(),

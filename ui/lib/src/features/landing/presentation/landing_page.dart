@@ -14,6 +14,7 @@ import '../../ledger/data/member_ledger_repository.dart';
 import '../../members/data/member_management_repository.dart';
 import '../../members/domain/member_management_models.dart';
 import '../../members/presentation/member_list_controller.dart';
+import '../../reports/data/staff_report_repository.dart';
 import '../../shared/finance.dart';
 import '../../shared/widgets/app_avatar.dart';
 import '../../shared/widgets/app_card_list.dart';
@@ -35,6 +36,7 @@ class HomeScreen extends StatefulWidget {
     required this.activityRepository,
     required this.memberRepository,
     required this.memberLedgerRepository,
+    required this.staffReportRepository,
     required this.capitalSubmissionRepository,
     required this.investmentRepository,
     required this.onNav,
@@ -44,6 +46,7 @@ class HomeScreen extends StatefulWidget {
   final ActivityRepository activityRepository;
   final MemberManagementRepository memberRepository;
   final MemberLedgerRepository memberLedgerRepository;
+  final StaffReportRepository staffReportRepository;
   final CapitalSubmissionRepository capitalSubmissionRepository;
   final InvestmentRepository investmentRepository;
   final ValueChanged<String> onNav;
@@ -70,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _heroController = LandingHeroSummaryController(
       ledgerRepository: widget.memberLedgerRepository,
       memberRepository: widget.memberRepository,
+      staffReportRepository: widget.staffReportRepository,
     );
   }
 
@@ -143,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final AuthUser? user = AuthScope.of(context).session?.user;
     final String displayName = _displayName(user);
     final String initials = _initials(displayName);
-    final bool showCapitalSummary = role != UserRole.member;
+    final bool showCapitalSummary = role.canViewAllLedger;
     final AppThemeController themeController = AppThemeScope.of(context);
 
     return Container(
@@ -364,12 +368,144 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                ),
+                )
+              else
+                _buildMemberFinanceSummary(),
             ],
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildMemberFinanceSummary() {
+    final bool hasStatement = _heroController.memberStatement != null;
+    final String capital = _memberWalletValue(
+      hasStatement: hasStatement,
+      value: _heroController.memberCapital,
+      hiddenValue: '••••',
+    );
+    final String profit = _memberWalletValue(
+      hasStatement: hasStatement,
+      value: _heroController.memberProfitWallet,
+      hiddenValue: '••••',
+    );
+    final String total = hasStatement
+        ? (_balanceHidden ? '••••••' : fmtSh(_heroController.memberTotalAmount))
+        : (_heroController.errorMessage == null ? 'Loading...' : '-');
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: .12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: .18)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  'My Total Amount',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.white.withValues(alpha: .6),
+                    letterSpacing: 0.66,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () =>
+                    setState(() => _balanceHidden = !_balanceHidden),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    _balanceHidden ? '🙈' : '👁',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withValues(alpha: .8),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            total,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 31,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _HeroWalletMetric(
+                  label: 'Capital',
+                  value: capital,
+                  icon: Icons.account_balance_outlined,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _HeroWalletMetric(
+                  label: 'Profit Wallet',
+                  value: profit,
+                  icon: Icons.account_balance_wallet_outlined,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _memberFinanceSummaryText(),
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.accent.withValues(alpha: .9),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _memberFinanceSummaryText() {
+    if (_heroController.isLoading) {
+      return 'Loading wallet summary...';
+    }
+    if (_heroController.errorMessage != null) {
+      return 'Wallet summary unavailable';
+    }
+    return 'Capital and Profit Wallet';
+  }
+
+  String _memberWalletValue({
+    required bool hasStatement,
+    required num value,
+    required String hiddenValue,
+  }) {
+    if (!hasStatement) {
+      return '-';
+    }
+    return _balanceHidden ? hiddenValue : fmtSh(value);
   }
 
   String _heroSummaryText() {
@@ -600,6 +736,64 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _leadingChars(String value, int count) {
     return String.fromCharCodes(value.runes.take(count));
+  }
+}
+
+class _HeroWalletMetric extends StatelessWidget {
+  const _HeroWalletMetric({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: .10),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: .12)),
+      ),
+      child: Row(
+        children: <Widget>[
+          Icon(icon, size: 18, color: AppColors.blue),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: .55),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

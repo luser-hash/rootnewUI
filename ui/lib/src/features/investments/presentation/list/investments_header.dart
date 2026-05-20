@@ -130,7 +130,9 @@ class _PnlWalletButton extends StatelessWidget {
               const SizedBox(width: 8),
               const Expanded(
                 child: Text(
-                  'P&L Wallet',
+                  'Investment P&L Summary',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,

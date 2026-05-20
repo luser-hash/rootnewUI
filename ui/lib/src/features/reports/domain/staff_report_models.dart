@@ -38,17 +38,37 @@ class AssociationCapitalSummary {
     required this.totalAuthorized,
     required this.totalPending,
     required this.totalInvested,
+    required this.profitWalletTotal,
+    required this.totalAmount,
   });
 
   final String totalAuthorized;
   final String totalPending;
   final String totalInvested;
+  final String profitWalletTotal;
+  final String totalAmount;
 
   factory AssociationCapitalSummary.fromJson(Map<String, dynamic> json) {
+    final String totalAuthorized = _amount(
+      json['total_authorized'] ??
+          json['total_capital'] ??
+          json['capital_balance'] ??
+          json['current_balance'],
+    );
+    final String profitWalletTotal = _amount(
+      json['profit_wallet_total'] ??
+          json['total_profit_wallet'] ??
+          json['profit_wallet_balance'],
+    );
     return AssociationCapitalSummary(
-      totalAuthorized: '${json['total_authorized'] ?? '0.00'}',
-      totalPending: '${json['total_pending'] ?? '0.00'}',
-      totalInvested: '${json['total_invested'] ?? '0.00'}',
+      totalAuthorized: totalAuthorized,
+      totalPending: _amount(json['total_pending']),
+      totalInvested: _amount(json['total_invested']),
+      profitWalletTotal: profitWalletTotal,
+      totalAmount: _amount(
+        json['total_amount'] ??
+            _sumAmountStrings(totalAuthorized, profitWalletTotal),
+      ),
     );
   }
 }
@@ -140,11 +160,15 @@ class AssociationSubmissionSummary {
 class StaffMemberBalancesReport {
   const StaffMemberBalancesReport({
     required this.totalCapital,
+    required this.totalProfitWallet,
+    required this.totalAmount,
     required this.memberCount,
     required this.members,
   });
 
   final String totalCapital;
+  final String totalProfitWallet;
+  final String totalAmount;
   final int memberCount;
   final List<StaffMemberBalance> members;
 
@@ -152,13 +176,45 @@ class StaffMemberBalancesReport {
     final List<dynamic> raw = json['members'] is List<dynamic>
         ? json['members'] as List<dynamic>
         : <dynamic>[];
+    final List<StaffMemberBalance> members = raw
+        .whereType<Map<String, dynamic>>()
+        .map(StaffMemberBalance.fromJson)
+        .toList();
+    final String rowCapitalTotal = _sumMemberAmounts(
+      members,
+      (StaffMemberBalance member) => member.capitalBalance,
+    );
+    final String rowProfitWalletTotal = _sumMemberAmounts(
+      members,
+      (StaffMemberBalance member) => member.profitWalletBalance,
+    );
+    final String rowTotalAmount = _sumMemberAmounts(
+      members,
+      (StaffMemberBalance member) => member.totalAmount,
+    );
+    final String totalCapital = _amount(
+      json['total_capital'] ?? json['capital_balance'] ?? rowCapitalTotal,
+    );
+    final String totalProfitWallet = _amount(
+      json['total_profit_wallet'] ??
+          json['profit_wallet_total'] ??
+          rowProfitWalletTotal,
+    );
     return StaffMemberBalancesReport(
-      totalCapital: '${json['total_capital'] ?? '0.00'}',
-      memberCount: _int(json['member_count']),
-      members: raw
-          .whereType<Map<String, dynamic>>()
-          .map(StaffMemberBalance.fromJson)
-          .toList(),
+      totalCapital: totalCapital,
+      totalProfitWallet: totalProfitWallet,
+      totalAmount: _amount(
+        json['total_amount'] ??
+            json['balance'] ??
+            json['total_balance'] ??
+            (rowTotalAmount == '0.00'
+                ? _sumAmountStrings(totalCapital, totalProfitWallet)
+                : rowTotalAmount),
+      ),
+      memberCount: json['member_count'] == null
+          ? members.length
+          : _int(json['member_count']),
+      members: members,
     );
   }
 }
@@ -173,6 +229,9 @@ class StaffMemberBalance {
     required this.role,
     required this.status,
     required this.balance,
+    required this.capitalBalance,
+    required this.profitWalletBalance,
+    required this.totalAmount,
   });
 
   final String userId;
@@ -183,8 +242,20 @@ class StaffMemberBalance {
   final String role;
   final String status;
   final String balance;
+  final String capitalBalance;
+  final String profitWalletBalance;
+  final String totalAmount;
 
   factory StaffMemberBalance.fromJson(Map<String, dynamic> json) {
+    final String capitalBalance = _amount(
+      json['capital_balance'] ?? json['balance'],
+    );
+    final String profitWalletBalance = _amount(json['profit_wallet_balance']);
+    final String totalAmount = _amount(
+      json['total_amount'] ??
+          json['balance'] ??
+          _sumAmountStrings(capitalBalance, profitWalletBalance),
+    );
     return StaffMemberBalance(
       userId: '${json['user_id'] ?? ''}',
       fullName: '${json['full_name'] ?? ''}',
@@ -193,7 +264,10 @@ class StaffMemberBalance {
       joinDate: '${json['join_date'] ?? ''}',
       role: '${json['role'] ?? ''}',
       status: '${json['status'] ?? ''}',
-      balance: '${json['balance'] ?? '0.00'}',
+      balance: totalAmount,
+      capitalBalance: capitalBalance,
+      profitWalletBalance: profitWalletBalance,
+      totalAmount: totalAmount,
     );
   }
 }
@@ -536,4 +610,31 @@ String _person(Object? value) {
     return '${value['full_name'] ?? value['name'] ?? ''}';
   }
   return '$value';
+}
+
+String _amount(Object? value) {
+  if (value == null) {
+    return '0.00';
+  }
+  final String stringValue = '$value'.trim();
+  return stringValue.isEmpty ? '0.00' : stringValue;
+}
+
+String _sumAmountStrings(String first, String second) {
+  final num firstAmount = num.tryParse(first) ?? 0;
+  final num secondAmount = num.tryParse(second) ?? 0;
+  return (firstAmount + secondAmount).toStringAsFixed(2);
+}
+
+String _sumMemberAmounts(
+  Iterable<StaffMemberBalance> members,
+  String Function(StaffMemberBalance member) valueOf,
+) {
+  final num total = members.fold<num>(
+    0,
+    (num sum, StaffMemberBalance member) {
+      return sum + (num.tryParse(valueOf(member)) ?? 0);
+    },
+  );
+  return total.toStringAsFixed(2);
 }

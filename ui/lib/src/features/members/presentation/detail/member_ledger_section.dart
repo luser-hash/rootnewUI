@@ -136,7 +136,7 @@ class _MemberLedgerRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      entry.entryType.label,
+                      '${entry.entryType.label} · ${entry.walletType.label}',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 11,
@@ -269,6 +269,11 @@ class _MemberLedgerRow extends StatelessWidget {
                     AppDetailBlock(
                       label: 'Currency',
                       value: entry.currency,
+                      center: true,
+                    ),
+                    AppDetailBlock(
+                      label: 'Wallet',
+                      value: entry.walletType.label,
                       center: true,
                     ),
                     AppDetailBlock(

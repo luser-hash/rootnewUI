@@ -45,7 +45,16 @@ enum _MemberStatusFilter {
   final String label;
 }
 
-enum _MemberSort { name, contact, joinDate, status, balance }
+enum _MemberSort {
+  name,
+  contact,
+  joinDate,
+  status,
+  capital,
+  profitWallet,
+  total,
+  ratio,
+}
 
 const List<String> _investmentStatusValues = <String>[
   'DRAFT',

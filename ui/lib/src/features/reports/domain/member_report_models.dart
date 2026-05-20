@@ -22,6 +22,11 @@ class MemberReportStatement {
   const MemberReportStatement({
     required this.member,
     required this.currentBalance,
+    required this.givenAmount,
+    required this.takenAmount,
+    required this.capitalBalance,
+    required this.profitWalletBalance,
+    required this.totalAmount,
     required this.pendingTotal,
     required this.entryCount,
     required this.entries,
@@ -30,6 +35,11 @@ class MemberReportStatement {
 
   final MemberReportMember? member;
   final String currentBalance;
+  final String givenAmount;
+  final String takenAmount;
+  final String capitalBalance;
+  final String profitWalletBalance;
+  final String totalAmount;
   final String pendingTotal;
   final int entryCount;
   final List<MemberReportEntry> entries;
@@ -39,12 +49,35 @@ class MemberReportStatement {
     final Object? member = json['member'];
     final Object? entries = json['entries'];
     final Object? pendingRequests = json['pending_requests'];
+    final String legacyCurrentBalance = _amount(
+      json['current_balance'] ?? json['total_amount'],
+    );
+    final String capitalBalance = _amount(
+      json['capital_balance'] ?? legacyCurrentBalance,
+    );
+    final String profitWalletBalance = _amount(
+      json['profit_wallet_balance'],
+    );
+    final String totalAmount = _amount(
+      json['total_amount'] ??
+          (json['current_balance'] == null
+              ? _sumAmountStrings(capitalBalance, profitWalletBalance)
+              : legacyCurrentBalance),
+    );
+    final String currentBalance = _amount(
+      json['current_balance'] ?? json['total_amount'] ?? totalAmount,
+    );
     return MemberReportStatement(
       member: member is Map<String, dynamic>
           ? MemberReportMember.fromJson(member)
           : null,
-      currentBalance: '${json['current_balance'] ?? '0.00'}',
-      pendingTotal: '${json['pending_total'] ?? '0.00'}',
+      currentBalance: currentBalance,
+      givenAmount: _amount(json['given_amount']),
+      takenAmount: _amount(json['taken_amount']),
+      capitalBalance: capitalBalance,
+      profitWalletBalance: profitWalletBalance,
+      totalAmount: totalAmount,
+      pendingTotal: _amount(json['pending_total']),
       entryCount: json['entry_count'] is int
           ? json['entry_count'] as int
           : int.tryParse('${json['entry_count'] ?? 0}') ?? 0,
@@ -133,11 +166,11 @@ class MemberReportEntry {
 }
 
 enum MemberReportEntryType {
-  submission('SUBMISSION', 'Submission'),
-  withdraw('WITHDRAW', 'Withdraw'),
+  submission('SUBMISSION', 'Funds Given'),
+  withdraw('WITHDRAW', 'Funds Taken'),
   adjustment('ADJUSTMENT', 'Adjustment'),
-  distribution('DISTRIBUTION', 'Distribution'),
-  distributionReversal('DISTRIBUTION_REVERSAL', 'Distribution Reversal');
+  distribution('DISTRIBUTION', 'Profit Added'),
+  distributionReversal('DISTRIBUTION_REVERSAL', 'Profit Reversed');
 
   const MemberReportEntryType(this.apiValue, this.label);
 
@@ -257,4 +290,18 @@ String _formatDate(DateTime value) {
   final String month = value.month.toString().padLeft(2, '0');
   final String day = value.day.toString().padLeft(2, '0');
   return '${value.year}-$month-$day';
+}
+
+String _amount(Object? value) {
+  if (value == null) {
+    return '0.00';
+  }
+  final String stringValue = '$value'.trim();
+  return stringValue.isEmpty ? '0.00' : stringValue;
+}
+
+String _sumAmountStrings(String first, String second) {
+  final num firstAmount = num.tryParse(first) ?? 0;
+  final num secondAmount = num.tryParse(second) ?? 0;
+  return (firstAmount + secondAmount).toStringAsFixed(2);
 }

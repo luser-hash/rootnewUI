@@ -55,7 +55,7 @@ class _LedgerRow extends StatelessWidget {
               ),
               AppTextCell(
                 entry.comment.isEmpty
-                    ? '${entry.entryType.label} · ${entry.ledgerId}'
+                    ? '${entry.entryType.label} · ${entry.walletType.label}'
                     : entry.comment,
                 maxLines: 1,
                 fontSize: 10,
@@ -174,6 +174,10 @@ class _LedgerRow extends StatelessWidget {
                   childAspectRatio: 2.45,
                   children: <Widget>[
                     AppDetailBlock(label: 'Type', value: entry.entryType.label),
+                    AppDetailBlock(
+                      label: 'Wallet',
+                      value: entry.walletType.label,
+                    ),
                     AppDetailBlock(label: 'Currency', value: entry.currency),
                     AppDetailBlock(label: 'Txn Date', value: entry.txnDate),
                     AppDetailBlock(

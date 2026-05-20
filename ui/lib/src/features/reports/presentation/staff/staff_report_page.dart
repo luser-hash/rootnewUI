@@ -34,8 +34,9 @@ class StaffReportPage extends StatefulWidget {
 class _StaffReportPageState extends State<StaffReportPage> {
   _StaffReportSection _section = _StaffReportSection.summary;
   _MemberStatusFilter _memberStatus = _MemberStatusFilter.active;
-  _MemberSort _memberSort = _MemberSort.balance;
+  _MemberSort _memberSort = _MemberSort.total;
   bool _memberAscending = false;
+  num _memberSortTotalCapital = 0;
   String _memberSearch = '';
   final TextEditingController _memberSearchController = TextEditingController();
 
@@ -174,6 +175,18 @@ class _StaffReportPageState extends State<StaffReportPage> {
         icon: Icons.account_balance_wallet_outlined,
       ),
       _MoneyMetric(
+        label: 'Profit Wallet',
+        value: report.capital.profitWalletTotal,
+        color: AppColors.blue,
+        icon: Icons.account_balance_wallet_outlined,
+      ),
+      _MoneyMetric(
+        label: 'Total Amount',
+        value: report.capital.totalAmount,
+        color: AppColors.primaryDk,
+        icon: Icons.account_balance_wallet_outlined,
+      ),
+      _MoneyMetric(
         label: 'Pending Capital',
         value: report.capital.totalPending,
         color: AppColors.amber,
@@ -188,7 +201,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
       _MoneyMetric(
         label: 'P&L Distributed',
         value: report.distributions.totalPnlDistributed,
-        color: AppColors.green,
+        color: AppThemeColors.textMuted(context),
         icon: Icons.payments_outlined,
       ),
     ];
@@ -215,7 +228,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 return SizedBox(
                   width: compact
                       ? (constraints.maxWidth - 10) / 2
-                      : (constraints.maxWidth - 30) / 4,
+                      : (constraints.maxWidth - 50) / 6,
                   child: AppMoneyMetricCard(
                     label: metric.label,
                     textValue: metric.value,
@@ -343,6 +356,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
   }
 
   Widget _buildMembers(StaffMemberBalancesReport report) {
+    _memberSortTotalCapital = num.tryParse(report.totalCapital) ?? 0;
     final List<StaffMemberBalance> members = <StaffMemberBalance>[
       ...report.members,
     ]..sort(_compareMembers);
@@ -388,7 +402,9 @@ class _StaffReportPageState extends State<StaffReportPage> {
                 padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
                 child: Text(
                   'Showing ${report.memberCount} $statusText members - '
-                  'Total Capital: ${formatMoneyTextSigned(report.totalCapital)}',
+                  'Capital: ${formatMoneyTextSigned(report.totalCapital)} - '
+                  'Profit Wallet: ${formatMoneyTextSigned(report.totalProfitWallet)} - '
+                  'Total: ${formatMoneyTextSigned(report.totalAmount)}',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
@@ -407,6 +423,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
               else
                 _MemberTable(
                   members: members,
+                  totalCapital: report.totalCapital,
                   sort: _memberSort,
                   ascending: _memberAscending,
                   onSort: _setMemberSort,
@@ -736,11 +753,23 @@ class _StaffReportPageState extends State<StaffReportPage> {
       final num total = members.fold<num>(
         0,
         (num sum, StaffMemberBalance member) =>
-            sum + (num.tryParse(member.balance) ?? 0),
+            sum + (num.tryParse(member.capitalBalance) ?? 0),
+      );
+      final num totalProfitWallet = members.fold<num>(
+        0,
+        (num sum, StaffMemberBalance member) =>
+            sum + (num.tryParse(member.profitWalletBalance) ?? 0),
+      );
+      final num totalAmount = members.fold<num>(
+        0,
+        (num sum, StaffMemberBalance member) =>
+            sum + (num.tryParse(member.totalAmount) ?? 0),
       );
       _fetchedAt = DateTime.now();
       return StaffMemberBalancesReport(
         totalCapital: total.toStringAsFixed(2),
+        totalProfitWallet: totalProfitWallet.toStringAsFixed(2),
+        totalAmount: totalAmount.toStringAsFixed(2),
         memberCount: members.length,
         members: members,
       );
@@ -782,7 +811,7 @@ class _StaffReportPageState extends State<StaffReportPage> {
         _memberAscending = !_memberAscending;
       } else {
         _memberSort = sort;
-        _memberAscending = sort != _MemberSort.balance;
+        _memberAscending = sort != _MemberSort.total;
       }
     });
   }
@@ -793,10 +822,27 @@ class _StaffReportPageState extends State<StaffReportPage> {
       _MemberSort.contact => a.contactNo.compareTo(b.contactNo),
       _MemberSort.joinDate => a.joinDate.compareTo(b.joinDate),
       _MemberSort.status => a.status.compareTo(b.status),
-      _MemberSort.balance => (num.tryParse(a.balance) ?? 0).compareTo(
-        num.tryParse(b.balance) ?? 0,
+      _MemberSort.capital => (num.tryParse(a.capitalBalance) ?? 0).compareTo(
+        num.tryParse(b.capitalBalance) ?? 0,
       ),
+      _MemberSort.profitWallet =>
+        (num.tryParse(a.profitWalletBalance) ?? 0).compareTo(
+          num.tryParse(b.profitWalletBalance) ?? 0,
+        ),
+      _MemberSort.total => (num.tryParse(a.totalAmount) ?? 0).compareTo(
+        num.tryParse(b.totalAmount) ?? 0,
+      ),
+      _MemberSort.ratio => _ownershipRatio(a, _memberSortTotalCapital)
+          .compareTo(_ownershipRatio(b, _memberSortTotalCapital)),
     };
     return _memberAscending ? result : -result;
+  }
+
+  num _ownershipRatio(StaffMemberBalance member, num totalCapital) {
+    if (totalCapital <= 0) {
+      return 0;
+    }
+    final num capital = num.tryParse(member.capitalBalance) ?? 0;
+    return capital / totalCapital;
   }
 }

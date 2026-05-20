@@ -121,9 +121,10 @@ class _InvestmentPageState extends State<InvestmentPage> {
 
     if (items.isEmpty) {
       return const AppMessageCard(
-        icon: Icons.savings_outlined,
+        icon: Icons.account_balance_wallet_outlined,
         message: 'No investments found.',
         tone: AppMessageTone.neutral,
+        foreground: AppColors.blue,
         fullWidth: true,
       );
     }
@@ -267,26 +268,8 @@ class _InvestmentPageState extends State<InvestmentPage> {
   Future<void> _distribute(Investment investment) async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Distribute P&L?'),
-          content: Text(
-            'This will distribute the computed profit or loss for '
-            '"${investment.title}" to all members using the captured capital '
-            'snapshot.',
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Distribute'),
-            ),
-          ],
-        );
-      },
+      builder: (BuildContext context) =>
+          _DistributionConfirmationDialog(investment: investment),
     );
 
     if (!mounted || confirmed != true) {
@@ -301,7 +284,7 @@ class _InvestmentPageState extends State<InvestmentPage> {
     const String fallbackMessage =
         'Unable to distribute P&L. Please try again.';
     final String message = distributed
-        ? 'P&L distributed successfully.'
+        ? 'Profit/Loss distributed to Profit Wallets.'
         : (_controller.actionErrorMessage ?? fallbackMessage);
     ScaffoldMessenger.of(
       context,
@@ -350,5 +333,143 @@ class _InvestmentPageState extends State<InvestmentPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+}
+
+class _DistributionConfirmationDialog extends StatelessWidget {
+  const _DistributionConfirmationDialog({required this.investment});
+
+  final Investment investment;
+
+  @override
+  Widget build(BuildContext context) {
+    final num? pnl = investment.pnl;
+    final bool positivePnl = (pnl ?? 0) >= 0;
+    final Color pnlColor = pnl == null
+        ? AppThemeColors.textMuted(context)
+        : positivePnl
+        ? AppThemeColors.statusSuccessFg(context)
+        : AppThemeColors.statusErrorFg(context);
+
+    return AlertDialog(
+      title: const Text('Distribute P&L?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Text(
+            investment.title,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: AppThemeColors.text(context),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _DistributionPreviewRow(
+            label: 'Invested amount',
+            value: fmt(investment.amount),
+          ),
+          const SizedBox(height: 8),
+          _DistributionPreviewRow(
+            label: 'P&L',
+            value: pnl == null
+                ? 'Pending'
+                : '${positivePnl ? '+' : '-'}${fmt(pnl)}',
+            valueColor: pnlColor,
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppThemeColors.statusInfoBg(context),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppThemeColors.statusInfoFg(
+                  context,
+                ).withValues(alpha: .18),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Icon(
+                  Icons.account_balance_wallet_outlined,
+                  size: 18,
+                  color: AppColors.blue,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "This posts each member's share to their Profit Wallet. "
+                    'It will not be added to capital.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.35,
+                      fontWeight: FontWeight.w800,
+                      color: AppThemeColors.textMid(context),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Distribute to Profit Wallet'),
+        ),
+      ],
+    );
+  }
+}
+
+class _DistributionPreviewRow extends StatelessWidget {
+  const _DistributionPreviewRow({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
+
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppThemeColors.textMuted(context),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Flexible(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: valueColor ?? AppThemeColors.text(context),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

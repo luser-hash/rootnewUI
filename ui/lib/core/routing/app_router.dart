@@ -87,6 +87,7 @@ class AppRouter {
                     activityRepository: activityRepository,
                     memberRepository: memberManagementRepository,
                     memberLedgerRepository: memberLedgerRepository,
+                    staffReportRepository: staffReportRepository,
                     capitalSubmissionRepository: capitalSubmissionRepository,
                     investmentRepository: investmentRepository,
                     onNav: context.go,

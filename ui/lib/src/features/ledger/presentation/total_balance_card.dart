@@ -18,13 +18,24 @@ class TotalBalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String balance = isLoading && statement == null
+    final String totalAmount = isLoading && statement == null
         ? 'Loading...'
-        : formatMoneyTextUnsigned(statement?.currentBalance);
+        : formatMoneyTextUnsigned(statement?.totalAmount);
+    final String capitalBalance = isLoading && statement == null
+        ? '-'
+        : formatMoneyTextUnsigned(statement?.capitalBalance);
+    final String profitWallet = isLoading && statement == null
+        ? '-'
+        : formatMoneyTextUnsigned(statement?.profitWalletBalance);
+    final String pendingAmount = isLoading && statement == null
+        ? '-'
+        : formatMoneyTextUnsigned(statement?.pendingTotal);
     final double pending = double.tryParse(statement?.pendingTotal ?? '0') ?? 0;
     final String supportText =
         errorMessage ??
-        (isLoading ? 'Refreshing balance' : 'Available ledger balance');
+        (isLoading
+            ? 'Refreshing wallet balances'
+            : 'Latest wallet summary');
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 18),
@@ -64,21 +75,35 @@ class TotalBalanceCard extends StatelessWidget {
               ),
               const SizedBox(width: 14),
               Expanded(
-                child: Text(
-                  'TOTAL BALANCE',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: AppThemeColors.textMuted(context),
-                    letterSpacing: 0.55,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'TOTAL AMOUNT',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppThemeColors.textMuted(context),
+                        letterSpacing: 0.55,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Capital + Profit Wallet',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppThemeColors.textMuted(context),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 18),
           Text(
-            balance,
+            totalAmount,
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w800,
@@ -98,24 +123,40 @@ class TotalBalanceCard extends StatelessWidget {
                   : AppThemeColors.statusErrorFg(context),
             ),
           ),
-          if (pending > 0)
-            Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: Column(
-                children: <Widget>[
-                  Divider(height: 1, color: AppThemeColors.divider(context)),
-                  const SizedBox(height: 16),
-                  _BalanceMetaItem(
-                    icon: Icons.schedule_rounded,
-                    label: 'Pending',
-                    value:
-                        '+${formatMoneyTextUnsigned(statement?.pendingTotal)}',
-                    foreground: AppThemeColors.statusWarningFg(context),
-                    background: AppThemeColors.statusWarningBg(context),
-                  ),
-                ],
-              ),
-            ),
+          const SizedBox(height: 20),
+          Divider(height: 1, color: AppThemeColors.divider(context)),
+          const SizedBox(height: 16),
+          _BalanceMetaItem(
+            icon: Icons.account_balance_outlined,
+            label: 'Capital Balance',
+            value: capitalBalance,
+            foreground: AppThemeColors.statusSuccessFg(context),
+            background: AppThemeColors.statusSuccessBg(context),
+          ),
+          const SizedBox(height: 12),
+          _BalanceMetaItem(
+            icon: Icons.account_balance_wallet_outlined,
+            label: 'Profit Wallet',
+            value: profitWallet,
+            foreground: AppColors.blue,
+            background: AppThemeColors.statusInfoBg(context),
+          ),
+          const SizedBox(height: 12),
+          _BalanceMetaItem(
+            icon: Icons.schedule_rounded,
+            label: 'Pending',
+            value: pending > 0 ? '+$pendingAmount' : pendingAmount,
+            foreground: AppThemeColors.statusWarningFg(context),
+            background: AppThemeColors.statusWarningBg(context),
+          ),
+          const SizedBox(height: 12),
+          _BalanceMetaItem(
+            icon: Icons.account_balance_wallet_outlined,
+            label: 'Total Amount',
+            value: totalAmount,
+            foreground: AppThemeColors.text(context),
+            background: AppThemeColors.statusNeutralBg(context),
+          ),
         ],
       ),
     );

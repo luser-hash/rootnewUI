@@ -70,12 +70,14 @@ class _MemberFilters extends StatelessWidget {
 class _MemberTable extends StatelessWidget {
   const _MemberTable({
     required this.members,
+    required this.totalCapital,
     required this.sort,
     required this.ascending,
     required this.onSort,
   });
 
   final List<StaffMemberBalance> members;
+  final String totalCapital;
   final _MemberSort sort;
   final bool ascending;
   final ValueChanged<_MemberSort> onSort;
@@ -85,7 +87,7 @@ class _MemberTable extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
-        width: 760,
+        width: 1120,
         child: Column(
           children: <Widget>[
             AppTableHeader(
@@ -119,8 +121,32 @@ class _MemberTable extends StatelessWidget {
                   onTap: onSort,
                 ),
                 AppSortableHeaderCell<_MemberSort>(
-                  text: 'Balance',
-                  field: _MemberSort.balance,
+                  text: 'Capital',
+                  field: _MemberSort.capital,
+                  active: sort,
+                  ascending: ascending,
+                  onTap: onSort,
+                  alignEnd: true,
+                ),
+                AppSortableHeaderCell<_MemberSort>(
+                  text: 'Profit Wallet',
+                  field: _MemberSort.profitWallet,
+                  active: sort,
+                  ascending: ascending,
+                  onTap: onSort,
+                  alignEnd: true,
+                ),
+                AppSortableHeaderCell<_MemberSort>(
+                  text: 'Total',
+                  field: _MemberSort.total,
+                  active: sort,
+                  ascending: ascending,
+                  onTap: onSort,
+                  alignEnd: true,
+                ),
+                AppSortableHeaderCell<_MemberSort>(
+                  text: 'Ownership Ratio',
+                  field: _MemberSort.ratio,
                   active: sort,
                   ascending: ascending,
                   onTap: onSort,
@@ -129,6 +155,10 @@ class _MemberTable extends StatelessWidget {
               ],
             ),
             ...members.map((member) {
+              final String ratio = _ownershipRatioText(
+                member: member,
+                totalCapital: totalCapital,
+              );
               return AppTableRow(
                 onTap: () => context.go(RouteNames.ledger),
                 cells: <Widget>[
@@ -152,7 +182,15 @@ class _MemberTable extends StatelessWidget {
                       textHeight: null,
                     ),
                   ),
-                  AppMoneyCell(member.balance),
+                  AppMoneyCell(member.capitalBalance),
+                  AppMoneyCell(member.profitWalletBalance),
+                  AppMoneyCell(member.totalAmount),
+                  AppTextCell(
+                    ratio,
+                    textAlign: TextAlign.end,
+                    color: AppThemeColors.text(context),
+                    fontWeight: FontWeight.w900,
+                  ),
                 ],
               );
             }),
@@ -161,4 +199,16 @@ class _MemberTable extends StatelessWidget {
       ),
     );
   }
+}
+
+String _ownershipRatioText({
+  required StaffMemberBalance member,
+  required String totalCapital,
+}) {
+  final num total = num.tryParse(totalCapital) ?? 0;
+  if (total <= 0) {
+    return '0.00%';
+  }
+  final num capital = num.tryParse(member.capitalBalance) ?? 0;
+  return '${((capital / total) * 100).toStringAsFixed(2)}%';
 }

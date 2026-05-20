@@ -5,28 +5,38 @@ import '../../ledger/data/member_ledger_repository.dart';
 import '../../ledger/domain/member_ledger_statement.dart';
 import '../../members/data/member_management_repository.dart';
 import '../../members/domain/member_management_models.dart';
+import '../../reports/data/staff_report_repository.dart';
+import '../../reports/domain/staff_report_models.dart';
 
 class LandingHeroSummaryController extends ChangeNotifier {
   LandingHeroSummaryController({
     required MemberLedgerRepository ledgerRepository,
     required MemberManagementRepository memberRepository,
+    required StaffReportRepository staffReportRepository,
   }) : _ledgerRepository = ledgerRepository,
-       _memberRepository = memberRepository;
+       _memberRepository = memberRepository,
+       _staffReportRepository = staffReportRepository;
 
   final MemberLedgerRepository _ledgerRepository;
   final MemberManagementRepository _memberRepository;
+  final StaffReportRepository _staffReportRepository;
 
   bool _isLoading = false;
   String? _errorMessage;
   num _totalCapital = 0;
   num _weeklyAdded = 0;
   int _activeMemberCount = 0;
+  MemberLedgerStatement? _memberStatement;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   num get totalCapital => _totalCapital;
   num get weeklyAdded => _weeklyAdded;
   int get activeMemberCount => _activeMemberCount;
+  MemberLedgerStatement? get memberStatement => _memberStatement;
+  num get memberCapital => _amount(_memberStatement?.capitalBalance);
+  num get memberProfitWallet => _amount(_memberStatement?.profitWalletBalance);
+  num get memberTotalAmount => _amount(_memberStatement?.totalAmount);
 
   Future<void> load({
     required bool canViewCapitalSummary,
@@ -38,10 +48,20 @@ class LandingHeroSummaryController extends ChangeNotifier {
 
     try {
       if (canViewCapitalSummary) {
-        final AdminLedgerStatement statement = await _ledgerRepository
-            .adminLedger(const MemberLedgerFilter());
-        _totalCapital = _capitalFromLedger(statement);
-        _weeklyAdded = _weeklyAddedFromLedger(statement.entries);
+        final AssociationSummaryReport summary = await _staffReportRepository
+            .associationSummary();
+        _totalCapital = _amount(summary.capital.totalAuthorized);
+        try {
+          final AdminLedgerStatement statement = await _ledgerRepository
+              .adminLedger(const MemberLedgerFilter());
+          _weeklyAdded = _weeklyAddedFromLedger(statement.entries);
+        } catch (_) {
+          _weeklyAdded = 0;
+        }
+      } else {
+        _memberStatement = await _ledgerRepository.statement(
+          const MemberLedgerFilter(),
+        );
       }
 
       if (canViewMembers) {
@@ -58,12 +78,6 @@ class LandingHeroSummaryController extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
-  }
-
-  num _capitalFromLedger(AdminLedgerStatement statement) {
-    final num totalIn = num.tryParse(statement.totalIn) ?? 0;
-    final num totalOut = num.tryParse(statement.totalOut) ?? 0;
-    return totalOut < 0 ? totalIn + totalOut : totalIn - totalOut.abs();
   }
 
   num _weeklyAddedFromLedger(List<MemberLedgerEntry> entries) {
@@ -84,5 +98,9 @@ class LandingHeroSummaryController extends ChangeNotifier {
 
   DateTime? _parseTxnDate(String value) {
     return DateTime.tryParse(value.trim());
+  }
+
+  num _amount(String? value) {
+    return num.tryParse(value ?? '') ?? 0;
   }
 }

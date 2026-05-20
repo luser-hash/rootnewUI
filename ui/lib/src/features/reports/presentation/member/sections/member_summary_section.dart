@@ -46,7 +46,7 @@ class _SummaryCards extends StatelessWidget {
       ),
       _SummaryMetric(
         label: 'Current Balance',
-        value: num.tryParse(report.statement.currentBalance) ?? 0,
+        value: num.tryParse(report.statement.totalAmount) ?? 0,
         color: AppColors.blue,
       ),
       _SummaryMetric(

@@ -1,9 +1,9 @@
 enum MemberLedgerEntryType {
-  submission('SUBMISSION', 'Submission'),
-  withdraw('WITHDRAW', 'Withdraw'),
+  submission('SUBMISSION', 'Funds Given'),
+  withdraw('WITHDRAW', 'Funds Taken'),
   adjustment('ADJUSTMENT', 'Adjustment'),
-  distribution('DISTRIBUTION', 'Distribution'),
-  distributionReversal('DISTRIBUTION_REVERSAL', 'Distribution Reversal');
+  distribution('DISTRIBUTION', 'Profit Added'),
+  distributionReversal('DISTRIBUTION_REVERSAL', 'Profit Reversed');
 
   const MemberLedgerEntryType(this.apiValue, this.label);
 
@@ -21,6 +21,31 @@ enum MemberLedgerEntryType {
   }
 }
 
+enum LedgerWalletType {
+  capital('CAPITAL', 'Capital Wallet'),
+  profit('PROFIT', 'Profit Wallet');
+
+  const LedgerWalletType(this.apiValue, this.label);
+
+  final String apiValue;
+  final String label;
+
+  factory LedgerWalletType.fromApi(String? value) {
+    return switch (value?.trim().toUpperCase()) {
+      'PROFIT' => LedgerWalletType.profit,
+      _ => LedgerWalletType.capital,
+    };
+  }
+
+  static LedgerWalletType infer(MemberLedgerEntryType entryType) {
+    if (entryType == MemberLedgerEntryType.distribution ||
+        entryType == MemberLedgerEntryType.distributionReversal) {
+      return LedgerWalletType.profit;
+    }
+    return LedgerWalletType.capital;
+  }
+}
+
 class AdminLedgerPostRequest {
   const AdminLedgerPostRequest({
     required this.contactNo,
@@ -29,6 +54,7 @@ class AdminLedgerPostRequest {
     required this.txnDate,
     required this.comment,
     required this.referenceId,
+    this.walletType,
   });
 
   final String contactNo;
@@ -37,6 +63,7 @@ class AdminLedgerPostRequest {
   final DateTime txnDate;
   final String comment;
   final String referenceId;
+  final LedgerWalletType? walletType;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -46,6 +73,8 @@ class AdminLedgerPostRequest {
       'txn_date': _formatDate(txnDate),
       'comment': comment,
       'reference_id': referenceId,
+      if (entryType == MemberLedgerEntryType.adjustment && walletType != null)
+        'wallet_type': walletType!.apiValue,
     };
   }
 
@@ -76,18 +105,21 @@ class AdminLedgerPostResult {
 class MemberLedgerFilter {
   const MemberLedgerFilter({
     this.entryType,
+    this.walletType,
     this.fromDate,
     this.toDate,
     this.userId,
   });
 
   final MemberLedgerEntryType? entryType;
+  final LedgerWalletType? walletType;
   final DateTime? fromDate;
   final DateTime? toDate;
   final String? userId;
 
   bool get hasFilters {
     return entryType != null ||
+        walletType != null ||
         fromDate != null ||
         toDate != null ||
         (userId?.trim().isNotEmpty ?? false);
@@ -96,6 +128,7 @@ class MemberLedgerFilter {
   Map<String, String> toQueryParams() {
     return <String, String>{
       if (entryType != null) 'entry_type': entryType!.apiValue,
+      if (walletType != null) 'wallet_type': walletType!.apiValue,
       if (fromDate != null) 'from_date': _formatDate(fromDate!),
       if (toDate != null) 'to_date': _formatDate(toDate!),
       if (userId?.trim().isNotEmpty ?? false) 'user_id': userId!.trim(),
@@ -113,20 +146,49 @@ class AdminLedgerStatement {
   const AdminLedgerStatement({
     required this.totalIn,
     required this.totalOut,
+    required this.givenAmount,
+    required this.takenAmount,
+    required this.capitalBalance,
+    required this.profitWalletBalance,
+    required this.totalAmount,
     required this.entryCount,
     required this.entries,
   });
 
   final String totalIn;
   final String totalOut;
+  final String givenAmount;
+  final String takenAmount;
+  final String capitalBalance;
+  final String profitWalletBalance;
+  final String totalAmount;
   final int entryCount;
   final List<MemberLedgerEntry> entries;
 
   factory AdminLedgerStatement.fromJson(Map<String, dynamic> json) {
     final Object? entries = json['entries'];
+    final String totalIn = _stringAmount(json['total_in']);
+    final String totalOut = _stringAmount(json['total_out']);
+    final String legacyBalance = _subtractAmountStrings(totalIn, totalOut);
+    final String capitalBalance = _stringAmount(
+      json['capital_balance'] ?? json['current_balance'] ?? legacyBalance,
+    );
+    final String profitWalletBalance = _stringAmount(
+      json['profit_wallet_balance'],
+    );
+    final String totalAmount = _stringAmount(
+      json['total_amount'] ??
+          json['current_balance'] ??
+          _sumAmountStrings(capitalBalance, profitWalletBalance),
+    );
     return AdminLedgerStatement(
-      totalIn: '${json['total_in'] ?? '0.00'}',
-      totalOut: '${json['total_out'] ?? '0.00'}',
+      totalIn: totalIn,
+      totalOut: totalOut,
+      givenAmount: _stringAmount(json['given_amount'] ?? totalIn),
+      takenAmount: _stringAmount(json['taken_amount'] ?? totalOut),
+      capitalBalance: capitalBalance,
+      profitWalletBalance: profitWalletBalance,
+      totalAmount: totalAmount,
       entryCount: json['entry_count'] is int
           ? json['entry_count'] as int
           : int.tryParse('${json['entry_count'] ?? 0}') ?? 0,
@@ -144,6 +206,11 @@ class MemberLedgerStatement {
   const MemberLedgerStatement({
     required this.user,
     required this.currentBalance,
+    required this.givenAmount,
+    required this.takenAmount,
+    required this.capitalBalance,
+    required this.profitWalletBalance,
+    required this.totalAmount,
     required this.pendingTotal,
     required this.entryCount,
     required this.entries,
@@ -151,6 +218,11 @@ class MemberLedgerStatement {
 
   final MemberLedgerUser? user;
   final String currentBalance;
+  final String givenAmount;
+  final String takenAmount;
+  final String capitalBalance;
+  final String profitWalletBalance;
+  final String totalAmount;
   final String pendingTotal;
   final int entryCount;
   final List<MemberLedgerEntry> entries;
@@ -158,12 +230,35 @@ class MemberLedgerStatement {
   factory MemberLedgerStatement.fromJson(Map<String, dynamic> json) {
     final Object? entries = json['entries'];
     final Object? user = json['user'];
+    final String legacyCurrentBalance = _stringAmount(
+      json['current_balance'] ?? json['total_amount'],
+    );
+    final String capitalBalance = _stringAmount(
+      json['capital_balance'] ?? legacyCurrentBalance,
+    );
+    final String profitWalletBalance = _stringAmount(
+      json['profit_wallet_balance'],
+    );
+    final String totalAmount = _stringAmount(
+      json['total_amount'] ??
+          (json['current_balance'] == null
+              ? _sumAmountStrings(capitalBalance, profitWalletBalance)
+              : legacyCurrentBalance),
+    );
+    final String currentBalance = _stringAmount(
+      json['current_balance'] ?? json['total_amount'] ?? totalAmount,
+    );
     return MemberLedgerStatement(
       user: user is Map<String, dynamic>
           ? MemberLedgerUser.fromJson(user)
           : null,
-      currentBalance: '${json['current_balance'] ?? '0.00'}',
-      pendingTotal: '${json['pending_total'] ?? '0.00'}',
+      currentBalance: currentBalance,
+      givenAmount: _stringAmount(json['given_amount']),
+      takenAmount: _stringAmount(json['taken_amount']),
+      capitalBalance: capitalBalance,
+      profitWalletBalance: profitWalletBalance,
+      totalAmount: totalAmount,
+      pendingTotal: _stringAmount(json['pending_total']),
       entryCount: json['entry_count'] is int
           ? json['entry_count'] as int
           : int.tryParse('${json['entry_count'] ?? 0}') ?? 0,
@@ -204,6 +299,7 @@ class MemberLedgerEntry {
     required this.memberName,
     required this.memberContact,
     required this.entryType,
+    required this.walletType,
     required this.amount,
     required this.currency,
     required this.txnDate,
@@ -219,6 +315,7 @@ class MemberLedgerEntry {
   final String memberName;
   final String memberContact;
   final MemberLedgerEntryType entryType;
+  final LedgerWalletType walletType;
   final String amount;
   final String currency;
   final String txnDate;
@@ -229,13 +326,19 @@ class MemberLedgerEntry {
   final DateTime? createdAt;
 
   factory MemberLedgerEntry.fromJson(Map<String, dynamic> json) {
+    final MemberLedgerEntryType entryType = MemberLedgerEntryType.fromApi(
+      json['entry_type'] as String?,
+    );
     return MemberLedgerEntry(
       ledgerId: '${json['ledger_id'] ?? ''}',
       userId: '${json['user_id'] ?? ''}',
       memberName: '${json['member_name'] ?? ''}',
       memberContact: '${json['member_contact'] ?? ''}',
-      entryType: MemberLedgerEntryType.fromApi(json['entry_type'] as String?),
-      amount: '${json['amount'] ?? '0.00'}',
+      entryType: entryType,
+      walletType: json['wallet_type'] == null
+          ? LedgerWalletType.infer(entryType)
+          : LedgerWalletType.fromApi('${json['wallet_type']}'),
+      amount: _stringAmount(json['amount']),
       currency: '${json['currency'] ?? 'BDT'}',
       txnDate: '${json['txn_date'] ?? ''}',
       referenceType: '${json['reference_type'] ?? ''}',
@@ -245,4 +348,24 @@ class MemberLedgerEntry {
       createdAt: DateTime.tryParse('${json['created_at'] ?? ''}'),
     );
   }
+}
+
+String _stringAmount(Object? value) {
+  if (value == null) {
+    return '0.00';
+  }
+  final String stringValue = '$value';
+  return stringValue.trim().isEmpty ? '0.00' : stringValue;
+}
+
+String _subtractAmountStrings(String first, String second) {
+  final num firstAmount = num.tryParse(first) ?? 0;
+  final num secondAmount = num.tryParse(second) ?? 0;
+  return (firstAmount - secondAmount).toStringAsFixed(2);
+}
+
+String _sumAmountStrings(String first, String second) {
+  final num firstAmount = num.tryParse(first) ?? 0;
+  final num secondAmount = num.tryParse(second) ?? 0;
+  return (firstAmount + secondAmount).toStringAsFixed(2);
 }
